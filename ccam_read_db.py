@@ -40,8 +40,8 @@ def ccam_read_db(dbfile,compcheck=True):
     data=zip(*csv.reader(f))    
     names=numpy.array(data[0],dtype='string')
     spect_index=numpy.array(data[1],dtype='int')
-    comps=numpy.transpose(numpy.array(data[2:11],dtype='float'))
-    spectra=numpy.transpose(numpy.array(data[11:len(data)],dtype='float'))
+    comps=numpy.transpose(numpy.array(data[2:11],dtype='float32'))
+    spectra=numpy.transpose(numpy.array(data[11:len(data)],dtype='float32'))
     f.close()
 
     

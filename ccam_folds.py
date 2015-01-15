@@ -7,12 +7,21 @@ This function reads an input file that specifies a cross validation fold for eac
 It assigns these folds to each of the spectra 
 """
 import numpy
-def ccam_folds(foldfile,names,spectra,testfold=None):
-    foldnames=numpy.genfromtxt(foldfile,usecols=0,delimiter=',',dtype='string')
-    foldnums=numpy.genfromtxt(foldfile,usecols=1,delimiter=',',dtype='int')
+import csv
+def ccam_folds(foldfile,names,testfold=None):
+    f=open(foldfile,'rb')
+    data=zip(*csv.reader(f))
+    foldnames=numpy.array(data[0],dtype='string')
+    foldnums=numpy.array(data[1],dtype='int')
+   
+    #first check if there are any samples in the fold names that are not in the spectra names
+    check1=numpy.in1d(foldnames,names)
+    check2=numpy.in1d(names,foldnames)
     
+   
     folds=numpy.zeros(len(names),dtype='int')
     for i in range(len(names)):
+        
         findfold=(foldnames==names[i])
         folds[i]=foldnums(findfold)
     

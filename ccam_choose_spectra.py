@@ -30,6 +30,7 @@ comps_keep = = compositions of spectra that satisfy the constraints on compositi
 
 """
 import numpy
+import csv
 def ccam_choose_spectra(spectra,spect_index,names,comps,compindex,mincomp=0,maxcomp=100,removelist=None):
 
     
@@ -39,8 +40,10 @@ def ccam_choose_spectra(spectra,spect_index,names,comps,compindex,mincomp=0,maxc
     #optionally, remove spectra listed in an external file
     if removelist != None:
         #read the list of sample names and spectrum indices from the file
-        removenames=numpy.genfromtxt(removelist,delimiter=',',usecols=0,dtype='string')
-        removeinds=numpy.genfromtxt(removelist,delimiter=',',usecols=1,dtype='int')
+        f=open(removelist,'rb')
+        data=zip(*csv.reader(f))
+        removenames=numpy.array(data[0],dtype='string')
+        removeinds=numpy.array(data[1],dtype='int')
         #define an array to hold the indices for each row in the file        
         index2=numpy.empty([len(index),len(removenames)])
         for i in range(len(removenames)):
@@ -53,8 +56,7 @@ def ccam_choose_spectra(spectra,spect_index,names,comps,compindex,mincomp=0,maxc
         #combine the indices from the file with the indices based on the composition range        
         index=numpy.vstack((index,index2))
         index=numpy.all(index,axis=0) #only keep spectra that satisfy composition range and are not in the list to remove
-        print index[0:10]
-    print index[0:10]    
+   
   
     #fill the new variables with the data to keep
     spectra_keep=spectra[index]
