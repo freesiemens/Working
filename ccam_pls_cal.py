@@ -58,11 +58,15 @@ import mlpy
 #yesoutlier_names_uniq=numpy.unique(yesoutlier_names)
 #nooutlier_names_uniq=numpy.unique(nooutlier_names)
 
-dbfile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\Data Processing\\Working\\full_db_mars_corrected.csv'
+dbfile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\Data Processing\\Working\\Input\\full_db_mars_corrected.csv'
 #removelist='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\Data Processing\\Working\\removelist.csv'
-foldfile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\Data Processing\\Working\\folds.csv'
-maskfile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\Data Processing\\Working\\mask_minors_noise.csv'
-keeplist='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\Data Processing\\Working\\Si_full_included.csv'
+#removedfile='removed_test.csv'
+foldfile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\Data Processing\\Working\\Input\\folds.csv'
+maskfile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\Data Processing\\Working\\Input\\mask_minors_noise.csv'
+keeplist='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\Data Processing\\Working\\Input\\Si_full_included.csv'
+outpath='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\Data Processing\\Working\\Output\\'
+
+
 normtype=3
 which_elem='SiO2'
 testfold=2
@@ -72,7 +76,7 @@ print 'Reading database'
 sys.stdout.flush()
 spectra,comps,spect_index,names,labels,wvl=read_db.ccam_read_db(dbfile,compcheck=True)
 oxides=labels[2:]
-compindex=oxides[(oxides==which_elem)]
+compindex=numpy.where(oxides==which_elem)[0]
 
 #SiO2_keepcheck=numpy.empty(len(names),dtype='bool')
 #for i in range(len(names)):
@@ -103,8 +107,7 @@ print 'Normalizing spectra'
 spectra_norm=normalize.ccam_normalize(spectra_masked,wvl_masked,normtype=normtype)
 
 print 'Choosing spectra'
-removedfile='removed_test.csv'
-spectra_keep,names_keep,spect_index_keep,comps_keep=choose_spectra.ccam_choose_spectra(spectra_norm,spect_index,names,comps,compindex,mincomp=0,maxcomp=100,keeplist=keeplist,removedfile=removedfile)
+spectra_keep,names_keep,spect_index_keep,comps_keep=choose_spectra.ccam_choose_spectra(spectra_norm,spect_index,names,comps,compindex,mincomp=0,maxcomp=100,keeplist=keeplist)
 
 print 'Assigning Folds'
 folds=folds.ccam_folds(foldfile,names_keep)
@@ -119,9 +122,15 @@ print 'Defining Training and Test Sets'
 spectra_train=spectra_keep[(folds!=testfold)]
 spect_index_train=spect_index_keep[(folds!=testfold)]
 names_train=names_keep[(folds!=testfold)]
-comps_train=comps_keep[(folds!=testfold)]
+comps_train=comps_keep[(folds!=testfold),compindex]
 folds_train=folds[(folds!=testfold)]
 folds_train_unique=numpy.unique(folds_train)
+
+spectra_test=spectra_keep[(folds==testfold)]
+spect_index_test=spect_index_keep[(folds==testfold)]
+names_test=names_keep[(folds==testfold)]
+comps_test=comps_keep[(folds==testfold),compindex]
+
 
 print 'Do Leave One Label Out (LOLO) cross validation with all folds but the test set'
 #define array to hold cross validation predictions and RMSEs
@@ -136,7 +145,7 @@ for i in folds_train_unique:
     X_cv_out=meancenter.ccam_meancenter(spectra_train[(folds_train==i),:],X_mean=X_cv_in_mean)[0]   
      
     #mean center compositions left in
-    Y_cv_in,Y_cv_in_mean=meancenter.ccam_meancenter(comps_train[(folds_train!=i),compindex])
+    Y_cv_in,Y_cv_in_mean=meancenter.ccam_meancenter(comps_train[(folds_train!=i)])
    
     #step through each number of components
     for j in range(1,nc+1):
@@ -150,19 +159,18 @@ for i in folds_train_unique:
         
 #calculate RMSECV
 for i in range(0,nc):
-    sqerr=(train_predict_cv[:,i]-comps_train[:,compindex])**2.0
+    sqerr=(train_predict_cv[:,i]-comps_train)**2.0
     RMSECV[i]=numpy.sqrt(numpy.mean(sqerr))
 
 #mean center full model
 X,X_mean=meancenter.ccam_meancenter(spectra_train)
 X_test=meancenter.ccam_meancenter(spectra_keep[(folds==testfold),:],X_mean=X_mean)[0]
 
-Y,Y_mean=meancenter.ccam_meancenter(comps_train[:,compindex])
-Y_test=comps_keep[(folds==testfold),compindex]
+Y,Y_mean=meancenter.ccam_meancenter(comps_train)
 
 #create arrays for results and RMSEs
 trainset_results=numpy.zeros((len(names_train),nc))
-testset_results=numpy.zeros((len(names_keep[(folds==testfold)]),nc))
+testset_results=numpy.zeros((len(names_test),nc))
 RMSEP=numpy.zeros(nc)
 RMSEC=numpy.zeros(nc)
 beta=numpy.zeros((len(X_mean),nc))
@@ -175,11 +183,58 @@ for j in range(1,nc+1):
     beta[:,j-1]=PLS1model.beta()
     trainset_results[:,j-1]=PLS1model.pred(X)+Y_mean
     testset_results[:,j-1]=PLS1model.pred(X_test)+Y_mean
-    RMSEP[j-1]=numpy.sqrt(numpy.mean((trainset_results[:,j-1]-comps_train[:,compindex])**2.0))
-    RMSEC[j-1]=numpy.sqrt(numpy.mean((testset_results[:,j-1]-Y_test)**2.0))
+    RMSEP[j-1]=numpy.sqrt(numpy.mean((trainset_results[:,j-1]-comps_train)**2.0))
+    RMSEC[j-1]=numpy.sqrt(numpy.mean((testset_results[:,j-1]-comps_test)**2.0))
 
 #Write output info to files
 
+with open(outpath+which_elem+'_RMSECV.csv','wb') as writefile:
+    writer=csv.writer(writefile,delimiter=',',)
+    writer.writerow(['NC','RMSECV (wt.%)'])            
+    for i in range(0,nc):
+        writer.writerow([i+1,RMSECV[i]])
 
+with open(outpath+which_elem+'_RMSEC.csv','wb') as writefile:
+    writer=csv.writer(writefile,delimiter=',',)
+    writer.writerow(['NC','RMSEC (wt.%)'])            
+    for i in range(0,nc):
+        writer.writerow([i+1,RMSEC[i]])
+        
+with open(outpath+which_elem+'_RMSEP.csv','wb') as writefile:
+    writer=csv.writer(writefile,delimiter=',',)
+    writer.writerow(['NC','RMSEP (wt.%)'])            
+    for i in range(0,nc):
+        writer.writerow([i+1,RMSEP[i]])
+        
+with open(outpath+which_elem+'_cv_predict.csv','wb') as writefile:
+    writer=csv.writer(writefile,delimiter=',',)
+    row=['Sample','True_Comp']
+    row.extend(range(1,nc+1))
+    writer.writerow(row)
+    for i in range(0,len(names_train)):
+        row=[names_train[i],comps_train[i]]
+        row.extend(train_predict_cv[i,:])
+        writer.writerow(row)
+
+with open(outpath+which_elem+'_train_predict.csv','wb') as writefile:
+    writer=csv.writer(writefile,delimiter=',',)
+    row=['Sample','True_Comp']
+    row.extend(range(1,nc+1))
+    writer.writerow(row)
+    for i in range(0,len(names_train)):
+        row=[names_train[i],comps_train[i]]
+        row.extend(trainset_results[i,:])
+        writer.writerow(row)
+        
+with open(outpath+which_elem+'_test_predict.csv','wb') as writefile:
+    writer=csv.writer(writefile,delimiter=',',)
+    row=['Sample','True_Comp']
+    row.extend(range(1,nc+1))
+    writer.writerow(row)
+    for i in range(0,len(names_keep[(folds==testfold)])):
+        row=[names_test[i],comps_test[i]]
+        row.extend(testset_results[i,:])
+        writer.writerow(row)
+        
 print 'Stop'
 

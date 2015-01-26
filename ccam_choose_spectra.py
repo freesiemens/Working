@@ -40,7 +40,7 @@ def ccam_choose_spectra(spectra,spect_index,names,comps,compindex,mincomp=0,maxc
 
     
     #define index where composition is within the specified range
-    index=(comps[:,compindex]>mincomp)&(comps[:,compindex]<maxcomp) 
+    index=numpy.squeeze((comps[:,compindex]>mincomp)&(comps[:,compindex]<maxcomp) )
     
     #optionally, remove spectra listed in an external file
     if removelist != None:
