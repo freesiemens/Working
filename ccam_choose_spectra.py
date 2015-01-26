@@ -17,7 +17,7 @@ maxcomp = the upper limit of compositions to keep
 removelist = string specifying the path to an optional .csv file that lists individual spectra to remove.
 File should have two columns. The first column should have target names, the second column should have the index of the spectrum to remove.
 
-keeplist = string specifying the path to an optional .csv file that lists the spectra to keep (ALL others are removed)
+keepfile = string specifying the path to an optional .csv file that lists the spectra to keep (ALL others are removed)
 File should have two columns. The first column should have the index of the spectrum to keep,
 (NOTE: For this file, the index should be the index into the full array of spectra, starting at 1, not the 1-5 index for each target)
 the second column should have the target names.
@@ -36,7 +36,7 @@ comps_keep = = compositions of spectra that satisfy the constraints on compositi
 """
 import numpy
 import csv
-def ccam_choose_spectra(spectra,spect_index,names,comps,compindex,mincomp=0,maxcomp=100,removelist=None,keeplist=None,removedfile=None):
+def ccam_choose_spectra(spectra,spect_index,names,comps,compindex,mincomp=0,maxcomp=100,removelist=None,keepfile=None,removedfile=None):
 
     
     #define index where composition is within the specified range
@@ -63,9 +63,9 @@ def ccam_choose_spectra(spectra,spect_index,names,comps,compindex,mincomp=0,maxc
         index=numpy.all(index,axis=0) #only keep spectra that satisfy composition range and are not in the list to remove
 
     
-    if keeplist != None:
+    if keepfile != None:
        #read the list of sample names and spectrum indices from the file
-        f=open(keeplist,'rb')
+        f=open(keepfile,'rb')
         f.readline()
         data=zip(*csv.reader(f))
         keepinds=numpy.array(data[0],dtype='int')
