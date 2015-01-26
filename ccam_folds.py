@@ -14,16 +14,15 @@ def ccam_folds(foldfile,names,testfold=None):
     foldnames=numpy.array(data[0],dtype='string')
     foldnums=numpy.array(data[1],dtype='int')
    
-    #first check if there are any samples in the fold names that are not in the spectra names
-    check1=numpy.in1d(foldnames,names)
-    check2=numpy.in1d(names,foldnames)
-    
-   
     folds=numpy.zeros(len(names),dtype='int')
     for i in range(len(names)):
-        
         findfold=(foldnames==names[i])
-        folds[i]=foldnums(findfold)
+        if sum(findfold)>0:
+            folds[i]=(foldnums[findfold])[0]
+        else:
+            folds[i]=0
+          
+        
     
     
     return folds

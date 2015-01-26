@@ -17,6 +17,11 @@ maxcomp = the upper limit of compositions to keep
 removelist = string specifying the path to an optional .csv file that lists individual spectra to remove.
 File should have two columns. The first column should have target names, the second column should have the index of the spectrum to remove.
 
+keeplist = string specifying the path to an optional .csv file that lists the spectra to keep (ALL others are removed)
+File should have two columns. The first column should have the index of the spectrum to keep,
+(NOTE: For this file, the index should be the index into the full array of spectra, starting at 1, not the 1-5 index for each target)
+the second column should have the target names.
+
 So, to remove the first and third spectrum of AGV2, the file would look like:
 
 AGV2,1
@@ -31,7 +36,7 @@ comps_keep = = compositions of spectra that satisfy the constraints on compositi
 """
 import numpy
 import csv
-def ccam_choose_spectra(spectra,spect_index,names,comps,compindex,mincomp=0,maxcomp=100,removelist=None):
+def ccam_choose_spectra(spectra,spect_index,names,comps,compindex,mincomp=0,maxcomp=100,removelist=None,keeplist=None,removedfile=None):
 
     
     #define index where composition is within the specified range
@@ -56,13 +61,33 @@ def ccam_choose_spectra(spectra,spect_index,names,comps,compindex,mincomp=0,maxc
         #combine the indices from the file with the indices based on the composition range        
         index=numpy.vstack((index,index2))
         index=numpy.all(index,axis=0) #only keep spectra that satisfy composition range and are not in the list to remove
-   
-  
-    #fill the new variables with the data to keep
+
+    
+    if keeplist != None:
+       #read the list of sample names and spectrum indices from the file
+        f=open(keeplist,'rb')
+        f.readline()
+        data=zip(*csv.reader(f))
+        keepinds=numpy.array(data[0],dtype='int')
+        keepinds=keepinds-1.0
+        index3=numpy.in1d(range(0,len(names)),keepinds)
+        index=numpy.vstack((index,index3))
+        index=numpy.all(index,axis=0)
+        
+      #fill the new variables with the data to keep
     spectra_keep=spectra[index]
     names_keep=names[index]
     spect_index_keep=spect_index[index]
-    comps_keep=comps[index]
+    comps_keep=comps[index]        
+  
+    names_removed=names[numpy.invert(index)]
+    spect_index_removed=spect_index[numpy.invert(index)]
     
+    if removedfile != None:
+        with open(removedfile,'wb') as writefile:
+            writer=csv.writer(writefile,delimiter=',',)
+            for i in range(len(names_removed)):
+                writer.writerow([names_removed[i],spect_index_removed[i]])
+                
     return spectra_keep,names_keep,spect_index_keep,comps_keep
     
