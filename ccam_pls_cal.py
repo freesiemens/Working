@@ -60,7 +60,7 @@ import mlpy
 
 dbfile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\Data Processing\\Working\\Input\\full_db_mars_corrected.csv'
 #removelist='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\Data Processing\\Working\\removelist.csv'
-#removedfile='removed_test.csv'
+removedfile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\Data Processing\\Working\\Output\\removed_spectra.csv'
 foldfile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\Data Processing\\Working\\Input\\folds.csv'
 maskfile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\Data Processing\\Working\\Input\\mask_minors_noise.csv'
 keeplist='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\Data Processing\\Working\\Input\\Si_full_included.csv'
@@ -69,6 +69,8 @@ outpath='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\Data Processing\\Workin
 
 normtype=3
 which_elem='SiO2'
+mincomp=0
+maxcomp=100
 testfold=2
 nc=5
 
@@ -99,37 +101,46 @@ compindex=numpy.where(oxides==which_elem)[0]
 #print 'stop'
 
 
+print 'Choosing spectra'
+spectra,names,spect_index,comps=choose_spectra.ccam_choose_spectra(spectra,spect_index,names,comps,compindex,mincomp=mincomp,maxcomp=maxcomp,keeplist=keeplist,removedfile=removedfile)
 
 print 'Masking spectra'
-spectra_masked,wvl_masked=mask.ccam_mask(spectra,wvl,maskfile)
+spectra,wvl=mask.ccam_mask(spectra,wvl,maskfile)
 
 print 'Normalizing spectra'
-spectra_norm=normalize.ccam_normalize(spectra_masked,wvl_masked,normtype=normtype)
+spectra=normalize.ccam_normalize(spectra,wvl,normtype=normtype)
 
-print 'Choosing spectra'
-spectra_keep,names_keep,spect_index_keep,comps_keep=choose_spectra.ccam_choose_spectra(spectra_norm,spect_index,names,comps,compindex,mincomp=0,maxcomp=100,keeplist=keeplist)
 
 print 'Assigning Folds'
-folds=folds.ccam_folds(foldfile,names_keep)
+folds=folds.ccam_folds(foldfile,names)
+names_nofold=names[(folds==0)]
+spect_index_nofold=spect_index[(folds==0)]
+#write a file containing the samples not assigned to folds
+with open(removedfile,'ab') as writefile:
+    writer=csv.writer(writefile,delimiter=',',)
+    for i in range(len(names_nofold)):
+        writer.writerow([names_nofold[i],spect_index_nofold[i],'No Fold'])
+
+
 #remove spectra that are not assigned to a fold
-spectra_keep=spectra_keep[(folds!=0),:]
-spect_index_keep=spect_index_keep[(folds!=0)]
-names_keep=names_keep[(folds!=0)]
-comps_keep=comps_keep[(folds!=0),:]
+spectra=spectra[(folds!=0),:]
+spect_index=spect_index[(folds!=0)]
+names=names[(folds!=0)]
+comps=comps[(folds!=0),:]
 folds=folds[(folds!=0)]
 
 print 'Defining Training and Test Sets'
-spectra_train=spectra_keep[(folds!=testfold)]
-spect_index_train=spect_index_keep[(folds!=testfold)]
-names_train=names_keep[(folds!=testfold)]
-comps_train=comps_keep[(folds!=testfold),compindex]
+spectra_train=spectra[(folds!=testfold)]
+spect_index_train=spect_index[(folds!=testfold)]
+names_train=names[(folds!=testfold)]
+comps_train=comps[(folds!=testfold),compindex]
 folds_train=folds[(folds!=testfold)]
 folds_train_unique=numpy.unique(folds_train)
 
-spectra_test=spectra_keep[(folds==testfold)]
-spect_index_test=spect_index_keep[(folds==testfold)]
-names_test=names_keep[(folds==testfold)]
-comps_test=comps_keep[(folds==testfold),compindex]
+spectra_test=spectra[(folds==testfold)]
+spect_index_test=spect_index[(folds==testfold)]
+names_test=names[(folds==testfold)]
+comps_test=comps[(folds==testfold),compindex]
 
 
 print 'Do Leave One Label Out (LOLO) cross validation with all folds but the test set'
@@ -164,7 +175,7 @@ for i in range(0,nc):
 
 #mean center full model
 X,X_mean=meancenter.ccam_meancenter(spectra_train)
-X_test=meancenter.ccam_meancenter(spectra_keep[(folds==testfold),:],X_mean=X_mean)[0]
+X_test=meancenter.ccam_meancenter(spectra[(folds==testfold),:],X_mean=X_mean)[0]
 
 Y,Y_mean=meancenter.ccam_meancenter(comps_train)
 
@@ -231,7 +242,7 @@ with open(outpath+which_elem+'_test_predict.csv','wb') as writefile:
     row=['Sample','True_Comp']
     row.extend(range(1,nc+1))
     writer.writerow(row)
-    for i in range(0,len(names_keep[(folds==testfold)])):
+    for i in range(0,len(names_test)):
         row=[names_test[i],comps_test[i]]
         row.extend(testset_results[i,:])
         writer.writerow(row)
