@@ -15,8 +15,9 @@ import csv
 import numpy
 from sklearn.cross_decomposition import PLSRegression
 import mlpy
+import ccam_plots
 
-def ccam_pls_cal(dbfile,removedfile,foldfile,maskfile,keepfile,outpath,which_elem,testfold,nc,normtype=3,mincomp=0,maxcomp=100,plstype='mlpy'):
+def ccam_pls_cal(dbfile,foldfile,maskfile,keepfile,outpath,which_elem,testfold,nc,normtype=3,mincomp=0,maxcomp=100,plstype='mlpy'):
     
     print 'Reading database'
     sys.stdout.flush()
@@ -25,6 +26,7 @@ def ccam_pls_cal(dbfile,removedfile,foldfile,maskfile,keepfile,outpath,which_ele
     compindex=numpy.where(oxides==which_elem)[0]
     
     print 'Choosing spectra'
+    removedfile=outpath+which_elem+'_'+plstype+'_nc'+str(nc)+'_norm'+str(normtype)+'_'+str(mincomp)+'-'+str(maxcomp)+'_removed.csv'
     spectra,names,spect_index,comps=choose_spectra.ccam_choose_spectra(spectra,spect_index,names,comps,compindex,mincomp=mincomp,maxcomp=maxcomp,keepfile=keepfile,removedfile=removedfile)
     
     print 'Masking spectra'
@@ -127,40 +129,44 @@ def ccam_pls_cal(dbfile,removedfile,foldfile,maskfile,keepfile,outpath,which_ele
             PLS1model.fit(X,Y)
             print 'stop'
             
-        RMSEP[j-1]=numpy.sqrt(numpy.mean((trainset_results[:,j-1]-comps_train)**2.0))
-        RMSEC[j-1]=numpy.sqrt(numpy.mean((testset_results[:,j-1]-comps_test)**2.0))
+        RMSEC[j-1]=numpy.sqrt(numpy.mean((trainset_results[:,j-1]-comps_train)**2.0))
+        RMSEP[j-1]=numpy.sqrt(numpy.mean((testset_results[:,j-1]-comps_test)**2.0))
     
-    #Write output info to files
+    # plot RMSEs
+    ccam_plots.ccam_plot_RMSE(RMSECV,RMSEP,RMSEC,which_elem+'RMSEs',outpath+which_elem+'_'+plstype+'_nc'+str(nc)+'_norm'+str(normtype)+'_'+str(mincomp)+'-'+str(maxcomp)+'_RMSE_plot.png')
     
-    with open(outpath+which_elem+'_'+plstype+'_norm'+str(normtype)+'_'+str(mincomp)+'-'+str(maxcomp)+'_RMSECV.csv','wb') as writefile:
+   
+   #Write output info to files
+    
+    with open(outpath+which_elem+'_'+plstype+'_nc'+str(nc)+'_norm'+str(normtype)+'_'+str(mincomp)+'-'+str(maxcomp)+'_RMSECV.csv','wb') as writefile:
         writer=csv.writer(writefile,delimiter=',')
         writer.writerow(['NC','RMSECV (wt.%)'])            
         for i in range(0,nc):
             writer.writerow([i+1,RMSECV[i]])
     
-    with open(outpath+which_elem+'_'+plstype+'_norm'+str(normtype)+'_'+str(mincomp)+'-'+str(maxcomp)+'_RMSEC.csv','wb') as writefile:
+    with open(outpath+which_elem+'_'+plstype+'_nc'+str(nc)+'_norm'+str(normtype)+'_'+str(mincomp)+'-'+str(maxcomp)+'_RMSEC.csv','wb') as writefile:
         writer=csv.writer(writefile,delimiter=',')
         writer.writerow(['NC','RMSEC (wt.%)'])            
         for i in range(0,nc):
             writer.writerow([i+1,RMSEC[i]])
             
-    with open(outpath+which_elem+'_'+plstype+'_norm'+str(normtype)+'_'+str(mincomp)+'-'+str(maxcomp)+'_RMSEP.csv','wb') as writefile:
+    with open(outpath+which_elem+'_'+plstype+'_nc'+str(nc)+'_norm'+str(normtype)+'_'+str(mincomp)+'-'+str(maxcomp)+'_RMSEP.csv','wb') as writefile:
         writer=csv.writer(writefile,delimiter=',')
         writer.writerow(['NC','RMSEP (wt.%)'])            
         for i in range(0,nc):
             writer.writerow([i+1,RMSEP[i]])
             
-    with open(outpath+which_elem+'_'+plstype+'_norm'+str(normtype)+'_'+str(mincomp)+'-'+str(maxcomp)+'_cv_predict.csv','wb') as writefile:
+    with open(outpath+which_elem+'_'+plstype+'_nc'+str(nc)+'_norm'+str(normtype)+'_'+str(mincomp)+'-'+str(maxcomp)+'_cv_predict.csv','wb') as writefile:
         writer=csv.writer(writefile,delimiter=',')
-        row=['Sample','True_Comp']
+        row=['Sample','Fold','True_Comp']
         row.extend(range(1,nc+1))
         writer.writerow(row)
         for i in range(0,len(names_train)):
-            row=[names_train[i],comps_train[i]]
+            row=[names_train[i],folds_train[i],comps_train[i]]
             row.extend(train_predict_cv[i,:])
             writer.writerow(row)
     
-    with open(outpath+which_elem+'_'+plstype+'_norm'+str(normtype)+'_'+str(mincomp)+'-'+str(maxcomp)+'_train_predict.csv','wb') as writefile:
+    with open(outpath+which_elem+'_'+plstype+'_nc'+str(nc)+'_norm'+str(normtype)+'_'+str(mincomp)+'-'+str(maxcomp)+'_train_predict.csv','wb') as writefile:
         writer=csv.writer(writefile,delimiter=',')
         row=['Sample','True_Comp']
         row.extend(range(1,nc+1))
@@ -170,7 +176,7 @@ def ccam_pls_cal(dbfile,removedfile,foldfile,maskfile,keepfile,outpath,which_ele
             row.extend(trainset_results[i,:])
             writer.writerow(row)
             
-    with open(outpath+which_elem+'_'+plstype+'_norm'+str(normtype)+'_'+str(mincomp)+'-'+str(maxcomp)+'_test_predict.csv','wb') as writefile:
+    with open(outpath+which_elem+'_'+plstype+'_nc'+str(nc)+'_norm'+str(normtype)+'_'+str(mincomp)+'-'+str(maxcomp)+'_test_predict.csv','wb') as writefile:
         writer=csv.writer(writefile,delimiter=',')
         row=['Sample','True_Comp']
         row.extend(range(1,nc+1))
@@ -180,7 +186,7 @@ def ccam_pls_cal(dbfile,removedfile,foldfile,maskfile,keepfile,outpath,which_ele
             row.extend(testset_results[i,:])
             writer.writerow(row)
             
-    with open(outpath+which_elem+'_'+plstype+'_norm'+str(normtype)+'_'+str(mincomp)+'-'+str(maxcomp)+'_beta_coeffs.csv','wb') as writefile:
+    with open(outpath+which_elem+'_'+plstype+'_nc'+str(nc)+'_norm'+str(normtype)+'_'+str(mincomp)+'-'+str(maxcomp)+'_beta_coeffs.csv','wb') as writefile:
         writer=csv.writer(writefile,delimiter=',')
         row=['wvl']
         row.extend(range(1,nc+1))
@@ -190,14 +196,14 @@ def ccam_pls_cal(dbfile,removedfile,foldfile,maskfile,keepfile,outpath,which_ele
             row.extend(beta[i,:])
             writer.writerow(row)        
     
-    with open(outpath+which_elem+'_'+plstype+'_norm'+str(normtype)+'_'+str(mincomp)+'-'+str(maxcomp)+'_meancenters.csv','wb') as writefile:
+    with open(outpath+which_elem+'_'+plstype+'_nc'+str(nc)+'_norm'+str(normtype)+'_'+str(mincomp)+'-'+str(maxcomp)+'_meancenters.csv','wb') as writefile:
         writer=csv.writer(writefile,delimiter=',')        
         writer.writerow([which_elem+' mean',Y_mean])
         for i in range(0,len(wvl)):
             row=[wvl[i],X_mean[i]]
             writer.writerow(row)
             
-    with open(outpath+which_elem+'_'+plstype+'_norm'+str(normtype)+'_'+str(mincomp)+'-'+str(maxcomp)+'_inputinfo.csv','wb') as writefile:
+    with open(outpath+which_elem+'_'+plstype+'_nc'+str(nc)+'_norm'+str(normtype)+'_'+str(mincomp)+'-'+str(maxcomp)+'_inputinfo.csv','wb') as writefile:
         writer=csv.writer(writefile,delimiter=',')        
         writer.writerow(['Spectral database =',dbfile])
         writer.writerow(['Spectra Kept =',keepfile])
