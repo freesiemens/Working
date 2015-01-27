@@ -66,7 +66,7 @@ def ccam_pls_cal(dbfile,foldfile,maskfile,keepfile,outpath,which_elem,testfold,n
     spect_index_test=spect_index[(folds==testfold)]
     names_test=names[(folds==testfold)]
     comps_test=comps[(folds==testfold),compindex]
-    
+    folds_test=folds[(folds==testfold)]
     
     print 'Do Leave One Label Out (LOLO) cross validation with all folds but the test set'
     #define array to hold cross validation predictions and RMSEs
@@ -135,6 +135,7 @@ def ccam_pls_cal(dbfile,foldfile,maskfile,keepfile,outpath,which_elem,testfold,n
     # plot RMSEs
     ccam_plots.ccam_plot_RMSE(RMSECV,RMSEP,RMSEC,which_elem+'RMSEs',outpath+which_elem+'_'+plstype+'_nc'+str(nc)+'_norm'+str(normtype)+'_'+str(mincomp)+'-'+str(maxcomp)+'_RMSE_plot.png')
     
+    
    
    #Write output info to files
     
@@ -158,31 +159,31 @@ def ccam_pls_cal(dbfile,foldfile,maskfile,keepfile,outpath,which_elem,testfold,n
             
     with open(outpath+which_elem+'_'+plstype+'_nc'+str(nc)+'_norm'+str(normtype)+'_'+str(mincomp)+'-'+str(maxcomp)+'_cv_predict.csv','wb') as writefile:
         writer=csv.writer(writefile,delimiter=',')
-        row=['Sample','Fold','True_Comp']
+        row=['Sample','Spectrum','Fold','True_Comp']
         row.extend(range(1,nc+1))
         writer.writerow(row)
         for i in range(0,len(names_train)):
-            row=[names_train[i],folds_train[i],comps_train[i]]
+            row=[names_train[i],spect_index_train[i],folds_train[i],comps_train[i]]
             row.extend(train_predict_cv[i,:])
             writer.writerow(row)
     
     with open(outpath+which_elem+'_'+plstype+'_nc'+str(nc)+'_norm'+str(normtype)+'_'+str(mincomp)+'-'+str(maxcomp)+'_train_predict.csv','wb') as writefile:
         writer=csv.writer(writefile,delimiter=',')
-        row=['Sample','True_Comp']
+        row=['Sample','Spectrum','Fold','True_Comp']
         row.extend(range(1,nc+1))
         writer.writerow(row)
         for i in range(0,len(names_train)):
-            row=[names_train[i],comps_train[i]]
+            row=[names_train[i],spect_index_train[i],folds_train[i],comps_train[i]]
             row.extend(trainset_results[i,:])
             writer.writerow(row)
             
     with open(outpath+which_elem+'_'+plstype+'_nc'+str(nc)+'_norm'+str(normtype)+'_'+str(mincomp)+'-'+str(maxcomp)+'_test_predict.csv','wb') as writefile:
         writer=csv.writer(writefile,delimiter=',')
-        row=['Sample','True_Comp']
+        row=['Sample','Spectrum','Fold','True_Comp']
         row.extend(range(1,nc+1))
         writer.writerow(row)
         for i in range(0,len(names_test)):
-            row=[names_test[i],comps_test[i]]
+            row=[names_test[i],spect_index_test[i],folds_test[i],comps_test[i]]
             row.extend(testset_results[i,:])
             writer.writerow(row)
             
