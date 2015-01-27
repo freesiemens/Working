@@ -12,8 +12,7 @@ import numpy
 def ccam_read_ccs(searchdir):#,minsol=0,maxsol=10000,masterlist=None):
     
 
-    searchdir='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\ChemCam\\ops_ccam_team\\CalTarget 95A\\'
-    #Recursively search for CCS files in the specified directory
+     #Recursively search for CCS files in the specified directory
     filelist = []
     for root, dirnames, filenames in os.walk(searchdir):
         for filename in fnmatch.filter(filenames, '*CCS*SAV'):

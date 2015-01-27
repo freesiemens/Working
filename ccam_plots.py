@@ -45,7 +45,9 @@ def readpredicts(filename,nc):
     
     data=zip(*csv.reader(f))
     samples=numpy.array(data[0],dtype='string')
-    truecomps=numpy.array(data[2],dtype='float')
+    spect_indexes=numpy.array(data[1],dtype='int')
+    folds=numpy.array(data[2],dtype='int')
+    truecomps=numpy.array(data[3],dtype='float')
     predicts=numpy.array(data[numpy.array(numpy.where(cols==str(nc)))],dtype='float')
     
-    return predicts,samples,truecomps
+    return predicts,samples,truecomps,folds,spect_indexes
