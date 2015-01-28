@@ -38,8 +38,10 @@ def read_ccs(searchdir):#,minsol=0,maxsol=10000,masterlist=None):
     files=files[keep]
     filelist=filelist[keep]
     sclocks=sclocks[keep]
-            
-        
+    
+    files,unique_index=numpy.unique(files,return_index=True)
+    filelist=filelist[unique_index]
+    sclocks=sclocks[unique_index]
         
     data=numpy.zeros((len(filelist),6144),dtype='float32')
     print 'Reading '+str(len(filelist))+' files...'

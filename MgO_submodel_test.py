@@ -21,7 +21,7 @@ which_elem='MgO'
 mincomp=0
 maxcomp=100
 testfold=2
-nc=20
+nc=10
 plstype='mlpy'
 
 #calculate full model

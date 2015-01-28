@@ -16,6 +16,7 @@ def RMSE(RMSECV,RMSEP,RMSEC,plot_title,outfile,RMSEP_cal=None):
         plot.plot(range(1,len(RMSEP_cal)+1),RMSEP_cal,color='c',linewidth=2.0,label='RMSEP (Cal Targets)')
     plot.legend()
     plot.title(plot_title)
+    plot.ylim([0,numpy.max([RMSECV,RMSEP,RMSEC])])
     plot.xlabel('# of Components')
     plot.ylabel('wt.%')
     plot.xticks(range(1,len(RMSEC)+1))
