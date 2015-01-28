@@ -28,17 +28,23 @@ labels = string array of column labels
 wvl = array of wavelength values for the LIBS spectra
 """
 import numpy
-import ccam
+import csv
 
-def read_db(dbfile,compcheck=True):
- 
-    data,labels=ccam.read_csv_cols(dbfile,0,labelrow=True)
+def ccam_read_db(dbfile,compcheck=True):
+   
+  
+    f=open(dbfile,'rb')  #open the file
+    labels=f.readline() #read the first line
+    labels=numpy.array(labels.split(',')) #split it on commas and convert to a string array
     
+    data=zip(*csv.reader(f))    
     names=numpy.array(data[0],dtype='string')
     spect_index=numpy.array(data[1],dtype='int')
     comps=numpy.transpose(numpy.array(data[2:11],dtype='float32'))
     spectra=numpy.transpose(numpy.array(data[11:len(data)],dtype='float32'))
-   
+    f.close()
+
+    
     wvl=numpy.array(labels[11:],dtype='float')
     labels=labels[0:11]
     

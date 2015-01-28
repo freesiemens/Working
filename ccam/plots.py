@@ -8,10 +8,12 @@ import matplotlib.pyplot as plot
 import numpy
 import csv
 
-def RMSE(RMSECV,RMSEP,RMSEC,plot_title,outfile):
+def RMSE(RMSECV,RMSEP,RMSEC,plot_title,outfile,RMSEP_cal=None):
     plot.plot(range(1,len(RMSECV)+1),RMSECV,color='r',linewidth=2.0,label='RMSECV (folds)')
     plot.plot(range(1,len(RMSEC)+1),RMSEC,color='b',linewidth=2.0,label='RMSEC (training set)')
     plot.plot(range(1,len(RMSEP)+1),RMSEP,color='g',linewidth=2.0,label='RMSEP (test set)')
+    if RMSEP_cal!=None:
+        plot.plot(range(1,len(RMSEP_cal)+1),RMSEP_cal,color='c',linewidth=2.0,label='RMSEP (Cal Targets)')
     plot.legend()
     plot.title(plot_title)
     plot.xlabel('# of Components')

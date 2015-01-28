@@ -4,10 +4,7 @@ Created on Mon Jan 26 21:08:20 2015
 
 @author: rbanderson
 """
-import ccam_read_ccs
-import ccam_pls_unk
-import ccam_mask as mask
-import ccam_normalize as normalize
+import ccam
 import numpy
 import csv
 
@@ -22,32 +19,32 @@ nc_high=5
 high_cutoff=11
 low_cutoff=2.5
 
-data,wvl,filelist=ccam_read_ccs.ccam_read_ccs(searchdir)
-data,wvl=mask.ccam_mask(data,wvl,maskfile)
+data,wvl,filelist=ccam.read_ccs(searchdir)
+data,wvl=ccam.mask(data,wvl,maskfile)
 
 normtype=3
-data_norm3=normalize.ccam_normalize(data,wvl,normtype=normtype)
+data_norm3=ccam.normalize(data,wvl,normtype=normtype)
 coeff_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\MgO_mlpy_nc20_norm3_0-100_beta_coeffs.csv'
 means_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\MgO_mlpy_nc20_norm3_0-100_meancenters.csv'
-y_full=ccam_pls_unk.ccam_pls_unk(data_norm3,coeff_file,means_file,nc_full)
+y_full=ccam.pls_unk(data_norm3,coeff_file,means_file,nc_full)
 
 normtype=3
-data_norm3=normalize.ccam_normalize(data,wvl,normtype=normtype)
+data_norm3=ccam.normalize(data,wvl,normtype=normtype)
 coeff_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\MgO_mlpy_nc20_norm3_0-3_beta_coeffs.csv'
 means_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\MgO_mlpy_nc20_norm3_0-3_meancenters.csv'
-y_low=ccam_pls_unk.ccam_pls_unk(data_norm3,coeff_file,means_file,nc_low)
+y_low=ccam.pls_unk(data_norm3,coeff_file,means_file,nc_low)
 
 normtype=3
-data_norm3=normalize.ccam_normalize(data,wvl,normtype=normtype)
+data_norm3=ccam.normalize(data,wvl,normtype=normtype)
 coeff_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\MgO_mlpy_nc20_norm3_2-12_beta_coeffs.csv'
 means_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\MgO_mlpy_nc20_norm3_2-12_meancenters.csv'
-y_mid=ccam_pls_unk.ccam_pls_unk(data_norm3,coeff_file,means_file,nc_mid)
+y_mid=ccam.pls_unk(data_norm3,coeff_file,means_file,nc_mid)
 
 normtype=3
-data_norm1=normalize.ccam_normalize(data,wvl,normtype=normtype)
+data_norm1=ccam.normalize(data,wvl,normtype=normtype)
 coeff_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\MgO_mlpy_nc20_norm3_10-100_beta_coeffs.csv'
 means_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\MgO_mlpy_nc20_norm3_10-100_meancenters.csv'
-y_high=ccam_pls_unk.ccam_pls_unk(data_norm3,coeff_file,means_file,nc_high)
+y_high=ccam.pls_unk(data_norm3,coeff_file,means_file,nc_high)
 
 y_combined=numpy.zeros_like(y_high)
 
