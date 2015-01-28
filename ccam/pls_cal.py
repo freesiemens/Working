@@ -4,12 +4,7 @@ Created on Thu Jan 15 10:24:05 2015
 
 @author: rbanderson
 """
-import ccam_read_db as read_db
-import ccam_mask as mask
-import ccam_normalize as normalize
-import ccam_choose_spectra as choose_spectra
-import ccam_folds
-import ccam_meancenter as meancenter
+import ccam
 import sys
 import csv
 import numpy
@@ -21,23 +16,23 @@ def pls_cal(dbfile,foldfile,maskfile,outpath,which_elem,testfold,nc,normtype=3,m
     
     print 'Reading database'
     sys.stdout.flush()
-    spectra,comps,spect_index,names,labels,wvl=read_db.ccam_read_db(dbfile,compcheck=True)
+    spectra,comps,spect_index,names,labels,wvl=ccam.read_db(dbfile,compcheck=True)
     oxides=labels[2:]
     compindex=numpy.where(oxides==which_elem)[0]
     
     print 'Choosing spectra'
     which_removed=outpath+which_elem+'_'+plstype+'_nc'+str(nc)+'_norm'+str(normtype)+'_'+str(mincomp)+'-'+str(maxcomp)+'_removed.csv'
-    spectra,names,spect_index,comps=choose_spectra.ccam_choose_spectra(spectra,spect_index,names,comps,compindex,mincomp=mincomp,maxcomp=maxcomp,keepfile=keepfile,removefile=removefile,which_removed=which_removed)
+    spectra,names,spect_index,comps=ccam.choose_spectra(spectra,spect_index,names,comps,compindex,mincomp=mincomp,maxcomp=maxcomp,keepfile=keepfile,removefile=removefile,which_removed=which_removed)
     
     print 'Masking spectra'
-    spectra,wvl=mask.ccam_mask(spectra,wvl,maskfile)
+    spectra,wvl=ccam.mask(spectra,wvl,maskfile)
     
     print 'Normalizing spectra'
-    spectra=normalize.ccam_normalize(spectra,wvl,normtype=normtype)
+    spectra=ccam.normalize(spectra,wvl,normtype=normtype)
     
     
     print 'Assigning Folds'
-    folds=ccam_folds.ccam_folds(foldfile,names)
+    folds=ccam.folds(foldfile,names)
     names_nofold=names[(folds==0)]
     spect_index_nofold=spect_index[(folds==0)]
     #write a file containing the samples not assigned to folds
@@ -76,12 +71,12 @@ def pls_cal(dbfile,foldfile,maskfile,outpath,which_elem,testfold,nc,normtype=3,m
     for i in folds_train_unique:
         print 'Holding out fold #'+str(i)
         #mean center those spectra left in
-        X_cv_in,X_cv_in_mean=meancenter.ccam_meancenter(spectra_train[(folds_train!=i),:])
+        X_cv_in,X_cv_in_mean=ccam.meancenter(spectra_train[(folds_train!=i),:])
         #and those left out
-        X_cv_out=meancenter.ccam_meancenter(spectra_train[(folds_train==i),:],X_mean=X_cv_in_mean)[0]   
+        X_cv_out=ccam.meancenter(spectra_train[(folds_train==i),:],X_mean=X_cv_in_mean)[0]   
          
         #mean center compositions left in
-        Y_cv_in,Y_cv_in_mean=meancenter.ccam_meancenter(comps_train[(folds_train!=i)])
+        Y_cv_in,Y_cv_in_mean=ccam.meancenter(comps_train[(folds_train!=i)])
        
         #step through each number of components
         for j in range(1,nc+1):
@@ -103,10 +98,10 @@ def pls_cal(dbfile,foldfile,maskfile,outpath,which_elem,testfold,nc,normtype=3,m
         RMSECV[i]=numpy.sqrt(numpy.mean(sqerr))
     
     #mean center full model
-    X,X_mean=meancenter.ccam_meancenter(spectra_train)
-    X_test=meancenter.ccam_meancenter(spectra_test,X_mean=X_mean)[0]
+    X,X_mean=ccam.meancenter(spectra_train)
+    X_test=ccam.meancenter(spectra_test,X_mean=X_mean)[0]
     
-    Y,Y_mean=meancenter.ccam_meancenter(comps_train)
+    Y,Y_mean=ccam.meancenter(comps_train)
     
     #create arrays for results and RMSEs
     trainset_results=numpy.zeros((len(names_train),nc))
