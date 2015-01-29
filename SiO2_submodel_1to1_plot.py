@@ -7,8 +7,8 @@ Created on Tue Jan 27 11:02:50 2015
 import numpy
 import ccam
 
-full_cv_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\SiO2_1e-07-100_mlpy_nc20_norm3_cv_predict.csv'
-low_cv_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\SiO2_1e-07-40_mlpy_nc20_norm3_cv_predict.csv'
+full_cv_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\SiO2_0-100_mlpy_nc20_norm3_cv_predict.csv'
+low_cv_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\SiO2_0-40_mlpy_nc20_norm3_cv_predict.csv'
 mid_cv_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\SiO2_20-65_mlpy_nc20_norm3_cv_predict.csv'
 high_cv_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\SiO2_55-100_mlpy_nc20_norm3_cv_predict.csv'
 
