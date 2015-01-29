@@ -29,6 +29,7 @@ wvl = array of wavelength values for the LIBS spectra
 """
 import numpy
 import ccam
+import csv
 
 def read_db(dbfile,compcheck=True):
  

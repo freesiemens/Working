@@ -19,3 +19,5 @@ from mask import mask
 from target_lookup import target_lookup
 from read_csv_cols import read_csv_cols
 from target_comp_lookup import target_comp_lookup
+from keep_spectra import keep_spectra
+from remove_spectra import remove_spectra
