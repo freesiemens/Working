@@ -13,13 +13,14 @@ mid_cv_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\
 high_cv_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\SiO2_55-100_mlpy_nc20_norm3_cv_predict.csv'
 
 nc_full=4
-nc_low=4
-nc_high=
-nc_mid=5
+nc_low=6
+nc_high=5
+nc_mid=7
+
 norm_full=3
-norm_low=1
-norm_high=
-norm_mid=1
+norm_low=3
+norm_high=1
+norm_mid=3
 low_cutoff=30
 high_cutoff=60
 comprange1=[0,100]
@@ -66,12 +67,13 @@ for i in range(len(combined_cv_predict)):
 
 RMSECV_full=numpy.sqrt(numpy.mean((full_cv_predict-full_cv_truecomps)**2))
 RMSECV_low=numpy.sqrt(numpy.mean((low_cv_predict-low_cv_truecomps)**2))
+RMSECV_mid=numpy.sqrt(numpy.mean((mid_cv_predict-mid_cv_truecomps)**2))
 RMSECV_high=numpy.sqrt(numpy.mean((high_cv_predict-high_cv_truecomps)**2))
 RMSECV_combined=numpy.sqrt(numpy.mean((combined_cv_predict[(combined_cv_predict!=9999)]-full_cv_truecomps[(combined_cv_predict!=9999)])**2))
 
-truecomps=[full_cv_truecomps,low_cv_truecomps,high_cv_truecomps]
-predicts=[full_cv_predict,low_cv_predict,high_cv_predict]
-labels=['Full (nc='+str(nc_full)+', norm='+str(norm_full)+', RMSECV='+str(RMSECV_full)+')','Low (nc='+str(nc_low)+',norm='+str(norm_low)+', RMSECV='+str(RMSECV_low)+')','High (nc='+str(nc_high)+',norm='+str(norm_high)+', RMSECV='+str(RMSECV_high)+')']
+truecomps=[full_cv_truecomps,low_cv_truecomps,mid_cv_truecomps,high_cv_truecomps]
+predicts=[full_cv_predict,low_cv_predict,mid_cv_predict,high_cv_predict]
+labels=['Full (nc='+str(nc_full)+', norm='+str(norm_full)+', RMSECV='+str(RMSECV_full)+')','Low (nc='+str(nc_low)+',norm='+str(norm_low)+', RMSECV='+str(RMSECV_low)+')','Med (nc='+str(nc_mid)+',norm='+str(norm_mid)+', RMSECV='+str(RMSECV_mid)+')','High (nc='+str(nc_high)+',norm='+str(norm_high)+', RMSECV='+str(RMSECV_high)+')']
 colors=['c','r','g','b']
 markers=['o','v','s','^']
 plot_title='SiO2 Cross Validation (combined RMSECV = '+str(RMSECV_combined)+')'

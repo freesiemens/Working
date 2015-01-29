@@ -16,8 +16,10 @@ def target_lookup(filelist,masterlist_file,name_sub_file):
     file_sclocks=numpy.zeros_like(filelist)
     file_targets=numpy.zeros_like(filelist)    
     for i in range(len(filelist)):
+
         file_sclocks[i]=filelist[i][-36:-27]
-        file_targets[i]=targets[(sclocks==file_sclocks[i])][0]
+        if max(sclocks==file_sclocks[i])!=0:
+            file_targets[i]=targets[(sclocks==file_sclocks[i])][0]
     
     data=ccam.read_csv_cols(name_sub_file,0,labelrow=False)
     old_name=data[0]
