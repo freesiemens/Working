@@ -179,11 +179,13 @@ def pls_cal(dbfile,foldfile,maskfile,outpath,which_elem,testfold,nc,normtype=3,m
             writer.writerow(['NC','RMSECP Cal Targets (wt.%)'])            
             for i in range(0,nc):
                 writer.writerow([i+1,RMSEP_cal[i]])
+        ccam.plots.RMSE(RMSECV,RMSEP,RMSEC,which_elem+' RMSEs',outpath+which_elem+'_'+str(mincomp)+'-'+str(maxcomp)+'_'+plstype+'_nc'+str(nc)+'_norm'+str(normtype)+'_RMSE_plot_cal.png',RMSEP_cal=RMSEP_cal)
+    
         
 
 
     # plot RMSEs
-    ccam.plots.RMSE(RMSECV,RMSEP,RMSEC,which_elem+'RMSEs',outpath+which_elem+'_'+str(mincomp)+'-'+str(maxcomp)+'_'+plstype+'_nc'+str(nc)+'_norm'+str(normtype)+'_RMSE_plot.png',RMSEP_cal=RMSEP_cal)
+    ccam.plots.RMSE(RMSECV,RMSEP,RMSEC,which_elem+' RMSEs',outpath+which_elem+'_'+str(mincomp)+'-'+str(maxcomp)+'_'+plstype+'_nc'+str(nc)+'_norm'+str(normtype)+'_RMSE_plot.png')
     
     
    

@@ -47,7 +47,7 @@ def read_ccs(searchdir):#,minsol=0,maxsol=10000,masterlist=None):
     print 'Reading '+str(len(filelist))+' files...'
     for i in range(len(filelist)):
         if numpy.mod(i,100)==0:
-            print i
+            print 'Reading file #'+str(i)
         tempdata=readsav(filelist[i],python_dict=True)
         tempspect=numpy.hstack([tempdata['auv'],tempdata['avis'],tempdata['avnir']])
         data[i,:]=tempspect
