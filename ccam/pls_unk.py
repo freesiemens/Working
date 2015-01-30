@@ -19,8 +19,8 @@ def pls_unk(unk_spectra,nc,coeff_file=None,means_file=None,beta=None,X_mean=None
         Y_mean=numpy.array(temp[1],dtype='float')
         X_mean=numpy.array(data[1],dtype='float')
         
-    #Important! Have to use copy here so that the original spectra in the function calling pls_unk are not changed    
-    unk_spectra_centered=ccam.meancenter(copy.copy(unk_spectra),X_mean=X_mean)[0] 
+       
+    unk_spectra_centered=ccam.meancenter(unk_spectra,X_mean=X_mean)[0] 
 
     predicts=numpy.zeros(len(unk_spectra[:,0]))
     for i in range(len(predicts)):

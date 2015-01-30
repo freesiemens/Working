@@ -12,9 +12,8 @@ normtype = specifies whether to normalize by the sum of the spectrum across all 
 or by the sum for each spectrometer (normtype = 3)
 """
 import numpy
-import copy
-def normalize(spectra,wvl,normtype=3):
-    spectra_norm=spectra 
+def ccam_normalize(spectra,wvl,normtype=3):
+    spectra_norm=numpy.zeros(spectra.shape,dtype='float32') #create an empty array the same size as spectra
     if normtype==3:
         uv_index=(wvl<=340.797)  #create an index for the UV range
         vis_index=vis_index=(wvl>=382.138)&(wvl<=469.090) #create an index for the VIS range

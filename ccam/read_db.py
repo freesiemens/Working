@@ -38,9 +38,9 @@ def read_db(dbfile,compcheck=True):
     names=numpy.array(data[0],dtype='string')
     spect_index=numpy.array(data[1],dtype='int')
     comps=numpy.transpose(numpy.array(data[2:11],dtype='float32'))
-    spectra=numpy.transpose(numpy.array(data[11:len(data)],dtype='float32'))
+    spectra=numpy.transpose(numpy.array(data[11:len(data)],dtype='float64'))
    
-    wvl=numpy.array(labels[11:],dtype='float')
+    wvl=numpy.array(labels[11:],dtype='float32')
     labels=labels[0:11]
     
     if compcheck:

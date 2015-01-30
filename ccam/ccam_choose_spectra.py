@@ -67,6 +67,7 @@ def ccam_choose_spectra(spectra,spect_index,names,comps,compindex,mincomp=0,maxc
        #read the list of sample names and spectrum indices from the file
         f=open(keepfile,'rb')
         f.readline()
+        f.readline()
         data=zip(*csv.reader(f))
         keepinds=numpy.array(data[0],dtype='int')
         keepinds=keepinds-1.0
