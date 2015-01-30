@@ -7,6 +7,7 @@ Created on Mon Jan 26 18:43:18 2015
 import numpy
 import ccam
 import copy
+import ccam_meancenter
 def pls_unk(unk_spectra,nc,coeff_file=None,means_file=None,beta=None,X_mean=None,Y_mean=None):
 
     if coeff_file!=None:
@@ -20,7 +21,7 @@ def pls_unk(unk_spectra,nc,coeff_file=None,means_file=None,beta=None,X_mean=None
         X_mean=numpy.array(data[1],dtype='float')
         
        
-    unk_spectra_centered=ccam.meancenter(unk_spectra,X_mean=X_mean)[0] 
+    unk_spectra_centered=ccam_meancenter.ccam_meancenter(copy.copy(unk_spectra),X_mean=X_mean)[0] 
 
     predicts=numpy.zeros(len(unk_spectra[:,0]))
     for i in range(len(predicts)):

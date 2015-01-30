@@ -4,10 +4,13 @@ Created on Mon Jan 26 21:08:20 2015
 
 @author: rbanderson
 """
+
+import os
+os.chdir(r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\ccam')
 import ccam
 import numpy
 import csv
-
+import ccam_normalize
 searchdir=r'C:\Users\rbanderson\Documents\MSL\ChemCam\ChemCam\ops_ccam_team'
 maskfile=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Input\mask_minors_noise.csv'
 outpath=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output'
@@ -39,8 +42,8 @@ high_cutoff=11
 
 data,wvl,filelist=ccam.read_ccs(searchdir)
 data,wvl=ccam.mask(data,wvl,maskfile)
-data_norm3=ccam.normalize(data,wvl,normtype=3)
-data_norm1=ccam.normalize(data,wvl,normtype=1)
+data_norm3=ccam_normalize.ccam_normalize(data,wvl,normtype=3)
+data_norm1=ccam_normalize.ccam_normalize(data,wvl,normtype=1)
 
 targetlist=ccam.target_lookup(filelist,masterlist,name_subs)
 
