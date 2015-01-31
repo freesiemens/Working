@@ -10,6 +10,7 @@ import ccam_normalize as normalize
 import ccam_choose_spectra as choose_spectra
 import ccam_folds
 import ccam_meancenter as meancenter
+import ccam
 import sys
 import csv
 import numpy
@@ -17,7 +18,9 @@ from sklearn.cross_decomposition import PLSRegression
 import mlpy
 import ccam_plots
 
-def ccam_pls_cal(dbfile,foldfile,maskfile,outpath,which_elem,testfold,nc,normtype=3,mincomp=0,maxcomp=100,plstype='mlpy',keepfile=None,removefile=None):
+
+
+def ccam_pls_cal(dbfile,foldfile,maskfile,outpath,which_elem,testfold,nc,normtype=3,mincomp=0,maxcomp=100,plstype='mlpy',keepfile=None,removefile=None,cal_dir=None,masterlist_file=None,compfile=None,name_sub_file=None):
     
     print 'Reading database'
     sys.stdout.flush()
@@ -131,7 +134,39 @@ def ccam_pls_cal(dbfile,foldfile,maskfile,outpath,which_elem,testfold,nc,normtyp
             
         RMSEC[j-1]=numpy.sqrt(numpy.mean((trainset_results[:,j-1]-comps_train)**2.0))
         RMSEP[j-1]=numpy.sqrt(numpy.mean((testset_results[:,j-1]-comps_test)**2.0))
-    
+   
+ #if cal_dir is specified, read cal target data and calculate RMSEs    
+    if cal_dir!=None:
+        cal_data,cal_wvl,cal_filelist=ccam.read_ccs(cal_dir)
+        cal_data,cal_wvl=mask.ccam_mask(cal_data,cal_wvl,maskfile)
+        cal_data=normalize.ccam_normalize(cal_data,cal_wvl,normtype=normtype)
+        
+        RMSEP_cal=numpy.zeros(nc)
+        targets=ccam.target_lookup(cal_filelist,masterlist_file,name_sub_file)
+        target_comps=ccam.target_comp_lookup(targets,compfile,which_elem)
+        cal_results=numpy.zeros((len(targets),nc))
+        for i in range(nc):
+
+            cal_results[:,i]=ccam.pls_unk(cal_data,i+1,beta=beta[:,i],X_mean=X_mean,Y_mean=Y_mean)          
+            RMSEP_cal[i]=numpy.sqrt(numpy.mean((cal_results[:,i]-target_comps)**2))
+        with open(outpath+which_elem+'_'+str(mincomp)+'-'+str(maxcomp)+'_'+plstype+'_nc'+str(nc)+'_norm'+str(normtype)+'_caltargets_predict.csv','wb') as writefile:
+            writer=csv.writer(writefile,delimiter=',')
+            row=['File','Target','True_Comp']
+            row.extend(range(1,nc+1))
+            writer.writerow(row)
+            for i in range(0,len(targets)):
+                row=[cal_filelist[i],targets[i],target_comps[i]]
+                row.extend(cal_results[i,:])
+                writer.writerow(row)
+        with open(outpath+which_elem+'_'+str(mincomp)+'-'+str(maxcomp)+'_'+plstype+'_nc'+str(nc)+'_norm'+str(normtype)+'_RMSECP_caltargets.csv','wb') as writefile:
+            writer=csv.writer(writefile,delimiter=',')
+            writer.writerow(['NC','RMSECP Cal Targets (wt.%)'])            
+            for i in range(0,nc):
+                writer.writerow([i+1,RMSEP_cal[i]])
+        ccam.plots.RMSE(RMSECV,RMSEP,RMSEC,which_elem+' RMSEs',outpath+which_elem+'_'+str(mincomp)+'-'+str(maxcomp)+'_'+plstype+'_nc'+str(nc)+'_norm'+str(normtype)+'_RMSE_plot_cal.png',RMSEP_cal=RMSEP_cal)
+   
+   
+   
     # plot RMSEs
     ccam_plots.ccam_plot_RMSE(RMSECV,RMSEP,RMSEC,which_elem+'RMSEs',outpath+which_elem+'_'+plstype+'_nc'+str(nc)+'_norm'+str(normtype)+'_'+str(mincomp)+'-'+str(maxcomp)+'_RMSE_plot.png')
     
