@@ -28,8 +28,8 @@ data_norm3=normalize.ccam_normalize(data,wvl,normtype=normtype)
 print data_norm3[0,0]
 coeff_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\SiO2_mlpy_nc20_norm3_0-100_beta_coeffs.csv'
 means_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\SiO2_mlpy_nc20_norm3_0-100_meancenters.csv'
-nc=7
-y_full=ccam.pls_unk(data_norm3,coeff_file,means_file,nc)
+nc_full=7
+y_full=ccam.pls_unk(data_norm3,nc_full,coeff_file=coeff_file,means_file=means_file)
 
 normtype=1
 data_norm1=normalize.ccam_normalize(data,wvl,normtype=normtype)
@@ -37,7 +37,7 @@ print data_norm3[0,0]
 coeff_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\SiO2_mlpy_nc20_norm3_0-40_beta_coeffs.csv'
 means_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\SiO2_mlpy_nc20_norm3_0-40_meancenters.csv'
 nc=4
-y_low=ccam.pls_unk(data_norm1,coeff_file,means_file,nc)
+y_low=ccam.pls_unk(data_norm1,nc_full,coeff_file=coeff_file,means_file=means_file)
 
 normtype=3
 data_norm3=normalize.ccam_normalize(data,wvl,normtype=normtype)
@@ -45,14 +45,14 @@ print data_norm3[0,0]
 coeff_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\SiO2_mlpy_nc20_norm3_20-65_beta_coeffs.csv'
 means_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\SiO2_mlpy_nc20_norm3_20-65_meancenters.csv'
 nc=7
-y_mid=ccam.pls_unk(data_norm3,coeff_file,means_file,nc)
+y_mid=ccam.pls_unk(data_norm3,nc_full,coeff_file=coeff_file,means_file=means_file)
 
 normtype=1
 data_norm1=normalize.ccam_normalize(data,wvl,normtype=normtype)
 coeff_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\SiO2_mlpy_nc20_norm3_55-100_beta_coeffs.csv'
 means_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\SiO2_mlpy_nc20_norm3_55-100_meancenters.csv'
 nc=5
-y_high=ccam.pls_unk(data_norm1,coeff_file,means_file,nc)
+y_high=ccam.pls_unk(data_norm1,nc_full,coeff_file=coeff_file,means_file=means_file)
 
 y_combined=numpy.zeros_like(y_high)
 
