@@ -17,7 +17,7 @@ import numpy
 from sklearn.cross_decomposition import PLSRegression
 import mlpy
 import ccam_plots
-
+import copy
 
 
 def ccam_pls_cal(dbfile,foldfile,maskfile,outpath,which_elem,testfold,nc,normtype=3,mincomp=0,maxcomp=100,plstype='mlpy',keepfile=None,removefile=None,cal_dir=None,masterlist_file=None,compfile=None,name_sub_file=None):
@@ -142,13 +142,39 @@ def ccam_pls_cal(dbfile,foldfile,maskfile,outpath,which_elem,testfold,nc,normtyp
         cal_data=normalize.ccam_normalize(cal_data,cal_wvl,normtype=normtype)
         
         RMSEP_cal=numpy.zeros(nc)
+        RMSEP_KGAMEDS=numpy.zeros(nc)
+        RMSEP_MACUSANITE=numpy.zeros(nc)
+        RMSEP_NAU2HIS=numpy.zeros(nc)
+        RMSEP_NAU2LOS=numpy.zeros(nc)
+        RMSEP_NAU2MEDS=numpy.zeros(nc)
+        RMSEP_NORITE=numpy.zeros(nc)
+        RMSEP_PICRITE=numpy.zeros(nc)
+        RMSEP_SHERGOTTITE=numpy.zeros(nc)
+        
         targets=ccam.target_lookup(cal_filelist,masterlist_file,name_sub_file)
         target_comps=ccam.target_comp_lookup(targets,compfile,which_elem)
         cal_results=numpy.zeros((len(targets),nc))
+        
         for i in range(nc):
-
+            comps_copy=copy.copy(target_comps)
             cal_results[:,i]=ccam.pls_unk(cal_data,i+1,beta=beta[:,i],X_mean=X_mean,Y_mean=Y_mean)          
-            RMSEP_cal[i]=numpy.sqrt(numpy.mean((cal_results[:,i]-target_comps)**2))
+            #RMSEP_cal[i]=numpy.sqrt(numpy.mean((cal_results[:,i]-target_comps)**2))
+            cal_results[(comps_copy<mincomp),i]=0
+            cal_results[(comps_copy>maxcomp),i]=0
+            comps_copy[(comps_copy<mincomp)]=0
+            comps_copy[(comps_copy>maxcomp)]=0            
+            RMSEP_KGAMEDS[i]=numpy.sqrt(numpy.mean((cal_results[(targets=='KGAMEDS'),i]-comps_copy[(targets=='KGAMEDS')])**2))
+            RMSEP_MACUSANITE[i]=numpy.sqrt(numpy.mean((cal_results[(targets=='MACUSANITE'),i]-comps_copy[(targets=='MACUSANITE')])**2))
+            RMSEP_NAU2HIS[i]=numpy.sqrt(numpy.mean((cal_results[(targets=='NAU2HIS'),i]-comps_copy[(targets=='NAU2HIS')])**2))
+            RMSEP_NAU2LOS[i]=numpy.sqrt(numpy.mean((cal_results[(targets=='NAU2LOS'),i]-comps_copy[(targets=='NAU2LOS')])**2))
+            RMSEP_NAU2MEDS[i]=numpy.sqrt(numpy.mean((cal_results[(targets=='NAU2MEDS'),i]-comps_copy[(targets=='NAU2MEDS')])**2))
+            RMSEP_NORITE[i]=numpy.sqrt(numpy.mean((cal_results[(targets=='NORITE'),i]-comps_copy[(targets=='NORITE')])**2))
+            RMSEP_PICRITE[i]=numpy.sqrt(numpy.mean((cal_results[(targets=='PICRITE'),i]-comps_copy[(targets=='PICRITE')])**2))
+            RMSEP_SHERGOTTITE[i]=numpy.sqrt(numpy.mean((cal_results[(targets=='SHERGOTTITE'),i]-comps_copy[(targets=='SHERGOTTITE')])**2))
+        n_good_cal=len(numpy.unique(comps_copy))-1
+        RMSEP_cal=(RMSEP_KGAMEDS+RMSEP_MACUSANITE+RMSEP_NAU2HIS+RMSEP_NAU2LOS+RMSEP_NAU2MEDS+RMSEP_NORITE+RMSEP_PICRITE+RMSEP_SHERGOTTITE)/n_good_cal
+        RMSEP_single_cals=[RMSEP_KGAMEDS,RMSEP_MACUSANITE,RMSEP_NAU2HIS,RMSEP_NAU2LOS,RMSEP_NAU2MEDS,RMSEP_NORITE,RMSEP_PICRITE,RMSEP_SHERGOTTITE,RMSEP_cal]            
+                       
         with open(outpath+which_elem+'_'+str(mincomp)+'-'+str(maxcomp)+'_'+plstype+'_nc'+str(nc)+'_norm'+str(normtype)+'_caltargets_predict.csv','wb') as writefile:
             writer=csv.writer(writefile,delimiter=',')
             row=['File','Target','True_Comp']
@@ -163,7 +189,7 @@ def ccam_pls_cal(dbfile,foldfile,maskfile,outpath,which_elem,testfold,nc,normtyp
             writer.writerow(['NC','RMSECP Cal Targets (wt.%)'])            
             for i in range(0,nc):
                 writer.writerow([i+1,RMSEP_cal[i]])
-        ccam.plots.RMSE(RMSECV,RMSEP,RMSEC,which_elem+' RMSEs',outpath+which_elem+'_'+str(mincomp)+'-'+str(maxcomp)+'_'+plstype+'_nc'+str(nc)+'_norm'+str(normtype)+'_RMSE_plot_cal.png',RMSEP_cal=RMSEP_cal)
+        ccam.plots.RMSE(RMSECV,RMSEP,RMSEC,which_elem+' RMSEs',outpath+which_elem+'_'+str(mincomp)+'-'+str(maxcomp)+'_'+plstype+'_nc'+str(nc)+'_norm'+str(normtype)+'_RMSE_plot_cal.png',RMSEP_cals=RMSEP_single_cals)
    
    
    
