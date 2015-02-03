@@ -72,8 +72,8 @@ targetlist=ccam.target_lookup(filelist,masterlist,name_subs)
 
 y_full=ccam.pls_unk(data_norm3,nc_full,coeff_file=coeff_file_full,means_file=means_file_full)
 y_low=ccam.pls_unk(data_norm3,nc_low,coeff_file=coeff_file_low,means_file=means_file_low)
-y_mid=ccam.pls_unk(data_norm3,nc_mid,coeff_file=coeff_file_mid,means_file=means_file_mid)
-y_high=ccam.pls_unk(data_norm1,nc_high,coeff_file=coeff_file_high,means_file=means_file_high)
+y_mid=ccam.pls_unk(data_norm1,nc_mid,coeff_file=coeff_file_mid,means_file=means_file_mid)
+y_high=ccam.pls_unk(data_norm3,nc_high,coeff_file=coeff_file_high,means_file=means_file_high)
 
 y_combined=numpy.zeros_like(y_high)
 
