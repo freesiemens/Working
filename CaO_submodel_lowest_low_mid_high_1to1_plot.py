@@ -7,24 +7,24 @@ Created on Tue Jan 27 11:02:50 2015
 import numpy
 import ccam
 
-full_cv_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\CaO_mlpy_nc20_norm###_0-100_cv_predict.csv'
-lowest_cv_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\CaO_mlpy_nc20_norm###_0-2.5_cv_predict.csv'
-low_cv_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\CaO_mlpy_nc20_norm###_2-7_cv_predict.csv'
-mid_cv_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\CaO_mlpy_nc20_norm###_6-20_cv_predict.csv'
-high_cv_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\CaO_mlpy_nc20_norm###_10-100_cv_predict.csv'
+full_cv_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\CaO_mlpy_nc20_norm3_0-100_cv_predict.csv'
+lowest_cv_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\CaO_mlpy_nc20_norm1_0-2.5_cv_predict.csv'
+low_cv_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\CaO_mlpy_nc20_norm1_2.0-7.0_cv_predict.csv'
+mid_cv_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\CaO_mlpy_nc20_norm1_6-20_cv_predict.csv'
+high_cv_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\CaO_mlpy_nc20_norm3_10-100_cv_predict.csv'
 
 
-nc_full=
-nc_lowest=
-nc_low=
-nc_mid=
-nc_high=
+nc_full=9
+nc_lowest=3
+nc_low=3
+nc_mid=5
+nc_high=7
 
-norm_full=
-norm_lowest=
-norm_low=
-norm_mid=
-norm_high=
+norm_full=3
+norm_lowest=1
+norm_low=1
+norm_mid=1
+norm_high=3
 
 lowest_cutoff=2.25
 low_cutoff=6.5
@@ -35,7 +35,7 @@ outfile1=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Out
 outfile2=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\CaO_submodels_lowest_low_mid_high_1to1_plot_0-15.png'
 
 full_cv_predict,full_cv_samples,full_cv_truecomps,full_cv_folds,full_cv_spect=ccam.plots.readpredicts(full_cv_file,nc_full)
-lowest_cv_predict,lowest_cv_samples,lowest_cv_truecomps_lowest_cv_folds,lowest_cv_spect=ccam.plots.readpredicts(lowest_cv_file,nc_lowest)
+lowest_cv_predict,lowest_cv_samples,lowest_cv_truecomps,lowest_cv_folds,lowest_cv_spect=ccam.plots.readpredicts(lowest_cv_file,nc_lowest)
 low_cv_predict,low_cv_samples,low_cv_truecomps,low_cv_folds,low_cv_spect=ccam.plots.readpredicts(low_cv_file,nc_low)
 high_cv_predict,high_cv_samples,high_cv_truecomps,high_cv_folds,high_cv_spect=ccam.plots.readpredicts(high_cv_file,nc_high)
 mid_cv_predict,mid_cv_samples,mid_cv_truecomps,mid_cv_folds,mid_cv_spect=ccam.plots.readpredicts(mid_cv_file,nc_mid)

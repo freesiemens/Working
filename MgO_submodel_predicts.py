@@ -13,18 +13,18 @@ import csv
 import ccam_normalize
 searchdir=r'C:\Users\rbanderson\Documents\MSL\ChemCam\ChemCam\ops_ccam_team'
 maskfile=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Input\mask_minors_noise.csv'
-outpath=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output'
+outpath=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\MgO nc20 initial submodel'
 masterlist=r'C:\Users\rbanderson\Documents\MSL\ChemCam\ChemCam\ops_ccam_misc\MASTERLIST.csv'
 name_subs=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Input\target_name_subs.csv'
 
-coeff_file_full=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\MgO_mlpy_nc20_norm3_0-100_beta_coeffs.csv'
-means_file_full=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\MgO_mlpy_nc20_norm3_0-100_meancenters.csv'
-coeff_file_low=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\MgO_mlpy_nc20_norm3_0-3_beta_coeffs.csv'
-means_file_low=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\MgO_mlpy_nc20_norm3_0-3_meancenters.csv'
-coeff_file_mid=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\MgO_mlpy_nc20_norm3_2-12_beta_coeffs.csv'
-means_file_mid=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\MgO_mlpy_nc20_norm3_2-12_meancenters.csv'
-coeff_file_high=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\MgO_mlpy_nc20_norm3_10-100_beta_coeffs.csv'
-means_file_high=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\MgO_mlpy_nc20_norm3_10-100_meancenters.csv'
+coeff_file_full=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\MgO nc20 initial submodel\MgO_mlpy_nc20_norm3_0-100_beta_coeffs.csv'
+means_file_full=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\MgO nc20 initial submodel\MgO_mlpy_nc20_norm3_0-100_meancenters.csv'
+coeff_file_low=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\MgO nc20 initial submodel\MgO_mlpy_nc20_norm3_0-3_beta_coeffs.csv'
+means_file_low=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\MgO nc20 initial submodel\MgO_mlpy_nc20_norm3_0-3_meancenters.csv'
+coeff_file_mid=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\MgO nc20 initial submodel\MgO_mlpy_nc20_norm3_2-12_beta_coeffs.csv'
+means_file_mid=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\MgO nc20 initial submodel\MgO_mlpy_nc20_norm3_2-12_meancenters.csv'
+coeff_file_high=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\MgO nc20 initial submodel\MgO_mlpy_nc20_norm3_10-100_beta_coeffs.csv'
+means_file_high=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\MgO nc20 initial submodel\MgO_mlpy_nc20_norm3_10-100_meancenters.csv'
 
 
 which_elem='MgO'
