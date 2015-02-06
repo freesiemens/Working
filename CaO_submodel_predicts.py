@@ -63,12 +63,7 @@ data,wvl,filelist=ccam.read_ccs(searchdir)
 #pickle.load(open( r"C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\ccam\ccamfilelist.pkl", "rb" ))
 
 
-
-data,wvl=ccam.mask(data,wvl,maskfile)
-data_norm3=ccam_normalize.ccam_normalize(data,wvl,normtype=3)
-data_norm1=ccam_normalize.ccam_normalize(data,wvl,normtype=1)
-
-targetlist=ccam.target_lookup(filelist,masterlist,name_subs)
+targetlist,distslist,amplist=ccam.target_lookup(filelist,masterlist,name_subs)
 
 y_full=ccam.pls_unk(data_norm3,nc_full,coeff_file=coeff_file_full,means_file=means_file_full)
 y_low=ccam.pls_unk(data_norm3,nc_low,coeff_file=coeff_file_low,means_file=means_file_low)

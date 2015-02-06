@@ -36,7 +36,7 @@ comps_keep = = compositions of spectra that satisfy the constraints on compositi
 """
 import numpy
 import csv
-def ccam_choose_spectra(spectra,spect_index,names,comps,compindex,mincomp=0,maxcomp=100,removefile=None,keepfile=None,which_removed=None):
+def ccam_choose_spectra(spectra,spect_index,names,comps,compindex,mincomp=0,maxcomp=100,removefile=None,keepfile=None,which_removed=None,linewvl=None,linestrength=None,wvl=None):
 
     
     #define index where composition is within the specified range
@@ -73,6 +73,16 @@ def ccam_choose_spectra(spectra,spect_index,names,comps,compindex,mincomp=0,maxc
         keepinds=keepinds-1.0
         index3=numpy.in1d(range(0,len(names)),keepinds)
         index=numpy.vstack((index,index3))
+        index=numpy.all(index,axis=0)
+        
+    if linewvl[0]!=None:
+
+        bins=numpy.squeeze((wvl>linewvl[0])&(wvl<linewvl[1]))
+        linesums=numpy.sum(spectra[:,bins],axis=1)
+        print numpy.max(linesums)
+        #print foo
+        index4=(linesums>linestrength[0])&(linesums<linestrength[1])
+        index=numpy.vstack((index,index4))
         index=numpy.all(index,axis=0)
         
       #fill the new variables with the data to keep

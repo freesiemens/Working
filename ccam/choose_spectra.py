@@ -35,9 +35,8 @@ comps_keep = = compositions of spectra that satisfy the constraints on compositi
 
 """
 import numpy
-import ccam
 import csv
-def choose_spectra(spectra,spect_index,names,comps,compindex,mincomp=0,maxcomp=100,removefile=None,keepfile=None,which_removed=None):
+def choose_spectra(spectra,spect_index,names,comps,compindex,mincomp=0,maxcomp=100,removefile=None,keepfile=None,which_removed=None,linewvl=None,linestrength=None,wvl=None):
 
     
     #define index where composition is within the specified range
@@ -46,7 +45,8 @@ def choose_spectra(spectra,spect_index,names,comps,compindex,mincomp=0,maxcomp=1
     #optionally, remove spectra listed in an external file
     if removefile != None:
         #read the list of sample names and spectrum indices from the file
-        data=ccam.read_csv_cols(removefile,0,labelrow=False)
+        f=open(removefile,'rb')
+        data=zip(*csv.reader(f))
         removenames=numpy.array(data[0],dtype='string')
         removeinds=numpy.array(data[1],dtype='int')
         #define an array to hold the indices for each row in the file        
@@ -65,15 +65,6 @@ def choose_spectra(spectra,spect_index,names,comps,compindex,mincomp=0,maxcomp=1
     
     if keepfile != None:
        #read the list of sample names and spectrum indices from the file
-#       
-#        data,cols=ccam.read_csv_cols(keepfile,1,labelrow=True)
-#        keepinds=numpy.array(data[0],dtype='int')
-#        keepinds=keepinds-1.0
-#        index3=numpy.in1d(range(0,len(names)),keepinds)
-#        index=numpy.vstack((index,index3))
-#        index=numpy.all(index,axis=0)
-        
-               #read the list of sample names and spectrum indices from the file
         f=open(keepfile,'rb')
         f.readline()
         f.readline()
@@ -82,6 +73,16 @@ def choose_spectra(spectra,spect_index,names,comps,compindex,mincomp=0,maxcomp=1
         keepinds=keepinds-1.0
         index3=numpy.in1d(range(0,len(names)),keepinds)
         index=numpy.vstack((index,index3))
+        index=numpy.all(index,axis=0)
+        
+    if linewvl!=None:
+
+        bins=numpy.squeeze((wvl>linewvl[0])&(wvl<linewvl[1]))
+        linesums=numpy.sum(spectra[:,bins],axis=1)
+        print numpy.max(linesums)
+
+        index4=(linesums>linestrength[0])&(linesums<linestrength[1])
+        index=numpy.vstack((index,index4))
         index=numpy.all(index,axis=0)
         
       #fill the new variables with the data to keep

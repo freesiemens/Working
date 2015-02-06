@@ -15,19 +15,19 @@ import ccam_normalize
 import cPickle as pickle
 searchdir=r'C:\Users\rbanderson\Documents\MSL\ChemCam\ChemCam\ops_ccam_team'
 maskfile=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Input\mask_minors_noise.csv'
-outpath=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\MgO nc20 initial submodel'
+outpath=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\Al2O3 nc20 initial submodel'
 masterlist=r'C:\Users\rbanderson\Documents\MSL\ChemCam\ChemCam\ops_ccam_misc\MASTERLIST.csv'
 name_subs=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Input\target_name_subs.csv'
 
 
-coeff_file_full=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\MgO nc20 initial submodel\MgO_mlpy_nc20_norm3_0-100_beta_coeffs.csv'
-means_file_full=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\MgO nc20 initial submodel\MgO_mlpy_nc20_norm3_0-100_meancenters.csv'
-coeff_file_low=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\MgO nc20 initial submodel\MgO_mlpy_nc20_norm3_0-3_beta_coeffs.csv'
-means_file_low=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\MgO nc20 initial submodel\MgO_mlpy_nc20_norm3_0-3_meancenters.csv'
-coeff_file_mid=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\MgO nc20 initial submodel\MgO_mlpy_nc20_norm3_2-12_beta_coeffs.csv'
-means_file_mid=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\MgO nc20 initial submodel\MgO_mlpy_nc20_norm3_2-12_meancenters.csv'
-coeff_file_high=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\MgO nc20 initial submodel\MgO_mlpy_nc20_norm3_10-100_beta_coeffs.csv'
-means_file_high=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\MgO nc20 initial submodel\MgO_mlpy_nc20_norm3_10-100_meancenters.csv'
+coeff_file_full=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\Al2O3 nc20 initial submodel\Al2O3_mlpy_nc20_norm1_0-100_beta_coeffs.csv'
+means_file_full=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\Al2O3 nc20 initial submodel\Al2O3_mlpy_nc20_norm1_0-100_meancenters.csv'
+coeff_file_low=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\Al2O3 nc20 initial submodel\Al2O3_mlpy_nc20_norm1_0-12_beta_coeffs.csv'
+means_file_low=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\Al2O3 nc20 initial submodel\Al2O3_mlpy_nc20_norm1_0-12_meancenters.csv'
+coeff_file_mid=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\Al2O3 nc20 initial submodel\Al2O3_mlpy_nc20_norm1_10-25_beta_coeffs.csv'
+means_file_mid=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\Al2O3 nc20 initial submodel\Al2O3_mlpy_nc20_norm1_10-25_meancenters.csv'
+coeff_file_high=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\Al2O3 nc20 initial submodel\Al2O3_mlpy_nc20_norm1_20-100_beta_coeffs.csv'
+means_file_high=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\Al2O3 nc20 initial submodel\Al2O3_mlpy_nc20_norm1_20-100_meancenters.csv'
 
 fullfiles=[coeff_file_full,means_file_full]
 lowfiles=[coeff_file_low,means_file_low]
@@ -35,16 +35,16 @@ midfiles=[coeff_file_mid,means_file_mid]
 highfiles=[coeff_file_high,means_file_high]
 
 
-which_elem='MgO'
-nc_full=6
-nc_low=10
-nc_mid=3
-nc_high=5
+which_elem='Al2O3'
+nc_full=5
+nc_low=5
+nc_mid=4
+nc_high=6
 
-low_cutoff=2.5
-high_cutoff=11
+low_cutoff=11
+high_cutoff=22.5
 
-outputfile=outpath+'\\'+which_elem+'_predictions_caltargets_pkltest.csv'
+outputfile=outpath+'\\'+which_elem+'_predictions_newsettings.csv'
 datafile=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\ccam\ccamdata.pkl'
 print 'Loading data'
 f=open(datafile,'rb')
@@ -80,7 +80,7 @@ for i in range(len(y_combined)):
 print 'Writing results'
 with open(outputfile,'wb') as writefile:
         writer=csv.writer(writefile,delimiter=',')
-        row=['','','Full (0-100)','Low (0-3)','Mid (2-12)','High (10-100)','Combined']
+        row=['','','Full (0-100)','Low (0-12)','Mid (10-25)','High (20-100)','Combined']
         writer.writerow(row)
         row=['','Norm=',fullnorm,lownorm,midnorm,highnorm,combined_description]
         writer.writerow(row)

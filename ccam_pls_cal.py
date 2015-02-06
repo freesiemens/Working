@@ -20,27 +20,27 @@ import ccam_plots
 import copy
 
 
-def ccam_pls_cal(dbfile,foldfile,maskfile,outpath,which_elem,testfold,nc,normtype=3,mincomp=0,maxcomp=100,plstype='mlpy',keepfile=None,removefile=None,cal_dir=None,masterlist_file=None,compfile=None,name_sub_file=None):
+def pls_cal(dbfile,foldfile,maskfile,outpath,which_elem,testfold,nc,normtype=3,mincomp=0,maxcomp=100,plstype='mlpy',keepfile=None,removefile=None,cal_dir=None,masterlist_file=None,compfile=None,name_sub_file=None):
     
     print 'Reading database'
     sys.stdout.flush()
-    spectra,comps,spect_index,names,labels,wvl=read_db.ccam_read_db(dbfile,compcheck=True)
+    spectra,comps,spect_index,names,labels,wvl=ccam.read_db(dbfile,compcheck=True)
     oxides=labels[2:]
     compindex=numpy.where(oxides==which_elem)[0]
     
     print 'Choosing spectra'
     which_removed=outpath+which_elem+'_'+plstype+'_nc'+str(nc)+'_norm'+str(normtype)+'_'+str(mincomp)+'-'+str(maxcomp)+'_removed.csv'
-    spectra,names,spect_index,comps=choose_spectra.ccam_choose_spectra(spectra,spect_index,names,comps,compindex,mincomp=mincomp,maxcomp=maxcomp,keepfile=keepfile,removefile=removefile,which_removed=which_removed)
+    spectra,names,spect_index,comps=ccam.choose_spectra(spectra,spect_index,names,comps,compindex,mincomp=mincomp,maxcomp=maxcomp,keepfile=keepfile,removefile=removefile,which_removed=which_removed)
     
     print 'Masking spectra'
-    spectra,wvl=mask.ccam_mask(spectra,wvl,maskfile)
+    spectra,wvl=ccam.mask(spectra,wvl,maskfile)
     
     print 'Normalizing spectra'
-    spectra=normalize.ccam_normalize(spectra,wvl,normtype=normtype)
+    spectra=ccam.normalize(spectra,wvl,normtype=normtype)
     
     
     print 'Assigning Folds'
-    folds=ccam_folds.ccam_folds(foldfile,names)
+    folds=ccam.folds(foldfile,names)
     names_nofold=names[(folds==0)]
     spect_index_nofold=spect_index[(folds==0)]
     #write a file containing the samples not assigned to folds
@@ -50,7 +50,7 @@ def ccam_pls_cal(dbfile,foldfile,maskfile,outpath,which_elem,testfold,nc,normtyp
             writer.writerow([names_nofold[i],spect_index_nofold[i],'No Fold'])
     
     
-    #remove spectra that are not assigned to a fold
+    #remove spectra that are not assigned to any fold
     spectra=spectra[(folds!=0),:]
     spect_index=spect_index[(folds!=0)]
     names=names[(folds!=0)]
@@ -79,12 +79,14 @@ def ccam_pls_cal(dbfile,foldfile,maskfile,outpath,which_elem,testfold,nc,normtyp
     for i in folds_train_unique:
         print 'Holding out fold #'+str(i)
         #mean center those spectra left in
-        X_cv_in,X_cv_in_mean=meancenter.ccam_meancenter(spectra_train[(folds_train!=i),:])
+        #X_cv_in1,X_cv_in_mean1=meancenter.ccam_meancenter(spectra_train[(folds_train!=i),:])
+        X_cv_in,X_cv_in_mean=ccam.meancenter(spectra_train[(folds_train!=i),:])
+        
         #and those left out
-        X_cv_out=meancenter.ccam_meancenter(spectra_train[(folds_train==i),:],X_mean=X_cv_in_mean)[0]   
+        X_cv_out=ccam.meancenter(spectra_train[(folds_train==i),:],X_mean=X_cv_in_mean)[0]   
          
         #mean center compositions left in
-        Y_cv_in,Y_cv_in_mean=meancenter.ccam_meancenter(comps_train[(folds_train!=i)])
+        Y_cv_in,Y_cv_in_mean=ccam.meancenter(comps_train[(folds_train!=i)])
        
         #step through each number of components
         for j in range(1,nc+1):
@@ -106,10 +108,10 @@ def ccam_pls_cal(dbfile,foldfile,maskfile,outpath,which_elem,testfold,nc,normtyp
         RMSECV[i]=numpy.sqrt(numpy.mean(sqerr))
     
     #mean center full model
-    X,X_mean=meancenter.ccam_meancenter(spectra_train)
-    X_test=meancenter.ccam_meancenter(spectra_test,X_mean=X_mean)[0]
+    X,X_mean=ccam.meancenter(spectra_train)
+    X_test=ccam.meancenter(spectra_test,X_mean=X_mean)[0]
     
-    Y,Y_mean=meancenter.ccam_meancenter(comps_train)
+    Y,Y_mean=ccam.meancenter(comps_train)
     
     #create arrays for results and RMSEs
     trainset_results=numpy.zeros((len(names_train),nc))
@@ -138,8 +140,8 @@ def ccam_pls_cal(dbfile,foldfile,maskfile,outpath,which_elem,testfold,nc,normtyp
  #if cal_dir is specified, read cal target data and calculate RMSEs    
     if cal_dir!=None:
         cal_data,cal_wvl,cal_filelist=ccam.read_ccs(cal_dir)
-        cal_data,cal_wvl=mask.ccam_mask(cal_data,cal_wvl,maskfile)
-        cal_data=normalize.ccam_normalize(cal_data,cal_wvl,normtype=normtype)
+        cal_data,cal_wvl=ccam.mask(cal_data,cal_wvl,maskfile)
+        cal_data=ccam.normalize(cal_data,cal_wvl,normtype=normtype)
         
         RMSEP_cal=numpy.zeros(nc)
         RMSEP_KGAMEDS=numpy.zeros(nc)
@@ -151,7 +153,7 @@ def ccam_pls_cal(dbfile,foldfile,maskfile,outpath,which_elem,testfold,nc,normtyp
         RMSEP_PICRITE=numpy.zeros(nc)
         RMSEP_SHERGOTTITE=numpy.zeros(nc)
         
-        targets=ccam.target_lookup(cal_filelist,masterlist_file,name_sub_file)
+        targets,dists,amps=ccam.target_lookup(cal_filelist,masterlist_file,name_sub_file)
         target_comps=ccam.target_comp_lookup(targets,compfile,which_elem)
         cal_results=numpy.zeros((len(targets),nc))
         
@@ -177,11 +179,11 @@ def ccam_pls_cal(dbfile,foldfile,maskfile,outpath,which_elem,testfold,nc,normtyp
                        
         with open(outpath+which_elem+'_'+str(mincomp)+'-'+str(maxcomp)+'_'+plstype+'_nc'+str(nc)+'_norm'+str(normtype)+'_caltargets_predict.csv','wb') as writefile:
             writer=csv.writer(writefile,delimiter=',')
-            row=['File','Target','True_Comp']
+            row=['File','Target','Laser Energy','True_Comp']
             row.extend(range(1,nc+1))
             writer.writerow(row)
             for i in range(0,len(targets)):
-                row=[cal_filelist[i],targets[i],target_comps[i]]
+                row=[cal_filelist[i],targets[i],amps[i],target_comps[i]]
                 row.extend(cal_results[i,:])
                 writer.writerow(row)
         with open(outpath+which_elem+'_'+str(mincomp)+'-'+str(maxcomp)+'_'+plstype+'_nc'+str(nc)+'_norm'+str(normtype)+'_RMSECP_caltargets.csv','wb') as writefile:
@@ -199,7 +201,7 @@ def ccam_pls_cal(dbfile,foldfile,maskfile,outpath,which_elem,testfold,nc,normtyp
     
    
    #Write output info to files
-    
+    print outpath+which_elem+'_'+plstype+'_nc'+str(nc)+'_norm'+str(normtype)+'_'+str(mincomp)+'-'+str(maxcomp)+'_RMSECV.csv'
     with open(outpath+which_elem+'_'+plstype+'_nc'+str(nc)+'_norm'+str(normtype)+'_'+str(mincomp)+'-'+str(maxcomp)+'_RMSECV.csv','wb') as writefile:
         writer=csv.writer(writefile,delimiter=',')
         writer.writerow(['NC','RMSECV (wt.%)'])            

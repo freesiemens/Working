@@ -10,23 +10,23 @@ import ccam
 full_cv_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\Al2O3 nc20 initial submodel\Al2O3_mlpy_nc20_norm1_0-100_cv_predict.csv'
 low_cv_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\Al2O3 nc20 initial submodel\Al2O3_mlpy_nc20_norm1_0-12_cv_predict.csv'
 mid_cv_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\Al2O3 nc20 initial submodel\Al2O3_mlpy_nc20_norm1_10-25_cv_predict.csv'
-high_cv_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\Al2O3 nc20 initial submodel\Al2O3_mlpy_nc20_norm3_20-100_cv_predict.csv'
+high_cv_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\Al2O3 nc20 initial submodel\Al2O3_mlpy_nc20_norm1_20-100_cv_predict.csv'
 
 
-nc_full=4
+nc_full=5
 nc_low=5
-nc_mid=5
-nc_high=4
+nc_mid=4
+nc_high=6
 
 norm_full=1
 norm_low=1
 norm_mid=1
-norm_high=3
+norm_high=1
 
 low_cutoff=11
 high_cutoff=22.5
 comprange1=[0,45]
-outfile1=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\Al2O3 nc20 initial submodel\Al2O3_submodels_1to1_plot.png'
+outfile1=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\Output\Al2O3 nc20 initial submodel\Al2O3_submodels_1to1_plot_newsettings.png'
 
 full_cv_predict,full_cv_samples,full_cv_truecomps,full_cv_folds,full_cv_spect=ccam.plots.readpredicts(full_cv_file,nc_full)
 low_cv_predict,low_cv_samples,low_cv_truecomps,low_cv_folds,low_cv_spect=ccam.plots.readpredicts(low_cv_file,nc_low)
