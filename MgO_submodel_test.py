@@ -4,13 +4,14 @@ Created on Mon Jan 26 15:21:25 2015
 
 @author: rbanderson
 """
+
 import os
 os.chdir(r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Working\ccam')
 
 import ccam
 dbfile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\Data Processing\\Working\\Input\\full_db_mars_corrected.csv'
 removefile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\Data Processing\\Working\\Input\\removelist.csv'
-foldfile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\Data Processing\\Working\\Input\\folds.csv'
+foldfile=None#'C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\Data Processing\\Working\\Input\\folds.csv'
 maskfile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\Data Processing\\Working\\Input\\mask_minors_noise.csv'
 keepfile=None#'C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\Data Processing\\Working\\Input\\Mg_full_included.csv'
 outpath='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\Data Processing\\Working\\Output'
@@ -20,14 +21,16 @@ name_sub_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Workin
 
 normtype=3
 which_elem='MgO'
-mincomp=1
-maxcomp=99
+mincomp=0
+maxcomp=100
+nfolds=5
 testfold=2
 nc=5
 plstype='mlpy'
 
+
 #calculate full model
-ccam.pls_cal(dbfile,foldfile,maskfile,outpath+'\\Test',which_elem,testfold,nc,normtype=normtype,mincomp=mincomp,maxcomp=maxcomp,plstype=plstype,keepfile=keepfile,removefile=removefile,cal_dir=cal_dir,masterlist_file=masterlist_file,compfile=dbfile,name_sub_file=name_sub_file)
+ccam.pls_cal(dbfile,maskfile,outpath+'\\Test',which_elem,testfold,nc,normtype=normtype,mincomp=mincomp,maxcomp=maxcomp,plstype=plstype,keepfile=keepfile,removefile=removefile,cal_dir=cal_dir,masterlist_file=masterlist_file,compfile=dbfile,name_sub_file=name_sub_file,foldfile=foldfile,nfolds=nfolds)
 
 
 normtype=1

@@ -66,7 +66,7 @@ import ccam_plots
 import copy
 
 
-def pls_cal(dbfile,foldfile,maskfile,outpath,which_elem,testfold,nc,normtype=1,mincomp=0,maxcomp=100,plstype='mlpy',keepfile=None,removefile=None,cal_dir=None,masterlist_file=None,compfile=None,name_sub_file=None):
+def pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=1,mincomp=0,maxcomp=100,plstype='mlpy',keepfile=None,removefile=None,cal_dir=None,masterlist_file=None,compfile=None,name_sub_file=None,foldfile=None,nfolds=7):
     
     print 'Reading database'
     sys.stdout.flush()
@@ -86,7 +86,12 @@ def pls_cal(dbfile,foldfile,maskfile,outpath,which_elem,testfold,nc,normtype=1,m
     
     
     print 'Assigning Folds'
-    folds=ccam.folds(foldfile,names)
+    if foldfile!=None:
+        #if a fold file is specified, use it
+        folds=ccam.folds(foldfile,names)
+    else:
+        #otherwise, define random folds
+        folds=ccam.random_folds(names,nfolds)
     names_nofold=names[(folds==0)]
     spect_index_nofold=spect_index[(folds==0)]
     #write a file containing the samples not assigned to folds
@@ -139,7 +144,7 @@ def pls_cal(dbfile,foldfile,maskfile,outpath,which_elem,testfold,nc,normtype=1,m
             print 'Training PLS Model for '+str(j)+' components'
             #train the model
             if plstype=='mlpy':
-                PLS1model=mlpy.pls.PLS(j)
+                PLS1model=ccam.mlpy_pls.PLS(j)
                 PLS1model.learn(X_cv_in,Y_cv_in)
                 
                 #predict the samples held out
@@ -147,7 +152,8 @@ def pls_cal(dbfile,foldfile,maskfile,outpath,which_elem,testfold,nc,normtype=1,m
             if plstype=='sklearn':
                 PLS1model=PLSRegression(n_components=nc)
                 PLS1model.fit(X_cv_in,Y_cv_in)
-                train_predict_cv[(folds_train==i),j-1]=PLS1model.predict(X_cv_out)+Y_cv_in_mean
+                train_predict_cv[(folds_train==i),j-1]=numpy.squeeze(PLS1model.predict(X_cv_out)+Y_cv_in_mean)
+
     #calculate RMSECV
     for i in range(0,nc):
         sqerr=(train_predict_cv[:,i]-comps_train)**2.0
@@ -170,7 +176,7 @@ def pls_cal(dbfile,foldfile,maskfile,outpath,which_elem,testfold,nc,normtype=1,m
     for j in range(1,nc+1):
         print 'Training full model for '+str(j)+' components'
         if plstype=='mlpy':
-            PLS1model=mlpy.pls.PLS(j)
+            PLS1model=ccam.PLS(j)
             PLS1model.learn(X,Y)
             beta[:,j-1]=PLS1model.beta()
             trainset_results[:,j-1]=PLS1model.pred(X)+Y_mean
@@ -178,6 +184,9 @@ def pls_cal(dbfile,foldfile,maskfile,outpath,which_elem,testfold,nc,normtype=1,m
         if plstype=='sklearn':
             PLS1model=PLSRegression(n_components=nc)
             PLS1model.fit(X,Y)
+            trainset_results[:,j-1]=numpy.squeeze(PLS1model.predict(X)+Y_mean)
+            testset_results[:,j-1]=numpy.squeeze(PLS1model.predict(X_test)+Y_mean)
+            
             print 'stop'
             
         RMSEC[j-1]=numpy.sqrt(numpy.mean((trainset_results[:,j-1]-comps_train)**2.0))

@@ -36,7 +36,7 @@ comps_keep = = compositions of spectra that satisfy the constraints on compositi
 """
 import numpy
 import csv
-def choose_spectra(spectra,spect_index,names,comps,compindex,mincomp=0,maxcomp=100,removefile=None,keepfile=None,which_removed=None,linewvl=None,linestrength=None,wvl=None):
+def choose_spectra(spectra,spect_index,names,comps,compindex,mincomp=0,maxcomp=100,removefile=None,keepfile=None,which_removed=None,linewvl=None,linestrength=None,wvl=None,clustermask=None):
 
     
     #define index where composition is within the specified range
