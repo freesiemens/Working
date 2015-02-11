@@ -67,16 +67,18 @@ y_db_high,highnorm=ccam.pls_predict(which_elem,nc_high,spectra,wvl,maskfile,high
 
 """
 From low model 0 to 2, use the low model
-If low model >2, then from low 2 to 3 blend the low and mid models
-If low model >3 and mid model < 10, use the mid model
-If mid >10, then from mid 10 to 12 blend mid and high
+If low model between 2 and 3, then blend the low and mid models
+If low model and mid model are between 3 and 10, use the mid model
+If mid is 10 to 12, then from mid 10 to 12 blend mid and high
 if mid >12 then use high
 """
 predicts=[y_db_full,y_db_low,y_db_mid,y_db_high]
+ranges=[[-10,2],[2,3],[3,10],[10,12],[12,100]]
+inrange=[1,1,[1,2],2,2]
+refpredict=[1,1,2,2,3]
+toblend=[[1,1],[1,2],[2,2],[2,3],[3,3]]
 
-ranges=[[0,2],[2,3],[3,10],[10,12],[12,100]]
-blends=[[1,1,1],[1,1,2],[[1,2],2,2],[2,2,3],[2,3,3]]
-blended2=ccam.submodels_blend(predicts,ranges,blends)
+blended2=ccam.submodels_blend(predicts,ranges,inrange,refpredict,toblend)
 
 truecomps=[comps[:,compindex],comps[:,compindex],comps[:,compindex],comps[:,compindex],comps[:,compindex]]
 predicts=[y_db_full,y_db_low,y_db_mid,y_db_high,blended2]

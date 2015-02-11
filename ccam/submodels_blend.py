@@ -7,6 +7,11 @@ Created on Tue Feb 10 16:03:07 2015
 inputs:
 predicts = This should be a list of arrays containing the predictions from the submodels
 ranges = this should be a list of two-element arrays, each containing the max and min of a range where a certain type of blending should occur
+inrange = This is a list of index arrays indicating the predictions that must fall within each desired range. If an array in this list has more than one element, then
+    for each spectrum, all of the predictions indicated must be in the range for a value to be assigned to the blended output for that spectrum.
+refpredict = list of indices indicating which of the predicts should be used to determine the weighting when blending.
+toblend = List of two-element arrays indicating the two sets of predictions to be blended in a given composition range.
+
 blends = this is a list of three element arrays, one per composition range. 
         The first element in each array is an index into predicts and indicates which prediction to use as the refernece for choosing submodels.
         The second element and third elements are indices into predicts, indicating which two sets of predictions should be blended over the given range.
@@ -17,22 +22,24 @@ import numpy
 
 
 
-def submodels_blend(predicts,ranges,blends):
+def submodels_blend(predicts,ranges,inrange,refpredict,toblend):
     blended=numpy.zeros_like(predicts[0])
     for i in range(len(ranges)): #loop over each composition range
-        for j in range(len(predicts)): #loop over each spectrum
-            if isinstance(blends[i][0],int): #if only one reference prediction is provided, simply check if the spectrum is in range for that prediction
-                inrange=(predicts[blends[i][0]][j]>ranges[i][0])&(predicts[blends[i][0]][j]<ranges[i][1])
-            if isinstance(blends[i][0],list): #if more than one reference is provided, check if the spectrum is in range for all
-                inrange_temp=numpy.array(len(blends[i][0]),dtype='bool')
-                for k in blends[i][0]:
-                    inrange_temp[k]=(predicts[blends[i][0][k]][j]>ranges[i][0])&(predicts[blends[i][0][k]][j]<ranges[i][1])
-                inrange=numpy.all(inrange_temp)
+        for j in range(len(predicts[0])): #loop over each spectrum
+
+            if isinstance(inrange[i],int): #if only one reference prediction is provided, simply check if the spectrum is in range for that prediction
+                inrangecheck=(predicts[inrange[i]][j]>ranges[i][0])&(predicts[inrange[i]][j]<ranges[i][1])
+            if isinstance(inrange[i],list): #if more than one reference is provided, check if the spectrum is in range for all
+                inrange_temp=numpy.zeros(len(inrange[i]),dtype='bool')
+                for k in range(len(inrange[i])):
+                    inrange_temp[k]=(predicts[inrange[i][k]][j]>ranges[i][0])&(predicts[inrange[i][k]][j]<ranges[i][1])
+                inrangecheck=numpy.all(inrange_temp)
                     
-            if inrange: 
-                weight1=1-(predicts[blends[i][0]][j]-ranges[0])/(ranges[i][1]-ranges[i][0])
-                weight2=(predicts[blends[i][0]][j]-ranges[0])/(ranges[i][1]-ranges[i][0])
-                blended[j]=weight1*predicts[blends[i][1]][j]+weight2*predicts[blends[i][2]][j]
+            if inrangecheck: 
+                weight1=1-(predicts[refpredict[i]][j]-ranges[i][0])/(ranges[i][1]-ranges[i][0])
+                weight2=(predicts[refpredict[i]][j]-ranges[i][0])/(ranges[i][1]-ranges[i][0])
+                blended[j]=weight1*predicts[toblend[i][0]][j]+weight2*predicts[toblend[i][1]][j]
+
     return blended
         
 
