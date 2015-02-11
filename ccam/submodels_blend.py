@@ -11,18 +11,14 @@ inrange = This is a list of index arrays indicating the predictions that must fa
     for each spectrum, all of the predictions indicated must be in the range for a value to be assigned to the blended output for that spectrum.
 refpredict = list of indices indicating which of the predicts should be used to determine the weighting when blending.
 toblend = List of two-element arrays indicating the two sets of predictions to be blended in a given composition range.
-
-blends = this is a list of three element arrays, one per composition range. 
-        The first element in each array is an index into predicts and indicates which prediction to use as the refernece for choosing submodels.
-        The second element and third elements are indices into predicts, indicating which two sets of predictions should be blended over the given range.
-        If no blending is desired, the second and third elements should both be the prediction that you want to use for the range.
+overwrite = Set this to true if you want to overwrite blend results that are non-zero (e.g. if they have been filled in by the script when working in a previous range.)
 
 """
 import numpy
 
 
 
-def submodels_blend(predicts,ranges,inrange,refpredict,toblend):
+def submodels_blend(predicts,ranges,inrange,refpredict,toblend,overwrite=False):
     blended=numpy.zeros_like(predicts[0])
     for i in range(len(ranges)): #loop over each composition range
         for j in range(len(predicts[0])): #loop over each spectrum
@@ -36,10 +32,13 @@ def submodels_blend(predicts,ranges,inrange,refpredict,toblend):
                 inrangecheck=numpy.all(inrange_temp)
                     
             if inrangecheck: 
-                weight1=1-(predicts[refpredict[i]][j]-ranges[i][0])/(ranges[i][1]-ranges[i][0])
-                weight2=(predicts[refpredict[i]][j]-ranges[i][0])/(ranges[i][1]-ranges[i][0])
-                blended[j]=weight1*predicts[toblend[i][0]][j]+weight2*predicts[toblend[i][1]][j]
-
+                weight1=1-(predicts[refpredict[i]][j]-ranges[i][0])/(ranges[i][1]-ranges[i][0]) #define the weight applied to the lower model
+                weight2=(predicts[refpredict[i]][j]-ranges[i][0])/(ranges[i][1]-ranges[i][0]) #define the weight applied to the higher model
+                if overwrite:
+                    blended[j]=weight1*predicts[toblend[i][0]][j]+weight2*predicts[toblend[i][1]][j]
+                else:
+                    if blended[j]==0:
+                        blended[j]=weight1*predicts[toblend[i][0]][j]+weight2*predicts[toblend[i][1]][j]
     return blended
         
 

@@ -239,7 +239,7 @@ def pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=1,mincomp=0,
         RMSEP_cal=(RMSEP_KGAMEDS+RMSEP_MACUSANITE+RMSEP_NAU2HIS+RMSEP_NAU2LOS+RMSEP_NAU2MEDS+RMSEP_NORITE+RMSEP_PICRITE+RMSEP_SHERGOTTITE)/n_good_cal
         RMSEP_single_cals=[RMSEP_KGAMEDS,RMSEP_MACUSANITE,RMSEP_NAU2HIS,RMSEP_NAU2LOS,RMSEP_NAU2MEDS,RMSEP_NORITE,RMSEP_PICRITE,RMSEP_SHERGOTTITE,RMSEP_cal]            
                        
-        with open(outpath+which_elem+'_'+str(mincomp)+'-'+str(maxcomp)+'_'+plstype+'_nc'+str(nc)+'_norm'+str(normtype)+'_caltargets_predict.csv','wb') as writefile:
+        with open(outpath+which_elem+'_'+plstype+'_nc'+str(nc)+'_norm'+str(normtype)+'_'+str(mincomp)+'-'+str(maxcomp)+'_caltargets_predict.csv','wb') as writefile:
             writer=csv.writer(writefile,delimiter=',')
             row=['File','Target','Laser Energy','True_Comp']
             row.extend(range(1,nc+1))
@@ -248,17 +248,17 @@ def pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=1,mincomp=0,
                 row=[cal_filelist[i],targets[i],amps[i],target_comps[i]]
                 row.extend(cal_results[i,:])
                 writer.writerow(row)
-        with open(outpath+which_elem+'_'+str(mincomp)+'-'+str(maxcomp)+'_'+plstype+'_nc'+str(nc)+'_norm'+str(normtype)+'_RMSECP_caltargets.csv','wb') as writefile:
+        with open(outpath+which_elem+'_'+plstype+'_nc'+str(nc)+'_norm'+str(normtype)+'_'+str(mincomp)+'-'+str(maxcomp)+'_RMSECP_caltargets.csv','wb') as writefile:
             writer=csv.writer(writefile,delimiter=',')
             writer.writerow(['NC','RMSECP Cal Targets (wt.%)'])            
             for i in range(0,nc):
                 writer.writerow([i+1,RMSEP_cal[i]])
-        ccam.plots.RMSE(RMSECV,RMSEP,RMSEC,which_elem+' RMSEs',outpath+which_elem+'_'+str(mincomp)+'-'+str(maxcomp)+'_'+plstype+'_nc'+str(nc)+'_norm'+str(normtype)+'_RMSE_plot_cal.png',RMSEP_cals=RMSEP_single_cals)
+        ccam.plots.RMSE(RMSECV,RMSEP,RMSEC,which_elem+' RMSEs',outpath+which_elem+'_'+plstype+'_nc'+str(nc)+'_norm'+str(normtype)+'_'+str(mincomp)+'-'+str(maxcomp)+'_RMSE_plot_cal.png',RMSEP_cals=RMSEP_single_cals)
    
    
    
     # plot RMSEs
-    ccam.plots.RMSE(RMSECV,RMSEP,RMSEC,which_elem+'RMSEs',outpath+which_elem+'_'+plstype+'_nc'+str(nc)+'_norm'+str(normtype)+'_'+str(mincomp)+'-'+str(maxcomp)+'_RMSE_plot.png')
+    ccam.plots.RMSE(RMSECV,RMSEP,RMSEC,which_elem+' RMSEs',outpath+which_elem+'_'+plstype+'_nc'+str(nc)+'_norm'+str(normtype)+'_'+str(mincomp)+'-'+str(maxcomp)+'_RMSE_plot.png')
     
     
    
