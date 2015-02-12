@@ -53,8 +53,11 @@ def RMSE(RMSECV,RMSEP,RMSEC,plot_title,outfile,RMSEP_cals=None):
 def Plot1to1(truecomps,predicts,plot_title,labels,colors,markers,outfile,xminmax=[0,100],yminmax=[0,100],ylabel='Prediction (wt.%)',xlabel='wt.%',one_to_one=True):
     if one_to_one:
         plot.plot([0,100],[0,100],color='k',linewidth=2.0,label='1:1 line')
-    for i in range(len(truecomps)):
-        plot.plot(truecomps[i],predicts[i],color=colors[i],label=labels[i],marker=markers[i],linewidth=0)
+    if isinstance(truecomps,list):
+        for i in range(len(truecomps)):
+            plot.plot(truecomps[i],predicts[i],color=colors[i],label=labels[i],marker=markers[i],linewidth=0)
+    else:
+        plot.plot(truecomps,predicts,color=colors,label=labels,marker=markers,linewidth=0)
     plot.xlabel(xlabel)
     plot.ylabel(ylabel)
     plot.xlim(xminmax)
