@@ -71,6 +71,7 @@ If low model between 1 and 3, then blend the low and mid models using low as ref
 If low model AND mid model are between 3 and 8, use the mid model
 If mid is 8 to 12, then blend mid and high using mid as reference
 if high >12 then use high
+Do not overwrite predictions that have already been set in a previous round of logic.
 """
 
 predicts=[y_db_full,y_db_low,y_db_mid,y_db_high]

@@ -10,9 +10,9 @@ It keeps all spectra from a given sample in the same fold.
 """
 import numpy
 import sklearn.cross_validation as cv
-def random_folds(names,nfolds):
+def random_folds(names,nfolds,seed=None):
     uniqnames,uniqindex=numpy.unique(names,return_index=True)
-    kf=cv.KFold(len(uniqnames),nfolds)
+    kf=cv.KFold(len(uniqnames),nfolds,shuffle=True,random_state=seed)
     uniqfolds=numpy.zeros(len(uniqnames))
     folds=numpy.zeros(len(names),dtype='int')    
     i=0
