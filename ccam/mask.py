@@ -27,12 +27,15 @@ def mask(spectra,wvl,maskfile):
     spectra_masked=spectra
     wvl_masked=wvl
     mask=numpy.genfromtxt(maskfile,usecols=(1,2),dtype='float',delimiter=',',skip_header=1) #read the mask file
+    indexes=numpy.zeros([len(wvl),mask.shape[0]])    
     for i in range(0,mask.shape[0]):
         #create an index for all elements of wvl between the min and max 
         #wavelengths on each row of the mask file, then invert it so everything
         #in that range is false and everything outside is true
-        index=numpy.invert((wvl_masked>=mask[i,0]) & (wvl_masked<=mask[i,1])) 
-        spectra_masked=spectra_masked[:,index] #mask the spectra
-        wvl_masked=wvl_masked[index] #mask wvl
+        indexes[:,i]=numpy.invert((wvl_masked>=mask[i,0]) & (wvl_masked<=mask[i,1]))
+    #combine the indexes for each range in the mask file into a single masking vector and use that to mask the spectra
+    index=numpy.all(indexes,axis=1)    
+    spectra_masked=spectra_masked[:,index] #mask the spectra
+    wvl_masked=wvl_masked[index] #mask wvl
     
     return spectra_masked,wvl_masked    

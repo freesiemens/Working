@@ -49,3 +49,4 @@ full_db_mars_corrected.csv
 #output files
 *.csv
 *.png
+*.pkl

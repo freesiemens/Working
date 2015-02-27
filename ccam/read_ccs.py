@@ -43,7 +43,7 @@ def read_ccs(searchdir):#,minsol=0,maxsol=10000,masterlist=None):
     filelist=filelist[unique_index]
     sclocks=sclocks[unique_index]
         
-    data=numpy.zeros((len(filelist),6144),dtype='float32')
+    data=numpy.zeros((len(filelist),6144),dtype='float64')
     print 'Reading '+str(len(filelist))+' files...'
     for i in range(len(filelist)):
         if numpy.mod(i,100)==0:

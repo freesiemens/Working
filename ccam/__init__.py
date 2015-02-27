@@ -11,6 +11,7 @@ from plots import Plot1to1
 from plots import RMSE
 from pls_cal import pls_cal
 from pls_unk import pls_unk
+from pls_unk import pls_unk_load
 from meancenter import meancenter
 from folds import folds
 from normalize import normalize
