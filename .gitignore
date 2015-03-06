@@ -50,3 +50,6 @@ full_db_mars_corrected.csv
 *.csv
 *.png
 *.pkl
+*.xlsx
+*.pptx
+*.zip
