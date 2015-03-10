@@ -8,11 +8,14 @@ import matplotlib.pyplot as plot
 import numpy
 import csv
 
-def RMSE(RMSECV,RMSEP,RMSEC,plot_title,outfile,RMSEP_cals=None):
+def RMSE(RMSECV,RMSEP,RMSEC,plot_title,outfile,RMSEP_cals=None,RMSEP_good=None):
+
+
     plot.plot(range(1,len(RMSECV)+1),RMSECV,color='r',linewidth=2.0,label='RMSECV (folds)')
     plot.plot(range(1,len(RMSEC)+1),RMSEC,color='b',linewidth=2.0,label='RMSEC (training set)')
     plot.plot(range(1,len(RMSEP)+1),RMSEP,color='g',linewidth=2.0,label='RMSEP (test set)')
     if RMSEP_cals!=None:
+       
         if numpy.max(RMSEP_cals[0])>0:        
             plot.plot(range(1,len(RMSEP_cals[0])+1),RMSEP_cals[0],color='m',linewidth=2.0,linestyle='-',label='RMSEP (KGa-MedS)')
         if numpy.max(RMSEP_cals[1])>0:        
@@ -31,16 +34,19 @@ def RMSE(RMSECV,RMSEP,RMSEC,plot_title,outfile,RMSEP_cals=None):
             plot.plot(range(1,len(RMSEP_cals[7])+1),RMSEP_cals[7],color='c',linewidth=2.0,linestyle=':',label='RMSEP (Shergottite)')
         plot.plot(range(1,len(RMSEP_cals[8])+1),RMSEP_cals[8],color='k',linewidth=4.0,linestyle='-',label='RMSEP (Cal Targets In Range)')
         plot.plot(range(1,len(RMSEP_cals[8])+1),RMSEP_cals[8],color='y',linewidth=3.5,linestyle='-',label='RMSEP (Cal Targets In Range)')
-        
-        
+    if RMSEP_good!=None:
+
+        plot.plot(range(1,len(RMSEP_good)+1),RMSEP_good,color='k',linewidth=4.0,linestyle='-',label='RMSEP (All cal targets but Macusanite and KGA)')
+    plot.ylim(bottom=0)
+       
         
         
     plot.legend()
     plot.title(plot_title)
     
-    plot.ylim([numpy.min([RMSECV,RMSEP,RMSEC]),numpy.max([RMSECV,RMSEP,RMSEC])])
-    if RMSEP_cals!=None:
-        plot.ylim([numpy.min(numpy.vstack((RMSECV,RMSEP,RMSEC,RMSEP_cals))),numpy.max(numpy.vstack((RMSECV,RMSEP,RMSEC,RMSEP_cals)))])
+    #plot.ylim([numpy.min([RMSECV,RMSEP,RMSEC]),numpy.max([RMSECV,RMSEP,RMSEC])])
+    #if RMSEP_cals!=None:
+    #    plot.ylim([numpy.min(numpy.vstack((RMSECV,RMSEP,RMSEC,RMSEP_cals))),numpy.max(numpy.vstack((RMSECV,RMSEP,RMSEC,RMSEP_cals)))])
     plot.xlabel('# of Components')
     plot.ylabel('wt.%')
     plot.xticks(range(1,len(RMSEC)+1))

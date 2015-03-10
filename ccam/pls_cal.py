@@ -65,7 +65,7 @@ import sklearn.ensemble as ensemble
 import copy
 import cPickle as pickle
 
-def pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=1,mincomp=0,maxcomp=100,plstype='mlpy',keepfile=None,removefile=None,cal_dir=None,masterlist_file=None,compfile=None,name_sub_file=None,foldfile=None,nfolds=7,seed=None,n_bag=None,skscale=False,n_boost=None,max_samples=0.1):
+def pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=1,mincomp=0,maxcomp=100,plstype='mlpy',keepfile=None,removefile=None,cal_dir=None,masterlist_file=None,compfile=None,name_sub_file=None,foldfile=None,nfolds=7,seed=None,n_bag=None,skscale=False,n_boost=None,max_samples=0.1,n_elems=9):
     plstype_string=plstype    
     if n_bag!=None:
         plstype_string=plstype+'_bag'
@@ -75,7 +75,7 @@ def pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=1,mincomp=0,
         plstype_string=plstype+'_scale'
     print 'Reading database'
     sys.stdout.flush()
-    spectra,comps,spect_index,names,labels,wvl=ccam.read_db(dbfile,compcheck=True)
+    spectra,comps,spect_index,names,labels,wvl=ccam.read_db(dbfile,compcheck=True,n_elems=n_elems)
     oxides=labels[2:]
     compindex=numpy.where(oxides==which_elem)[0]
     
@@ -217,6 +217,7 @@ def pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=1,mincomp=0,
 
             
         RMSEP_cal=numpy.zeros(nc)
+        RMSEP_cal_good=numpy.zeros(nc)        
         RMSEP_KGAMEDS=numpy.zeros(nc)
         RMSEP_MACUSANITE=numpy.zeros(nc)
         RMSEP_NAU2HIS=numpy.zeros(nc)
@@ -249,7 +250,16 @@ def pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=1,mincomp=0,
 #                    cal_results[:,j-1]=PLS1model.pred(cal_data)
 #                if skscale==False:
                 cal_results[:,j-1]=PLS1model.pred(cal_data_centered)+Y_mean
-                
+                RMSEP_KGAMEDS[j-1]=numpy.sqrt(numpy.mean((cal_results[(targets=='KGAMEDS'),j-1]-comps_copy[(targets=='KGAMEDS')])**2))
+                RMSEP_MACUSANITE[j-1]=numpy.sqrt(numpy.mean((cal_results[(targets=='MACUSANITE'),j-1]-comps_copy[(targets=='MACUSANITE')])**2))
+                RMSEP_NAU2HIS[j-1]=numpy.sqrt(numpy.mean((cal_results[(targets=='NAU2HIS'),j-1]-comps_copy[(targets=='NAU2HIS')])**2))
+                RMSEP_NAU2LOS[j-1]=numpy.sqrt(numpy.mean((cal_results[(targets=='NAU2LOS'),j-1]-comps_copy[(targets=='NAU2LOS')])**2))
+                RMSEP_NAU2MEDS[j-1]=numpy.sqrt(numpy.mean((cal_results[(targets=='NAU2MEDS'),j-1]-comps_copy[(targets=='NAU2MEDS')])**2))
+                RMSEP_NORITE[j-1]=numpy.sqrt(numpy.mean((cal_results[(targets=='NORITE'),j-1]-comps_copy[(targets=='NORITE')])**2))
+                RMSEP_PICRITE[j-1]=numpy.sqrt(numpy.mean((cal_results[(targets=='PICRITE'),j-1]-comps_copy[(targets=='PICRITE')])**2))
+                RMSEP_SHERGOTTITE[j-1]=numpy.sqrt(numpy.mean((cal_results[(targets=='SHERGOTTITE'),j-1]-comps_copy[(targets=='SHERGOTTITE')])**2))
+                RMSEP_cal_good[j-1]=(RMSEP_NAU2HIS[j-1]+RMSEP_NAU2LOS[j-1]+RMSEP_NAU2MEDS[j-1]+RMSEP_NORITE[j-1]+RMSEP_PICRITE[j-1]+RMSEP_SHERGOTTITE[j-1])/6.
+               
                 cal_results[(comps_copy<mincomp),j-1]=0
                 cal_results[(comps_copy>maxcomp),j-1]=0
                 comps_copy[(comps_copy<mincomp)]=0
@@ -280,7 +290,16 @@ def pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=1,mincomp=0,
                 if cal_dir != None:
                     comps_copy=copy.copy(target_comps)
                     cal_results[:,j-1]=numpy.squeeze(PLS1model.predict(cal_data_centered)+Y_mean)
-                    
+                    RMSEP_KGAMEDS[j-1]=numpy.sqrt(numpy.mean((cal_results[(targets=='KGAMEDS'),j-1]-comps_copy[(targets=='KGAMEDS')])**2))
+                    RMSEP_MACUSANITE[j-1]=numpy.sqrt(numpy.mean((cal_results[(targets=='MACUSANITE'),j-1]-comps_copy[(targets=='MACUSANITE')])**2))
+                    RMSEP_NAU2HIS[j-1]=numpy.sqrt(numpy.mean((cal_results[(targets=='NAU2HIS'),j-1]-comps_copy[(targets=='NAU2HIS')])**2))
+                    RMSEP_NAU2LOS[j-1]=numpy.sqrt(numpy.mean((cal_results[(targets=='NAU2LOS'),j-1]-comps_copy[(targets=='NAU2LOS')])**2))
+                    RMSEP_NAU2MEDS[j-1]=numpy.sqrt(numpy.mean((cal_results[(targets=='NAU2MEDS'),j-1]-comps_copy[(targets=='NAU2MEDS')])**2))
+                    RMSEP_NORITE[j-1]=numpy.sqrt(numpy.mean((cal_results[(targets=='NORITE'),j-1]-comps_copy[(targets=='NORITE')])**2))
+                    RMSEP_PICRITE[j-1]=numpy.sqrt(numpy.mean((cal_results[(targets=='PICRITE'),j-1]-comps_copy[(targets=='PICRITE')])**2))
+                    RMSEP_SHERGOTTITE[j-1]=numpy.sqrt(numpy.mean((cal_results[(targets=='SHERGOTTITE'),j-1]-comps_copy[(targets=='SHERGOTTITE')])**2))
+                    RMSEP_cal_good[j-1]=(RMSEP_NAU2HIS[j-1]+RMSEP_NAU2LOS[j-1]+RMSEP_NAU2MEDS[j-1]+RMSEP_NORITE[j-1]+RMSEP_PICRITE[j-1]+RMSEP_SHERGOTTITE[j-1])/6.
+                
                     cal_results[(comps_copy<mincomp),j-1]=0
                     cal_results[(comps_copy>maxcomp),j-1]=0
                     comps_copy[(comps_copy<mincomp)]=0
@@ -305,7 +324,16 @@ def pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=1,mincomp=0,
                 if cal_dir != None:
                     comps_copy=copy.copy(target_comps)
                     cal_results[:,j-1]=numpy.squeeze(PLS1bagged.predict(cal_data_centered)+Y_mean)
-                    
+                    RMSEP_KGAMEDS[j-1]=numpy.sqrt(numpy.mean((cal_results[(targets=='KGAMEDS'),j-1]-comps_copy[(targets=='KGAMEDS')])**2))
+                    RMSEP_MACUSANITE[j-1]=numpy.sqrt(numpy.mean((cal_results[(targets=='MACUSANITE'),j-1]-comps_copy[(targets=='MACUSANITE')])**2))
+                    RMSEP_NAU2HIS[j-1]=numpy.sqrt(numpy.mean((cal_results[(targets=='NAU2HIS'),j-1]-comps_copy[(targets=='NAU2HIS')])**2))
+                    RMSEP_NAU2LOS[j-1]=numpy.sqrt(numpy.mean((cal_results[(targets=='NAU2LOS'),j-1]-comps_copy[(targets=='NAU2LOS')])**2))
+                    RMSEP_NAU2MEDS[j-1]=numpy.sqrt(numpy.mean((cal_results[(targets=='NAU2MEDS'),j-1]-comps_copy[(targets=='NAU2MEDS')])**2))
+                    RMSEP_NORITE[j-1]=numpy.sqrt(numpy.mean((cal_results[(targets=='NORITE'),j-1]-comps_copy[(targets=='NORITE')])**2))
+                    RMSEP_PICRITE[j-1]=numpy.sqrt(numpy.mean((cal_results[(targets=='PICRITE'),j-1]-comps_copy[(targets=='PICRITE')])**2))
+                    RMSEP_SHERGOTTITE[j-1]=numpy.sqrt(numpy.mean((cal_results[(targets=='SHERGOTTITE'),j-1]-comps_copy[(targets=='SHERGOTTITE')])**2))
+                    RMSEP_cal_good[j-1]=(RMSEP_NAU2HIS[j-1]+RMSEP_NAU2LOS[j-1]+RMSEP_NAU2MEDS[j-1]+RMSEP_NORITE[j-1]+RMSEP_PICRITE[j-1]+RMSEP_SHERGOTTITE[j-1])/6.
+                
                     cal_results[(comps_copy<mincomp),j-1]=0
                     cal_results[(comps_copy>maxcomp),j-1]=0
                     comps_copy[(comps_copy<mincomp)]=0
@@ -329,7 +357,16 @@ def pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=1,mincomp=0,
                 if cal_dir != None:
                     comps_copy=copy.copy(target_comps)
                     cal_results[:,j-1]=numpy.squeeze(PLS1boosted.predict(cal_data_centered)+Y_mean)
-                    
+                    RMSEP_KGAMEDS[j-1]=numpy.sqrt(numpy.mean((cal_results[(targets=='KGAMEDS'),j-1]-comps_copy[(targets=='KGAMEDS')])**2))
+                    RMSEP_MACUSANITE[j-1]=numpy.sqrt(numpy.mean((cal_results[(targets=='MACUSANITE'),j-1]-comps_copy[(targets=='MACUSANITE')])**2))
+                    RMSEP_NAU2HIS[j-1]=numpy.sqrt(numpy.mean((cal_results[(targets=='NAU2HIS'),j-1]-comps_copy[(targets=='NAU2HIS')])**2))
+                    RMSEP_NAU2LOS[j-1]=numpy.sqrt(numpy.mean((cal_results[(targets=='NAU2LOS'),j-1]-comps_copy[(targets=='NAU2LOS')])**2))
+                    RMSEP_NAU2MEDS[j-1]=numpy.sqrt(numpy.mean((cal_results[(targets=='NAU2MEDS'),j-1]-comps_copy[(targets=='NAU2MEDS')])**2))
+                    RMSEP_NORITE[j-1]=numpy.sqrt(numpy.mean((cal_results[(targets=='NORITE'),j-1]-comps_copy[(targets=='NORITE')])**2))
+                    RMSEP_PICRITE[j-1]=numpy.sqrt(numpy.mean((cal_results[(targets=='PICRITE'),j-1]-comps_copy[(targets=='PICRITE')])**2))
+                    RMSEP_SHERGOTTITE[j-1]=numpy.sqrt(numpy.mean((cal_results[(targets=='SHERGOTTITE'),j-1]-comps_copy[(targets=='SHERGOTTITE')])**2))
+                    RMSEP_cal_good[j-1]=(RMSEP_NAU2HIS[j-1]+RMSEP_NAU2LOS[j-1]+RMSEP_NAU2MEDS[j-1]+RMSEP_NORITE[j-1]+RMSEP_PICRITE[j-1]+RMSEP_SHERGOTTITE[j-1])/6.
+                
                     cal_results[(comps_copy<mincomp),j-1]=0
                     cal_results[(comps_copy>maxcomp),j-1]=0
                     comps_copy[(comps_copy<mincomp)]=0
@@ -373,7 +410,8 @@ def pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=1,mincomp=0,
             for i in range(0,nc):
                 writer.writerow([i+1,RMSEP_cal[i]])
         ccam.RMSE(RMSECV,RMSEP,RMSEC,which_elem+' RMSEs',outpath+which_elem+'_'+plstype_string+'_nc'+str(nc)+'_norm'+str(normtype)+'_'+str(mincomp)+'-'+str(maxcomp)+'_RMSE_plot_cal.png',RMSEP_cals=RMSEP_single_cals)
-   
+        ccam.RMSE(RMSECV,RMSEP,RMSEC,which_elem+' RMSEs',outpath+which_elem+'_'+plstype_string+'_nc'+str(nc)+'_norm'+str(normtype)+'_'+str(mincomp)+'-'+str(maxcomp)+'_RMSE_plot_cal_good.png',RMSEP_good=RMSEP_cal_good)
+        
     # plot RMSEs
     ccam.RMSE(RMSECV,RMSEP,RMSEC,which_elem+' RMSEs',outpath+which_elem+'_'+plstype_string+'_nc'+str(nc)+'_norm'+str(normtype)+'_'+str(mincomp)+'-'+str(maxcomp)+'_RMSE_plot.png')
     

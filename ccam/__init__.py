@@ -26,3 +26,4 @@ from pls_predict import pls_predict
 from random_folds import random_folds
 import mlpy_pls
 from submodels_blend import submodels_blend
+from read_spectra import read_spectra

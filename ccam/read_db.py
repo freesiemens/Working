@@ -31,17 +31,17 @@ import numpy
 import ccam
 import csv
 
-def read_db(dbfile,compcheck=True):
+def read_db(dbfile,n_elems=9,compcheck=True):
  
     data,labels=ccam.read_csv_cols(dbfile,0,labelrow=True)
     
     names=numpy.array(data[0],dtype='string')
     spect_index=numpy.array(data[1],dtype='int')
-    comps=numpy.transpose(numpy.array(data[2:11],dtype='float32'))
-    spectra=numpy.transpose(numpy.array(data[11:len(data)],dtype='float64'))
+    comps=numpy.transpose(numpy.array(data[2:2+n_elems],dtype='float32'))
+    spectra=numpy.transpose(numpy.array(data[2+n_elems:len(data)],dtype='float64'))
    
-    wvl=numpy.array(labels[11:],dtype='float32')
-    labels=labels[0:11]
+    wvl=numpy.array(labels[2+n_elems:],dtype='float32')
+    labels=labels[0:2+n_elems]
     
     if compcheck:
         index=(numpy.sum(comps,axis=1)!=0)
