@@ -12,7 +12,7 @@ import ccam
 dbfile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\RyanSInput\\full_db_mars_corrected_peakarea.csv'
 removefile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist.csv'
 foldfile=None#'C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\folds.csv'
-maskfile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\mask_minors_noise.csv'
+maskfile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\RyanSInput\\mask_minors_noise.csv'
 keepfile=None#'C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\Si_full_included.csv'
 outpath='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Output\\SO3\\'
 cal_dir=r'C:\Users\rbanderson\Documents\MSL\ChemCam\ChemCam\ops_ccam_team\CalTarget 95A'
@@ -21,11 +21,11 @@ name_sub_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working
 
 normtype=3
 which_elem='SO3'
-mincomp=0
+mincomp=5
 maxcomp=100
 nfolds=5
 testfold=2
-nc=20
+nc=30
 seed=100
 plstype='sklearn'
 

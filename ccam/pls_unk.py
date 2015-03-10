@@ -34,7 +34,11 @@ def pls_unk_load(unk_spectra,nc,modelfile,means_file=None):
     if means_file!=None:
         data,temp=ccam.read_csv_cols(means_file,0,labelrow=True)
         Y_mean=numpy.array(temp[1],dtype='float')
-        X_mean=numpy.array(data[1],dtype='float')
+        X_mean=numpy.array(data[1],dtype='float')    
+    else:
+        X_mean=None
+        Y_mean=0
+        
         
     #load the model from the appropriate pkl file
     with open(modelfile,'rb') as picklefile:

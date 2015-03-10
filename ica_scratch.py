@@ -6,12 +6,12 @@ Created on Tue Feb 10 10:31:21 2015
 """
 import ccam
 import numpy
-ica_db_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\ICA_1500mm_db.csv'
-uni_db_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Univariate_1500mm_db.csv'
+ica_db_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\ICA_1500mm_db.csv'
+uni_db_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Univariate_1500mm_db.csv'
 
-dbfile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\Data Processing\\Working\\Input\\full_db_mars_corrected.csv'
+dbfile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\full_db_mars_corrected.csv'
 
-which_elem='MgO'
+which_elem='K2O'
 
 
 ica_db=ccam.read_csv_cols(ica_db_file,0,labelrow=False)
@@ -51,25 +51,15 @@ Uni_MgO=4080.43*Mg448_areas+0.35
 #sys.stdout.flush()
 #spectra,comps,spect_index,names,labels,wvl=ccam.read_db(dbfile,compcheck=True)
 #oxides=labels[2:]
-#compindex=numpy.where(oxides=='MgO')[0]
+#compindex=numpy.where(oxides=='K2O')[0]
 
 complist=ccam.target_comp_lookup(targetnames,dbfile,which_elem)
-ICA_RMSE_MgO=numpy.sqrt(numpy.average((complist[numpy.invert(numpy.isnan(complist))]-ICA_MgO[numpy.invert(numpy.isnan(complist))])**2))
-mid_should_low=sum(numpy.all(numpy.vstack([(ICA_MgO>2.5),(ICA_MgO<11),(complist<2.5)]),axis=0))
-low_should_mid=sum(numpy.all(numpy.vstack([(ICA_MgO<2.5),(complist>2.5),(complist<11)]),axis=0))
-mid_should_high=sum(numpy.all(numpy.vstack([(ICA_MgO>2.5),(ICA_MgO<11),(complist>11)]),axis=0))
-high_should_mid=sum(numpy.all(numpy.vstack([(ICA_MgO>11),(complist<11),(complist>2.5)]),axis=0))
-
-
 
 uni_complist=ccam.target_comp_lookup(uni_targetnames,dbfile,which_elem)
-ccam.Plot1to1([complist],[ICA_MgO],'',['MgO ICA Prediction'],['r'],['o'],r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\MgO_ICA_predict_vs_comp.png',yminmax=[0,numpy.max(ICA_MgO)],xminmax=[0,60],ylabel='ICA Prediction (wt.%)',xlabel='wt.%',one_to_one=True)
-ccam.Plot1to1([complist],[ICA_MgO],'',['MgO ICA Prediction'],['r'],['o'],r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\MgO_ICA_predict_vs_comp_0-20.png',yminmax=[0,20],xminmax=[0,20],ylabel='ICA Prediction (wt.%)',xlabel='wt.%',one_to_one=True)
 
-ccam.Plot1to1([complist],[Mg_scores],'',['MgO ICA Score'],['r'],['o'],r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\MgO_ICA_scores_vs_comp.png',yminmax=[0,numpy.max(Mg_scores)],xminmax=[0,60],ylabel='ICA Score',xlabel='wt.%',one_to_one=False)
-ccam.Plot1to1([uni_complist],[Mg448_areas],'',['MgO 448 nm Peak Area'],['r'],['o'],r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\MgO_448nm_uni_areas_vs_comp.png',yminmax=[0,numpy.max(Mg448_areas)],xminmax=[0,60],ylabel='448 nm Peak Area',xlabel='wt.%',one_to_one=False)
-ccam.Plot1to1([uni_complist],[Mg285_areas],'',['MgO 285 nm Peak Area'],['r'],['o'],r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\MgO_285nm_uni_areas_vs_comp.png',yminmax=[0,numpy.max(Mg285_areas)],xminmax=[0,60],ylabel='285 nm Peak Area',xlabel='wt.%',one_to_one=False)
-ccam.Plot1to1([uni_complist],[Uni_MgO],'',['MgO wt.%'],['r'],['o'],r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\MgO_uni_vs_comp.png',yminmax=[0,60],xminmax=[0,60],ylabel='Wt.%',xlabel='wt.%',one_to_one=True)
+ccam.Plot1to1([complist],[K_scores],'',['K2O ICA Score'],['r'],['o'],r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\K2O_ICA_scores_vs_comp.png',yminmax=[0,numpy.max(Mg_scores)],xminmax=[0,20],ylabel='ICA Score',xlabel='wt.%',one_to_one=False)
+ccam.Plot1to1([uni_complist],[K766_areas],'',['K2O 766 nm Peak Area'],['r'],['o'],r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\K2O_766nm_uni_areas_vs_comp.png',yminmax=[0,numpy.max(K766_areas)],xminmax=[0,20],ylabel='766 nm Peak Area',xlabel='wt.%',one_to_one=False)
+#ccam.Plot1to1([uni_complist],[Uni_K2O],'',['K2O wt.%'],['r'],['o'],r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\K2O_uni_vs_comp.png',yminmax=[0,20],xminmax=[0,20],ylabel='Wt.%',xlabel='wt.%',one_to_one=True)
 
 
 print 'stop'

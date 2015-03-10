@@ -25,6 +25,7 @@ spectrafile=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\RyanSulfa
 
 which_elem='SO3'
 plstype='sklearn'
+skscale=''
 mincomp=0
 maxcomp=100
 
@@ -32,33 +33,33 @@ maxcomp=100
 xminmax=[0,100]
 yminmax=xminmax
 
-maxnc=20
-fullmin=0
+maxnc=30
+fullmin=5
 fullmax=100
 
 fullnorm=3
 
 #specify the number of components to use for each submodel
-nc_full=6
+nc_full=4
 
 #specify the files that hold the mean centering info
-means_file_full=outpath+'\\'+which_elem+'_'+plstype+'_nc'+str(maxnc)+'_norm'+str(fullnorm)+'_'+str(fullmin)+'-'+str(fullmax)+'_meancenters.csv'
+means_file_full=None#outpath+'\\'+which_elem+'_'+plstype+'_nc'+str(maxnc)+'_norm'+str(fullnorm)+'_'+str(fullmin)+'-'+str(fullmax)+'_meancenters.csv'
 
 #specify the files that store the regression models (these are the python equivalent of IDL .SAV files)
-loadfile_full=outpath+'\\'+which_elem+'_'+plstype+'_norm'+str(fullnorm)+'_'+str(fullmin)+'-'+str(fullmax)+'.pkl'
+loadfile_full=outpath+'\\'+which_elem+'_'+plstype+skscale+'_norm'+str(fullnorm)+'_'+str(fullmin)+'-'+str(fullmax)+'.pkl'
 
 #specify where to save csv files with predictions
-outputfile=outpath+'\\'+which_elem+'_predictions.csv'
-db_outputfile=outpath+'\\'+which_elem+'_db_predictions.csv'
+outputfile=outpath+'\\'+which_elem+skscale+'_predictions.csv'
+db_outputfile=outpath+'\\'+which_elem+skscale+'_db_predictions.csv'
 
 #specify files containing cross validation results
-full_cv_file=outpath+'\\'+which_elem+'_'+plstype+'_nc'+str(maxnc)+'_norm'+str(fullnorm)+'_'+str(fullmin)+'-'+str(fullmax)+'_cv_predict.csv'
+full_cv_file=outpath+'\\'+which_elem+'_'+plstype+skscale+'_nc'+str(maxnc)+'_norm'+str(fullnorm)+'_'+str(fullmin)+'-'+str(fullmax)+'_cv_predict.csv'
 
 #specify file names for  CV 1 to 1 plots
-outfile1to1=outpath+'\\'+which_elem+'_submodels_1to1_plot_'+str(xminmax[0])+'_'+str(xminmax[1])+'.png'
+outfile1to1=outpath+'\\'+which_elem+skscale+'_submodels_1to1_plot_'+str(xminmax[0])+'_'+str(xminmax[1])+'.png'
 
 #specify file names for full database 1 to 1 plots
-imgfile=outpath+'\\'+which_elem+'_final_model_predictions_1to1_'+str(xminmax[0])+'-'+str(xminmax[1])+'.png'
+imgfile=outpath+'\\'+which_elem+skscale+'_final_model_predictions_1to1_'+str(xminmax[0])+'-'+str(xminmax[1])+'.png'
 
 print 'Reading database'
 sys.stdout.flush()

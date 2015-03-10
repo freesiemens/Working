@@ -12,14 +12,19 @@ inrange = This is a list of index arrays indicating the predictions that must fa
 refpredict = list of indices indicating which of the predicts should be used to determine the weighting when blending.
 toblend = List of two-element arrays indicating the two sets of predictions to be blended in a given composition range.
 overwrite = Set this to true if you want to overwrite blend results that are non-zero (e.g. if they have been filled in by the script when working in a previous range.)
-
+noneg = this sets any negative values to zero
 """
 import numpy
 
 
 
-def submodels_blend(predicts,ranges,inrange,refpredict,toblend,overwrite=False):
+def submodels_blend(predicts,ranges,inrange,refpredict,toblend,overwrite=False,noneg=True):
     blended=numpy.zeros_like(predicts[0])
+#    if noneg==True:
+#        for i in range(len(predicts)):
+#            temp=predicts[i]<0            
+#            predicts[i][temp]=0
+        
     for i in range(len(ranges)): #loop over each composition range
         for j in range(len(predicts[0])): #loop over each spectrum
 
@@ -34,11 +39,14 @@ def submodels_blend(predicts,ranges,inrange,refpredict,toblend,overwrite=False):
             if inrangecheck: 
                 weight1=1-(predicts[refpredict[i]][j]-ranges[i][0])/(ranges[i][1]-ranges[i][0]) #define the weight applied to the lower model
                 weight2=(predicts[refpredict[i]][j]-ranges[i][0])/(ranges[i][1]-ranges[i][0]) #define the weight applied to the higher model
+                blendval=weight1*predicts[toblend[i][0]][j]+weight2*predicts[toblend[i][1]][j]
+                if blendval<0 and noneg==True:
+                    blendval=0
                 if overwrite:
-                    blended[j]=weight1*predicts[toblend[i][0]][j]+weight2*predicts[toblend[i][1]][j]
+                    blended[j]=blendval
                 else:
                     if blended[j]==0:
-                        blended[j]=weight1*predicts[toblend[i][0]][j]+weight2*predicts[toblend[i][1]][j]
+                        blended[j]=blendval
     return blended
         
 
