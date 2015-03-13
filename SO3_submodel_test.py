@@ -10,7 +10,7 @@ os.chdir(r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working')
 
 import ccam
 dbfile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\RyanSInput\\full_db_mars_corrected_peakarea.csv'
-removefile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist.csv'
+removefile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\RyanSInput\\removelist_SO3.csv'
 foldfile=None#'C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\folds.csv'
 maskfile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\RyanSInput\\mask_minors_noise.csv'
 keepfile=None#'C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\Si_full_included.csv'
@@ -21,7 +21,7 @@ name_sub_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working
 
 normtype=3
 which_elem='SO3'
-mincomp=5
+mincomp=3
 maxcomp=100
 nfolds=5
 testfold=2

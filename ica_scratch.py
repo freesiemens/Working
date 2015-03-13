@@ -57,9 +57,11 @@ complist=ccam.target_comp_lookup(targetnames,dbfile,which_elem)
 
 uni_complist=ccam.target_comp_lookup(uni_targetnames,dbfile,which_elem)
 
-ccam.Plot1to1([complist],[K_scores],'',['K2O ICA Score'],['r'],['o'],r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\K2O_ICA_scores_vs_comp.png',yminmax=[0,numpy.max(Mg_scores)],xminmax=[0,20],ylabel='ICA Score',xlabel='wt.%',one_to_one=False)
-ccam.Plot1to1([uni_complist],[K766_areas],'',['K2O 766 nm Peak Area'],['r'],['o'],r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\K2O_766nm_uni_areas_vs_comp.png',yminmax=[0,numpy.max(K766_areas)],xminmax=[0,20],ylabel='766 nm Peak Area',xlabel='wt.%',one_to_one=False)
+ccam.Plot1to1([complist],[K_scores],'',['K ICA Score'],['r'],['o'],r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\K_ICA_scores_vs_comp.png',yminmax=[0,numpy.max(K_scores)],xminmax=[0,20],ylabel='ICA Score',xlabel='wt.%',one_to_one=False)
+ccam.Plot1to1([uni_complist],[K766_areas],'',['K 766 nm Peak Area'],['r'],['o'],r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\K_766nm_uni_areas_vs_comp.png',yminmax=[0,numpy.max(K766_areas)],xminmax=[0,20],ylabel='766 nm Peak Area',xlabel='wt.%',one_to_one=False)
 #ccam.Plot1to1([uni_complist],[Uni_K2O],'',['K2O wt.%'],['r'],['o'],r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\K2O_uni_vs_comp.png',yminmax=[0,20],xminmax=[0,20],ylabel='Wt.%',xlabel='wt.%',one_to_one=True)
 
+ccam.Plot1to1([complist],[Ti_scores],'',['Ti ICA Score'],['r'],['o'],r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Ti_ICA_scores_vs_comp.png',yminmax=[0,numpy.max(Ti_scores)],xminmax=[0,20],ylabel='ICA Score',xlabel='wt.%',one_to_one=False)
+ccam.Plot1to1([uni_complist],[Ti335_areas],'',['Ti 335 nm Peak Area'],['r'],['o'],r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Ti_335nm_uni_areas_vs_comp.png',yminmax=[0,numpy.max(Ti335_areas)],xminmax=[0,20],ylabel='335 nm Peak Area',xlabel='wt.%',one_to_one=False)
 
 print 'stop'

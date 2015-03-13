@@ -20,8 +20,8 @@ masterlist=r'C:\Users\rbanderson\Documents\MSL\ChemCam\ChemCam\ops_ccam_misc\MAS
 name_subs=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Input\target_name_subs.csv'
 dbfile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\RyanSinput\\full_db_mars_corrected_peakarea.csv'
 keepfile=None
-removefile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist.csv'
-spectrafile=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\RyanSulfatesPA.csv'
+removefile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\RyanSinput\\removelist_SO3.csv'
+spectrafile=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Input\RyanSinput\RyanSulfates2PA.csv'
 
 which_elem='SO3'
 plstype='sklearn'
@@ -34,16 +34,16 @@ xminmax=[0,100]
 yminmax=xminmax
 
 maxnc=30
-fullmin=5
+fullmin=3
 fullmax=100
 
 fullnorm=3
 
 #specify the number of components to use for each submodel
-nc_full=4
+nc_full=6
 
 #specify the files that hold the mean centering info
-means_file_full=None#outpath+'\\'+which_elem+'_'+plstype+'_nc'+str(maxnc)+'_norm'+str(fullnorm)+'_'+str(fullmin)+'-'+str(fullmax)+'_meancenters.csv'
+means_file_full=outpath+'\\'+which_elem+'_'+plstype+'_nc'+str(maxnc)+'_norm'+str(fullnorm)+'_'+str(fullmin)+'-'+str(fullmax)+'_meancenters.csv'
 
 #specify the files that store the regression models (these are the python equivalent of IDL .SAV files)
 loadfile_full=outpath+'\\'+which_elem+'_'+plstype+skscale+'_norm'+str(fullnorm)+'_'+str(fullmin)+'-'+str(fullmax)+'.pkl'

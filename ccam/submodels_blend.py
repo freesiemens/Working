@@ -37,9 +37,12 @@ def submodels_blend(predicts,ranges,inrange,refpredict,toblend,overwrite=False,n
                 inrangecheck=numpy.all(inrange_temp)
                     
             if inrangecheck: 
-                weight1=1-(predicts[refpredict[i]][j]-ranges[i][0])/(ranges[i][1]-ranges[i][0]) #define the weight applied to the lower model
-                weight2=(predicts[refpredict[i]][j]-ranges[i][0])/(ranges[i][1]-ranges[i][0]) #define the weight applied to the higher model
-                blendval=weight1*predicts[toblend[i][0]][j]+weight2*predicts[toblend[i][1]][j]
+                if toblend[i][0]==toblend[i][1]:
+                    blendval=predicts[toblend[i][0]][j]
+                else:
+                    weight1=1-(predicts[refpredict[i]][j]-ranges[i][0])/(ranges[i][1]-ranges[i][0]) #define the weight applied to the lower model
+                    weight2=(predicts[refpredict[i]][j]-ranges[i][0])/(ranges[i][1]-ranges[i][0]) #define the weight applied to the higher model
+                    blendval=weight1*predicts[toblend[i][0]][j]+weight2*predicts[toblend[i][1]][j]
                 if blendval<0 and noneg==True:
                     blendval=0
                 if overwrite:

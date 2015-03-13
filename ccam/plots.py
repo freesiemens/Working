@@ -37,7 +37,7 @@ def RMSE(RMSECV,RMSEP,RMSEC,plot_title,outfile,RMSEP_cals=None,RMSEP_good=None):
     if RMSEP_good!=None:
 
         plot.plot(range(1,len(RMSEP_good)+1),RMSEP_good,color='k',linewidth=4.0,linestyle='-',label='RMSEP (All cal targets but Macusanite and KGA)')
-    plot.ylim(bottom=0)
+    #plot.ylim(bottom=0)
        
         
         
