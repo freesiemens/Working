@@ -204,7 +204,11 @@ def pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=1,mincomp=0,
     RMSEP=numpy.zeros(nc)
     RMSEC=numpy.zeros(nc)
     beta=numpy.zeros((len(X[0,:]),nc))
-    
+    Q_res=numpy.zeros((len(X[:,0]),nc))
+    T2=numpy.zeros((len(X[:,0]),nc))
+    scores=numpy.zeros((len(X[:,0]),nc))
+    [a,evals,b]=numpy.linalg.svd(numpy.cov(numpy.dot(X,X.transpose())))
+    evals=numpy.diag(evals**2)
     if cal_dir!=None:
         print 'Reading cal target data'
         cal_data,cal_wvl,cal_filelist=ccam.read_ccs(cal_dir)
@@ -280,6 +284,15 @@ def pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=1,mincomp=0,
 
             if n_bag==None and n_boost==None:
                 PLS1model.fit(X,Y)
+                T=PLS1model.x_scores_
+                #T=scores#scores[:,range(j)]
+                for k in range(len(X[:,0])):
+                    T2[k,j-1]=numpy.dot(T[k,:],numpy.dot(numpy.linalg.inv(numpy.dot(T.transpose(),T)),T[k,:]))
+                
+                E=X-numpy.dot(PLS1model.x_scores_,PLS1model.x_loadings_.transpose())
+                Q_res[:,j-1]=numpy.dot(E,E.transpose()).diagonal()
+                
+                #T2[:,j-1]=numpy.linalg.inv(numpy.dot(PLS1model.x_scores_,PLS1model.x_scores_.transpose()))
                 trainset_results[:,j-1]=numpy.squeeze(PLS1model.predict(X)+Y_mean)
                 testset_results[:,j-1]=numpy.squeeze(PLS1model.predict(X_test)+Y_mean)
                 results[:,j-1]=numpy.squeeze(PLS1model.predict(X_all)+Y_mean)
@@ -419,7 +432,25 @@ def pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=1,mincomp=0,
    
    #Write output info to files
 
-
+    with open(outpath+which_elem+'_'+plstype_string+'_nc'+str(nc)+'_norm'+str(normtype)+'_'+str(mincomp)+'-'+str(maxcomp)+'_Q_res.csv','wb') as writefile:
+        writer=csv.writer(writefile,delimiter=',')
+        row=["Sample","Spectrum","Fold","True Comp"]
+        row.extend(range(1,nc+1))
+        writer.writerow(row)        
+        for i in range(0,len(names_train)):
+            row=[names_train[i],spect_index_train[i],folds_train[i],comps_train[i]]
+            row.extend(Q_res[i,:])
+            writer.writerow(row)
+    with open(outpath+which_elem+'_'+plstype_string+'_nc'+str(nc)+'_norm'+str(normtype)+'_'+str(mincomp)+'-'+str(maxcomp)+'_HotellingT2.csv','wb') as writefile:
+        writer=csv.writer(writefile,delimiter=',')
+        row=["Sample","Spectrum","Fold","True Comp"]
+        row.extend(range(1,nc+1))
+        writer.writerow(row)        
+        for i in range(0,len(names_train)):
+            row=[names_train[i],spect_index_train[i],folds_train[i],comps_train[i]]
+            row.extend(T2[i,:])
+            writer.writerow(row)
+            
     with open(outpath+which_elem+'_'+plstype_string+'_nc'+str(nc)+'_norm'+str(normtype)+'_'+str(mincomp)+'-'+str(maxcomp)+'_RMSECV.csv','wb') as writefile:
         writer=csv.writer(writefile,delimiter=',')
         writer.writerow(['NC','RMSECV (wt.%)'])            

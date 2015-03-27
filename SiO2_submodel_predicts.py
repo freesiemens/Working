@@ -105,6 +105,12 @@ inrange=[[0,1],[0,1],2,2,3]
 refpredict=[1,1,2,3,3]
 toblend=[[1,1],[1,2],[2,2],[2,3],[3,3]]
 
+predicts=[y_db_full,y_db_low,y_db_mid,y_db_high] #0, 1, 2, 3
+ranges=[[0,20],[20,30],[30,55],[55,65],[65,100]]
+inrange=[1,1,2,2,3]
+refpredict=[1,1,2,2,3]
+toblend=[[1,1],[1,2],[2,2],[2,3],[3,3]]
+
 blended2=ccam.submodels_blend(predicts,ranges,inrange,refpredict,toblend,overwrite=False)
 
 truecomps=[comps[:,compindex],comps[:,compindex],comps[:,compindex],comps[:,compindex],comps[:,compindex]]

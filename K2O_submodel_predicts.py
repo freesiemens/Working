@@ -184,17 +184,17 @@ RMSECV_high=numpy.sqrt(numpy.mean((high_cv_predict-high_cv_truecomps)**2))
 
 #RMSECV_combined=numpy.sqrt(numpy.mean((combined_cv_predict[(combined_cv_predict!=9999)]-full_cv_truecomps[(combined_cv_predict!=9999)])**2))
 
-truecomps=[full_cv_truecomps,low_cv_truecomps,mid_cv_truecomps,high_cv_truecomps]
-predicts=[full_cv_predict,low_cv_predict,mid_cv_predict,high_cv_predict]
-labels=['Full (nc='+str(nc_full)+', norm='+str(fullnorm)+', RMSECV='+str(RMSECV_full)+')','Low (nc='+str(nc_low)+',norm='+str(lownorm)+', RMSECV='+str(RMSECV_low)+')','Mid (nc='+str(nc_mid)+',norm='+str(midnorm)+', RMSECV='+str(RMSECV_mid)+')','High (nc='+str(nc_high)+',norm='+str(highnorm)+', RMSECV='+str(RMSECV_high)+')']
-colors=['c','r','g','b']
-markers=['o','<','v','^']
+truecomps=[full_cv_truecomps,low_cv_truecomps,high_cv_truecomps]
+predicts=[full_cv_predict,low_cv_predict,high_cv_predict]
+labels=['Full (nc='+str(nc_full)+', norm='+str(fullnorm)+', RMSECV='+str(RMSECV_full)+')','Low (nc='+str(nc_low)+',norm='+str(lownorm)+', RMSECV='+str(RMSECV_low)+')','High (nc='+str(nc_high)+',norm='+str(highnorm)+', RMSECV='+str(RMSECV_high)+')']
+colors=['c','r','b']
+markers=['o','<','^']
 plot_title=which_elem+' Cross Validation'
 ccam.Plot1to1(truecomps,predicts,plot_title,labels,colors,markers,outfile1to1,xminmax=xminmax,yminmax=yminmax)
 ccam.Plot1to1(truecomps[0],predicts[0],plot_title,labels[0],colors[0],markers[0],outfile1to1_full,xminmax=xminmax,yminmax=yminmax)
 ccam.Plot1to1(truecomps[1],predicts[1],plot_title,labels[1],colors[1],markers[1],outfile1to1_low,xminmax=xminmax,yminmax=yminmax)
-ccam.Plot1to1(truecomps[2],predicts[2],plot_title,labels[2],colors[2],markers[2],outfile1to1_mid,xminmax=xminmax,yminmax=yminmax)
-ccam.Plot1to1(truecomps[3],predicts[3],plot_title,labels[3],colors[3],markers[3],outfile1to1_high,xminmax=xminmax,yminmax=yminmax)
+#ccam.Plot1to1(truecomps[2],predicts[2],plot_title,labels[2],colors[2],markers[2],outfile1to1_mid,xminmax=xminmax,yminmax=yminmax)
+ccam.Plot1to1(truecomps[2],predicts[2],plot_title,labels[2],colors[2],markers[2],outfile1to1_high,xminmax=xminmax,yminmax=yminmax)
 
 
 #get apxs CCS results
