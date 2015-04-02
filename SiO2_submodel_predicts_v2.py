@@ -18,7 +18,7 @@ searchdir_cal=r'C:\Users\rbanderson\Documents\MSL\ChemCam\ChemCam\ops_ccam_team\
 searchdir_apxs=r'C:\Users\rbanderson\Documents\MSL\ChemCam\ChemCam\ops_ccam_team\Best APXS Comparisons'
 searchdir_val=r'C:\Users\rbanderson\Documents\MSL\ChemCam\ChemCam\ops_ccam_team\Validation Targets'
 maskfile=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Input\mask_minors_noise.csv'
-outpath=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Output\Al2O3'
+outpath=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Output\SiO2'
 masterlist=r'C:\Users\rbanderson\Documents\MSL\ChemCam\ChemCam\ops_ccam_misc\MASTERLIST.csv'
 name_subs=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Input\target_name_subs.csv'
 dbfile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\full_db_mars_corrected.csv'
@@ -30,35 +30,35 @@ ica_db_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\ICA_1500
 uni_db_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Univariate_1500mm_db.csv'
 
 
-which_elem='Al2O3'
+which_elem='SiO2'
 plstype='sklearn'
 mincomp=0
 maxcomp=100
 
 #set plot range
-xminmax=[0,50]
+xminmax=[0,100]
 yminmax=xminmax
 
 maxnc=20
 fullmin=0
 fullmax=100
 lowmin=0
-lowmax=12
-midmin=10
-midmax=25
-highmin=20
+lowmax=50
+midmin=30
+midmax=70
+highmin=60
 highmax=100
 
-fullnorm=1
-lownorm=1
-midnorm=1
+fullnorm=3
+lownorm=3
+midnorm=3
 highnorm=1
 
 #specify the number of components to use for each submodel
-nc_full=7
-nc_low=7
-nc_mid=8
-nc_high=4
+nc_full=9
+nc_low=13
+nc_mid=10
+nc_high=6
 
 #specify the files that hold the mean centering info
 means_file_full=outpath+'\\'+which_elem+'_'+plstype+'_nc'+str(maxnc)+'_norm'+str(fullnorm)+'_'+str(fullmin)+'-'+str(fullmax)+'_meancenters.csv'
@@ -149,7 +149,7 @@ T2_res_high=numpy.array(T2_res_high[4:],dtype='float')
 
 colors=['r']
 markers=['o']
-labels=['Full','Low','Mid','High','Blended']
+labels=['Full Norm='+str(fullnorm)+' NC='+str(nc_full),'Low Norm='+str(lownorm)+' NC='+str(nc_low),'Mid Norm='+str(midnorm)+' NC='+str(nc_mid),'High Norm='+str(highnorm)+' NC='+str(nc_high),'Blended']
 plot_title=['Outlier check for '+which_elem]
 ccam.plots.Plot1to1(T2_res_full[nc_full-1],Q_res_full[nc_full-1],plot_title,labels[0],colors[0],markers[0],outfile_Q_T2,xminmax=[0,1.1*numpy.max(T2_res_full[nc_full-1])],yminmax=[0,1.1*numpy.max(Q_res_full[nc_full-1])],ylabel='Q Residual',xlabel='Hotelling T2',one_to_one=False)
 ccam.plots.Plot1to1(T2_res_low[nc_low-1],Q_res_low[nc_low-1],plot_title,labels[1],colors[0],markers[0],outfile_Q_T2_low,xminmax=[0,1.1*numpy.max(T2_res_low[nc_low-1])],yminmax=[0,1.1*numpy.max(Q_res_low[nc_low-1])],ylabel='Q Residual',xlabel='Hotelling T2',one_to_one=False)
@@ -177,7 +177,7 @@ RMSECV_high=numpy.sqrt(numpy.mean((high_cv_predict-high_cv_truecomps)**2))
 
 truecomps=[full_cv_truecomps,low_cv_truecomps,mid_cv_truecomps,high_cv_truecomps]
 predicts=[full_cv_predict,low_cv_predict,mid_cv_predict,high_cv_predict]
-labels=['Full (nc='+str(nc_full)+', norm='+str(fullnorm)+', RMSECV='+str(RMSECV_full)+')','Low (nc='+str(nc_low)+',norm='+str(lownorm)+', RMSECV='+str(RMSECV_low)+')','Low (nc='+str(nc_mid)+',norm='+str(midnorm)+', RMSECV='+str(RMSECV_mid)+')','High (nc='+str(nc_high)+',norm='+str(highnorm)+', RMSECV='+str(RMSECV_high)+')']
+labels=['Full (nc='+str(nc_full)+', norm='+str(fullnorm)+', RMSECV='+str(RMSECV_full)+')','Low (nc='+str(nc_low)+',norm='+str(lownorm)+', RMSECV='+str(RMSECV_low)+')','Mid (nc='+str(nc_mid)+',norm='+str(midnorm)+', RMSECV='+str(RMSECV_mid)+')','High (nc='+str(nc_high)+',norm='+str(highnorm)+', RMSECV='+str(RMSECV_high)+')']
 colors=['c','r','g','b']
 markers=['o','<','v','^']
 plot_title=which_elem+' Cross Validation'
@@ -207,19 +207,20 @@ y_db_high,highnorm=ccam.pls_predict(spectra,nc_high,wvl,maskfile,loadfile=loadfi
 
 
 """
-If full model <10, use the low model
-if full is 10 to 20, blend the low and mid model using full as reference
-If full model is 20 to 25 blend mid and high using full as reference
-if full model is >25 use high
+If full model <30, use the low model
+if full is 30 to 40, blend the low and mid model using full as reference
+If full model is 40 to 60 use mid
+if full is 60 to 70, blend mid and high using full as reference
+if full model is >70 use high
 Use full for all others
 Do not overwrite predictions that have already been set in a previous round of logic.
 """
 
 predicts=[y_db_full,y_db_low,y_db_mid,y_db_high]
-ranges=[[-10,10],[10,20],[20,25],[25,100],[0,100]]
+ranges=[[-10,30],[30,40],[40,60],[60,70],[70,100]]
 inrange=[0,0,0,0,0]
 refpredict=[0,0,0,0,0]
-toblend=[[1,1],[1,2],[2,3],[3,3],[0,0]]
+toblend=[[1,1],[1,2],[2,2],[2,3],[3,3]]
 
 blended2=ccam.submodels_blend(predicts,ranges,inrange,refpredict,toblend,overwrite=False)
 

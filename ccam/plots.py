@@ -90,6 +90,6 @@ def readpredicts(filename,nc):
     folds=numpy.array(data[2],dtype='int')
     truecomps=numpy.array(data[3],dtype='float')
     colmatch=numpy.squeeze(numpy.array(numpy.where(cols==str(nc))))
-    predicts=numpy.array(data[colmatch],dtype='float')
+    predicts=numpy.array(data[colmatch+1],dtype='float')
     
     return predicts,samples,truecomps,folds,spect_indexes
