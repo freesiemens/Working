@@ -13,33 +13,41 @@ import numpy
 import csv
 import sys
 
+#The directory to search (recursively) for all chemcam CCS files
 searchdir=r'C:\Users\rbanderson\Documents\MSL\ChemCam\ChemCam\ops_ccam_team'
+#The directory to search (recursively) for all chemcam cal target CCS files that you want to use
 searchdir_cal=r'C:\Users\rbanderson\Documents\MSL\ChemCam\ChemCam\ops_ccam_team\CalTarget 95A'
+#The directory to search (recursively) for all chemcam "good APXS" CCS files that you want to use
 searchdir_apxs=r'C:\Users\rbanderson\Documents\MSL\ChemCam\ChemCam\ops_ccam_team\Best APXS Comparisons'
+#The directory to search (recursively) for a list of CCS files for our list of well-known Mars targets
 searchdir_val=r'C:\Users\rbanderson\Documents\MSL\ChemCam\ChemCam\ops_ccam_team\Validation Targets'
+
+#File specifying what part(s) of the spectrum to mask
 maskfile=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Input\mask_minors_noise.csv'
+#Where to write all results
 outpath=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Output\SiO2'
+#Location of the master list file (used to look up target names and other info)
 masterlist=r'C:\Users\rbanderson\Documents\MSL\ChemCam\ChemCam\ops_ccam_misc\MASTERLIST.csv'
+#Location of a file with target name substitutions (this is used primarily to substitute cal target names: Cal Target 1 --> Macusanite)
 name_subs=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Input\target_name_subs.csv'
+#location of the database file containing compositions and spectra
 dbfile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\full_db_mars_corrected.csv'
-keepfile=None
+#Location of a file listing spectra to be removed from the model
 removefile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist.csv'
 
-
-ica_db_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\ICA_1500mm_db.csv'
-uni_db_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Univariate_1500mm_db.csv'
-
-
+#Which element are you predicting?
 which_elem='SiO2'
+#Which algorithm to use? (mlpy or sklearn - they give the same results)
 plstype='sklearn'
-mincomp=0
-maxcomp=100
 
 #set plot range
 xminmax=[0,100]
 yminmax=xminmax
 
+#set number of components
 maxnc=20
+
+#set submodel composition ranges
 fullmin=0
 fullmax=100
 lowmin=0
@@ -49,6 +57,7 @@ midmax=70
 highmin=60
 highmax=100
 
+#sete submodel normalization settings (3 or 1)
 fullnorm=3
 lownorm=3
 midnorm=3
@@ -60,6 +69,7 @@ nc_low=13
 nc_mid=10
 nc_high=6
 
+#the following lines should automatically fill out the correct file names to use, based on the parameters above. The input files are written by the "test" script
 #specify the files that hold the mean centering info
 means_file_full=outpath+'\\'+which_elem+'_'+plstype+'_nc'+str(maxnc)+'_norm'+str(fullnorm)+'_'+str(fullmin)+'-'+str(fullmax)+'_meancenters.csv'
 means_file_low=outpath+'\\'+which_elem+'_'+plstype+'_nc'+str(maxnc)+'_norm'+str(lownorm)+'_'+str(lowmin)+'-'+str(lowmax)+'_meancenters.csv'
@@ -172,9 +182,6 @@ RMSECV_mid=numpy.sqrt(numpy.mean((mid_cv_predict-mid_cv_truecomps)**2))
 RMSECV_high=numpy.sqrt(numpy.mean((high_cv_predict-high_cv_truecomps)**2))
 
 
-
-#RMSECV_combined=numpy.sqrt(numpy.mean((combined_cv_predict[(combined_cv_predict!=9999)]-full_cv_truecomps[(combined_cv_predict!=9999)])**2))
-
 truecomps=[full_cv_truecomps,low_cv_truecomps,mid_cv_truecomps,high_cv_truecomps]
 predicts=[full_cv_predict,low_cv_predict,mid_cv_predict,high_cv_predict]
 labels=['Full (nc='+str(nc_full)+', norm='+str(fullnorm)+', RMSECV='+str(RMSECV_full)+')','Low (nc='+str(nc_low)+',norm='+str(lownorm)+', RMSECV='+str(RMSECV_low)+')','Mid (nc='+str(nc_mid)+',norm='+str(midnorm)+', RMSECV='+str(RMSECV_mid)+')','High (nc='+str(nc_high)+',norm='+str(highnorm)+', RMSECV='+str(RMSECV_high)+')']
@@ -199,7 +206,7 @@ compindex=numpy.where(oxides==which_elem)[0]
 print 'Choosing spectra'
 
 
-spectra,names,spect_index,comps=ccam.choose_spectra(spectra,spect_index,names,comps,compindex,mincomp=0,maxcomp=100,keepfile=keepfile,removefile=removefile,which_removed=None)
+spectra,names,spect_index,comps=ccam.choose_spectra(spectra,spect_index,names,comps,compindex,mincomp=0,maxcomp=100,keepfile=None,removefile=removefile,which_removed=None)
 y_db_full,fullnorm=ccam.pls_predict(spectra,nc_full,wvl,maskfile,loadfile=loadfile_full,mean_file=means_file_full)
 y_db_low,lownorm=ccam.pls_predict(spectra,nc_low,wvl,maskfile,loadfile=loadfile_low,mean_file=means_file_low)
 y_db_mid,midnorm=ccam.pls_predict(spectra,nc_mid,wvl,maskfile,loadfile=loadfile_mid,mean_file=means_file_mid)
@@ -207,6 +214,7 @@ y_db_high,highnorm=ccam.pls_predict(spectra,nc_high,wvl,maskfile,loadfile=loadfi
 
 
 """
+Define blending settings:
 If full model <30, use the low model
 if full is 30 to 40, blend the low and mid model using full as reference
 If full model is 40 to 60 use mid
@@ -223,7 +231,9 @@ refpredict=[0,0,0,0,0]
 toblend=[[1,1],[1,2],[2,2],[2,3],[3,3]]
 
 blended2=ccam.submodels_blend(predicts,ranges,inrange,refpredict,toblend,overwrite=False)
-
+#Create plots of the full model results (NOTE: these plots will show artificially "optimistic" results
+# within the range where the model was trained. These are meant to be used primarily to visualize how the models will do when extrapolating,
+#NOT for evaluation of model accuracy within its training range)
 truecomps=[comps[:,compindex],comps[:,compindex],comps[:,compindex],comps[:,compindex],comps[:,compindex]]
 predicts=[y_db_full,y_db_low,y_db_mid,y_db_high,blended2]
 plot_title='Final Model '+which_elem+' Predictions of Full Database'
@@ -347,7 +357,7 @@ with open(outputfile_cal,'wb') as writefile:
             writer.writerow(row)         
 
 
-#get CCS results
+#get CCS results (this step takes a while because it needs to read all the CCS files)
 data,wvl,filelist=ccam.read_ccs(searchdir)
 
 y_full,fullnorm=ccam.pls_predict(data,nc_full,wvl,maskfile,loadfile=loadfile_full,mean_file=means_file_full)

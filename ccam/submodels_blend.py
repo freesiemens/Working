@@ -20,10 +20,7 @@ import numpy
 
 def submodels_blend(predicts,ranges,inrange,refpredict,toblend,overwrite=False,noneg=True):
     blended=numpy.zeros_like(predicts[0])
-#    if noneg==True:
-#        for i in range(len(predicts)):
-#            temp=predicts[i]<0            
-#            predicts[i][temp]=0
+
         
     for i in range(len(ranges)): #loop over each composition range
         for j in range(len(predicts[0])): #loop over each spectrum
@@ -37,17 +34,18 @@ def submodels_blend(predicts,ranges,inrange,refpredict,toblend,overwrite=False,n
                 inrangecheck=numpy.all(inrange_temp)
                     
             if inrangecheck: 
-                if toblend[i][0]==toblend[i][1]:
+                if toblend[i][0]==toblend[i][1]: #if the results being blended are identical, no blending necessary!
                     blendval=predicts[toblend[i][0]][j]
                 else:
                     weight1=1-(predicts[refpredict[i]][j]-ranges[i][0])/(ranges[i][1]-ranges[i][0]) #define the weight applied to the lower model
                     weight2=(predicts[refpredict[i]][j]-ranges[i][0])/(ranges[i][1]-ranges[i][0]) #define the weight applied to the higher model
-                    blendval=weight1*predicts[toblend[i][0]][j]+weight2*predicts[toblend[i][1]][j]
+                    blendval=weight1*predicts[toblend[i][0]][j]+weight2*predicts[toblend[i][1]][j] #calculated the blended value (weighted sum)
                 if overwrite:
-                    blended[j]=blendval
+                    blended[j]=blendval #If overwrite is true, write the blended result no matter what
                 else:
-                    if blended[j]==0:
+                    if blended[j]==0:  #If overwrite is false, only write the blended result if there is not already a result there
                         blended[j]=blendval                
+    #Set any negative results to zero if noneg is true
     if numpy.min(blended)<0 and noneg==True:
         blended[blended<0]=0
 

@@ -34,7 +34,7 @@ def RMSE(RMSECV,RMSEP,RMSEC,plot_title,outfile,RMSEP_cals=None,RMSEP_good=None):
             plot.plot(range(1,len(RMSEP_cals[7])+1),RMSEP_cals[7],color='c',linewidth=2.0,linestyle=':',label='RMSEP (Shergottite)')
         plot.plot(range(1,len(RMSEP_cals[8])+1),RMSEP_cals[8],color='k',linewidth=4.0,linestyle='-',label='RMSEP (Cal Targets In Range)')
         plot.plot(range(1,len(RMSEP_cals[8])+1),RMSEP_cals[8],color='y',linewidth=3.5,linestyle='-',label='RMSEP (Cal Targets In Range)')
-    if RMSEP_good!=None:
+    if RMSEP_good is not None:
 
         plot.plot(range(1,len(RMSEP_good)+1),RMSEP_good,color='k',linewidth=4.0,linestyle='-',label='RMSEP (All cal targets but Macusanite and KGA)')
     #plot.ylim(bottom=0)

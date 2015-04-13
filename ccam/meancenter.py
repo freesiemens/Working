@@ -9,7 +9,7 @@ import copy
 def meancenter(X,X_mean=None):
     X_copy=copy.copy(X)
  
-    if X_mean == None:
+    if X_mean is None:
         X_mean=numpy.mean(X_copy,axis=0)
     checkshape=X.shape
     if len(checkshape)==2:
