@@ -18,7 +18,7 @@ searchdir_cal=r'C:\Users\rbanderson\Documents\MSL\ChemCam\ChemCam\ops_ccam_team\
 searchdir_apxs=r'C:\Users\rbanderson\Documents\MSL\ChemCam\ChemCam\ops_ccam_team\Best APXS Comparisons'
 searchdir_val=r'C:\Users\rbanderson\Documents\MSL\ChemCam\ChemCam\ops_ccam_team\Validation Targets'
 maskfile=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Input\mask_minors_noise.csv'
-outpath=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Output\Al2O3'
+outpath=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Output\MgO'
 masterlist=r'C:\Users\rbanderson\Documents\MSL\ChemCam\ChemCam\ops_ccam_misc\MASTERLIST.csv'
 name_subs=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Input\target_name_subs.csv'
 dbfile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\full_db_mars_corrected.csv'
@@ -30,35 +30,35 @@ ica_db_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\ICA_1500
 uni_db_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Univariate_1500mm_db.csv'
 
 
-which_elem='Al2O3'
+which_elem='MgO'
 plstype='sklearn'
 mincomp=0
 maxcomp=100
 
 #set plot range
-xminmax=[0,50]
+xminmax=[0,80]
 yminmax=xminmax
 
 maxnc=20
 fullmin=0
 fullmax=100
 lowmin=0
-lowmax=12
-midmin=10
-midmax=25
-highmin=20
+lowmax=3.5
+midmin=0
+midmax=20
+highmin=8
 highmax=100
 
-fullnorm=1
-lownorm=1
-midnorm=1
-highnorm=1
+fullnorm=3
+lownorm=3
+midnorm=3
+highnorm=3
 
 #specify the number of components to use for each submodel
 nc_full=7
-nc_low=9
-nc_mid=8
-nc_high=4
+nc_low=4
+nc_mid=4
+nc_high=5
 
 #specify the files that hold the mean centering info
 means_file_full=outpath+'\\'+which_elem+'_'+plstype+'_nc'+str(maxnc)+'_norm'+str(fullnorm)+'_'+str(fullmin)+'-'+str(fullmax)+'_meancenters.csv'
@@ -207,19 +207,20 @@ y_db_high,highnorm=ccam.pls_predict(spectra,nc_high,wvl,maskfile,loadfile=loadfi
 
 
 """
-If full model <12, use the low model
-if full is 12 to 20, blend the low and mid model using full as reference
-If full model is 20 to 25 blend mid and high using full as reference
-if full model is >25 use high
+If full model <1, use the low model
+if full model is 1 to 2, blend the low and mid model using full as reference
+if full model is 2 to 6, use the mid model
+if full model is 6 to 10, blend the mid and full model using full as reference
+if full model is >10, use the full model
 Use full for all others
 Do not overwrite predictions that have already been set in a previous round of logic.
 """
 
 predicts=[y_db_full,y_db_low,y_db_mid,y_db_high]
-ranges=[[-10,12],[12,20],[20,25],[25,100],[0,100]]
-inrange=[0,0,0,0,0]
-refpredict=[0,0,0,0,0]
-toblend=[[1,1],[1,2],[2,3],[3,3],[0,0]]
+ranges=[[-10,1],[1,2],[2,6],[6,10],[10,100],[0,100]]
+inrange=[0,0,0,0,0,0]
+refpredict=[0,0,0,0,0,0]
+toblend=[[1,1],[1,2],[2,2],[2,0],[0,0],[0,0]]
 
 blended2=ccam.submodels_blend(predicts,ranges,inrange,refpredict,toblend,overwrite=False)
 
