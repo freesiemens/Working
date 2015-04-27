@@ -6,16 +6,16 @@ Created on Mon Jan 26 19:59:25 2015
 """
 import os
 import fnmatch
-from scipy.io.idl import readsav
 import numpy
+import ccam
 
-def read_ccs(searchdir):#,minsol=0,maxsol=10000,masterlist=None):
+def read_ccs(searchdir,skiprows=0,shots=False,masterlist=None,name_sub_file=None):#,minsol=0,maxsol=10000,masterlist=None):
+    searchstring='*CCS*csv'
     
-
      #Recursively search for CCS files in the specified directory
     filelist = []
     for root, dirnames, filenames in os.walk(searchdir):
-        for filename in fnmatch.filter(filenames, '*CCS*SAV'):
+        for filename in fnmatch.filter(filenames, searchstring):
             filelist.append(os.path.join(root, filename))
     filelist=numpy.array(filelist)
     
@@ -42,15 +42,55 @@ def read_ccs(searchdir):#,minsol=0,maxsol=10000,masterlist=None):
     files,unique_index=numpy.unique(files,return_index=True)
     filelist=filelist[unique_index]
     sclocks=sclocks[unique_index]
-        
-    data=numpy.zeros((len(filelist),6144),dtype='float64')
+    if shots is True:
+        file_targets,file_dists,file_amps,nshots=ccam.target_lookup(filelist,masterlist,name_sub_file)
+        nshots=numpy.array(nshots,dtype='int')
+        sum_shots=numpy.sum(nshots)
     print 'Reading '+str(len(filelist))+' files...'
+    if shots is not True:
+        means=numpy.zeros([len(filelist),6144],dtype='float64')
+    if shots is True:
+        singleshots=numpy.zeros([sum_shots,6144],dtype='float64')
+        files_singleshot=numpy.zeros_like([files[0]]*sum_shots)
+        shotnums=numpy.zeros([sum_shots])
+        rowcount=0
     for i in range(len(filelist)):
-        if numpy.mod(i,100)==0:
-            print 'Reading file #'+str(i)
-        tempdata=readsav(filelist[i],python_dict=True)
-        tempspect=numpy.hstack([tempdata['auv'],tempdata['avis'],tempdata['avnir']])
-        data[i,:]=tempspect
-    wvl=numpy.hstack([tempdata['defuv'],tempdata['defvis'],tempdata['defvnir']])
-    return data,wvl,files
+
+        if numpy.mod(i+1,100)==0:
+            print 'Reading file #'+str(i+1)
+  
+
+        tempdata=ccam.read_csv(filelist[i],skiprows,labelrow=False)
+        wvl=numpy.array(tempdata[:,0],dtype='float')
+        if shots is not True:        
+            means[i,:]=tempdata[:,-1]
+        if shots is True:
+
+            shotnums[rowcount:rowcount+nshots[i]]=range(nshots[i])
+            files_singleshot[rowcount:rowcount+nshots[i]]=files[i]            
+            singleshots[rowcount:rowcount+nshots[i],:]=numpy.transpose(tempdata[:,1:-2])
+            rowcount=rowcount+nshots[i]
+        
+#        if i==0:
+#            wvl=numpy.array(tempdata[:,0],dtype='float64')
+#            if shots is True:                
+#                singleshots=numpy.array(tempdata[:,1:-2],dtype='float64')
+#                shotnums=numpy.array(range(len(tempdata[:,1:-2])))
+#                files_singleshot=numpy.array([files[i]]*len(tempdata[:,1:-2]))
+#            medians=numpy.array(tempdata[:,-2],dtype='float64')
+#            means=numpy.array(tempdata[:,-1],dtype='float64')
+#            
+#        if i>0:
+#            if shots is True:                
+#                singleshots=numpy.vstack([singleshots,numpy.array(tempdata[:,1:-2],dtype='float64')])
+#                shotnums=numpy.hstack([shotnums,numpy.array(range(len(tempdata[:,1:-2])))])
+#                files_singleshot=numpy.hstack([files_singleshot,numpy.array([files[i]]*len(tempdata[:,1:-2]))])
+#
+#            medians=numpy.vstack([medians,numpy.array(tempdata[:,-2],dtype='float64')])
+#            means=numpy.vstack([means,numpy.array(tempdata[:,-1],dtype='float64')])
+
+    if shots is True:    
+        return singleshots,wvl,files_singleshot,shotnums
+    if shots is False:
+        return means,wvl,files
 

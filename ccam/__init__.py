@@ -18,7 +18,7 @@ from normalize import normalize
 from read_db import read_db
 from mask import mask
 from target_lookup import target_lookup
-from read_csv_cols import read_csv_cols
+from read_csv import read_csv
 from target_comp_lookup import target_comp_lookup
 from keep_spectra import keep_spectra
 from remove_spectra import remove_spectra

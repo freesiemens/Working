@@ -13,49 +13,63 @@ import numpy
 import csv
 import sys
 
+#The directory to search (recursively) for all chemcam CCS files
 searchdir=r'C:\Users\rbanderson\Documents\MSL\ChemCam\ChemCam\ops_ccam_team'
+#The directory to search (recursively) for all chemcam cal target CCS files that you want to use
 searchdir_cal=r'C:\Users\rbanderson\Documents\MSL\ChemCam\ChemCam\ops_ccam_team\CalTarget 95A'
+#The directory to search (recursively) for all chemcam "good APXS" CCS files that you want to use
 searchdir_apxs=r'C:\Users\rbanderson\Documents\MSL\ChemCam\ChemCam\ops_ccam_team\Best APXS Comparisons'
+#The directory to search (recursively) for a list of CCS files for our list of well-known Mars targets
 searchdir_val=r'C:\Users\rbanderson\Documents\MSL\ChemCam\ChemCam\ops_ccam_team\Validation Targets'
-maskfile=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Input\mask_minors_noise.csv'
-outpath=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Output\TiO2'
+
+#File specifying what part(s) of the spectrum to mask
+maskfile=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Input\mask_minors_noise_FeSi_UV.csv'
+#Where to write all results
+outpath=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Output\SiO2'
+#Location of the master list file (used to look up target names and other info)
 masterlist=r'C:\Users\rbanderson\Documents\MSL\ChemCam\ChemCam\ops_ccam_misc\MASTERLIST.csv'
+#Location of a file with target name substitutions (this is used primarily to substitute cal target names: Cal Target 1 --> Macusanite)
 name_subs=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Input\target_name_subs.csv'
+#location of the database file containing compositions and spectra
 dbfile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\full_db_mars_corrected.csv'
-keepfile=None
-removefile=None#'C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist.csv'
+#Location of a file listing spectra to be removed from the model
+removefile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist.csv'
 
-
-which_elem='TiO2'
+#Which element are you predicting?
+which_elem='SiO2'
+#Which algorithm to use? (mlpy or sklearn - they give the same results)
 plstype='sklearn'
-mincomp=0
-maxcomp=100
 
 #set plot range
-xminmax=[0,15]
+xminmax=[0,100]
 yminmax=xminmax
 
-maxnc=30
+#set number of components
+maxnc=20
+
+#set submodel composition ranges
 fullmin=0
 fullmax=100
 lowmin=0
-lowmax=2
-midmin=1
-midmax=5
-highmin=3
+lowmax=50
+midmin=30
+midmax=70
+highmin=60
 highmax=100
 
+#sete submodel normalization settings (3 or 1)
 fullnorm=3
-lownorm=1
-midnorm=1
+lownorm=3
+midnorm=3
 highnorm=1
 
 #specify the number of components to use for each submodel
-nc_full=6
-nc_low=5
-nc_mid=4
-nc_high=5
+nc_full=8
+nc_low=10
+nc_mid=10
+nc_high=4
 
+#the following lines should automatically fill out the correct file names to use, based on the parameters above. The input files are written by the "test" script
 #specify the files that hold the mean centering info
 means_file_full=outpath+'\\'+which_elem+'_'+plstype+'_nc'+str(maxnc)+'_norm'+str(fullnorm)+'_'+str(fullmin)+'-'+str(fullmax)+'_meancenters.csv'
 means_file_low=outpath+'\\'+which_elem+'_'+plstype+'_nc'+str(maxnc)+'_norm'+str(lownorm)+'_'+str(lowmin)+'-'+str(lowmax)+'_meancenters.csv'
@@ -145,7 +159,7 @@ T2_res_high=numpy.array(T2_res_high[4:],dtype='float')
 
 colors=['r']
 markers=['o']
-labels=['Full','Low','Mid','High','Blended']
+labels=['Full Norm='+str(fullnorm)+' NC='+str(nc_full),'Low Norm='+str(lownorm)+' NC='+str(nc_low),'Mid Norm='+str(midnorm)+' NC='+str(nc_mid),'High Norm='+str(highnorm)+' NC='+str(nc_high),'Blended']
 plot_title=['Outlier check for '+which_elem]
 ccam.plots.Plot1to1(T2_res_full[nc_full-1],Q_res_full[nc_full-1],plot_title,labels[0],colors[0],markers[0],outfile_Q_T2,xminmax=[0,1.1*numpy.max(T2_res_full[nc_full-1])],yminmax=[0,1.1*numpy.max(Q_res_full[nc_full-1])],ylabel='Q Residual',xlabel='Hotelling T2',one_to_one=False)
 ccam.plots.Plot1to1(T2_res_low[nc_low-1],Q_res_low[nc_low-1],plot_title,labels[1],colors[0],markers[0],outfile_Q_T2_low,xminmax=[0,1.1*numpy.max(T2_res_low[nc_low-1])],yminmax=[0,1.1*numpy.max(Q_res_low[nc_low-1])],ylabel='Q Residual',xlabel='Hotelling T2',one_to_one=False)
@@ -168,12 +182,9 @@ RMSECV_mid=numpy.sqrt(numpy.mean((mid_cv_predict-mid_cv_truecomps)**2))
 RMSECV_high=numpy.sqrt(numpy.mean((high_cv_predict-high_cv_truecomps)**2))
 
 
-
-#RMSECV_combined=numpy.sqrt(numpy.mean((combined_cv_predict[(combined_cv_predict!=9999)]-full_cv_truecomps[(combined_cv_predict!=9999)])**2))
-
 truecomps=[full_cv_truecomps,low_cv_truecomps,mid_cv_truecomps,high_cv_truecomps]
 predicts=[full_cv_predict,low_cv_predict,mid_cv_predict,high_cv_predict]
-labels=['Full (nc='+str(nc_full)+', norm='+str(fullnorm)+', RMSECV='+str(RMSECV_full)+')','Low (nc='+str(nc_low)+',norm='+str(lownorm)+', RMSECV='+str(RMSECV_low)+')','Low (nc='+str(nc_mid)+',norm='+str(midnorm)+', RMSECV='+str(RMSECV_mid)+')','High (nc='+str(nc_high)+',norm='+str(highnorm)+', RMSECV='+str(RMSECV_high)+')']
+labels=['Full (nc='+str(nc_full)+', norm='+str(fullnorm)+', RMSECV='+str(RMSECV_full)+')','Low (nc='+str(nc_low)+',norm='+str(lownorm)+', RMSECV='+str(RMSECV_low)+')','Mid (nc='+str(nc_mid)+',norm='+str(midnorm)+', RMSECV='+str(RMSECV_mid)+')','High (nc='+str(nc_high)+',norm='+str(highnorm)+', RMSECV='+str(RMSECV_high)+')']
 colors=['c','r','g','b']
 markers=['o','<','v','^']
 plot_title=which_elem+' Cross Validation'
@@ -195,7 +206,7 @@ compindex=numpy.where(oxides==which_elem)[0]
 print 'Choosing spectra'
 
 
-spectra,names,spect_index,comps=ccam.choose_spectra(spectra,spect_index,names,comps,compindex,mincomp=0,maxcomp=100,keepfile=keepfile,removefile=removefile,which_removed=None)
+spectra,names,spect_index,comps=ccam.choose_spectra(spectra,spect_index,names,comps,compindex,mincomp=0,maxcomp=100,keepfile=None,removefile=removefile,which_removed=None)
 y_db_full,fullnorm=ccam.pls_predict(spectra,nc_full,wvl,maskfile,loadfile=loadfile_full,mean_file=means_file_full)
 y_db_low,lownorm=ccam.pls_predict(spectra,nc_low,wvl,maskfile,loadfile=loadfile_low,mean_file=means_file_low)
 y_db_mid,midnorm=ccam.pls_predict(spectra,nc_mid,wvl,maskfile,loadfile=loadfile_mid,mean_file=means_file_mid)
@@ -203,21 +214,26 @@ y_db_high,highnorm=ccam.pls_predict(spectra,nc_high,wvl,maskfile,loadfile=loadfi
 
 
 """
-If full model 0 to 1, use the low model
-if full model is 1 to 2, blend the low and high model using full as reference
-if full model is 2 to 100 use high
+Define blending settings:
+If full model <30, use the low model
+if full is 30 to 40, blend the low and mid model using full as reference
+If full model is 40 to 60 use mid
+if full is 60 to 70, blend mid and high using full as reference
+if full model is >70 use high
 Use full for all others
 Do not overwrite predictions that have already been set in a previous round of logic.
 """
 
 predicts=[y_db_full,y_db_low,y_db_mid,y_db_high]
-ranges=[[0,1],[1,2],[2,4],[4,100],[0,100]]
+ranges=[[-10,30],[30,40],[40,60],[60,70],[70,100]]
 inrange=[0,0,0,0,0]
 refpredict=[0,0,0,0,0]
-toblend=[[1,1],[1,2],[2,3],[3,3],[0,0]]
+toblend=[[1,1],[1,2],[2,2],[2,3],[3,3]]
 
 blended2=ccam.submodels_blend(predicts,ranges,inrange,refpredict,toblend,overwrite=False)
-
+#Create plots of the full model results (NOTE: these plots will show artificially "optimistic" results
+# within the range where the model was trained. These are meant to be used primarily to visualize how the models will do when extrapolating,
+#NOT for evaluation of model accuracy within its training range)
 truecomps=[comps[:,compindex],comps[:,compindex],comps[:,compindex],comps[:,compindex],comps[:,compindex]]
 predicts=[y_db_full,y_db_low,y_db_mid,y_db_high,blended2]
 plot_title='Final Model '+which_elem+' Predictions of Full Database'
@@ -248,6 +264,35 @@ with open(db_outputfile,'wb') as writefile:
             writer.writerow(row)   
 
 
+#get validation CCS results
+data,wvl,filelist=ccam.read_ccs(searchdir_val,shots=False)
+
+y_full,fullnorm=ccam.pls_predict(data,nc_full,wvl,maskfile,loadfile=loadfile_full,mean_file=means_file_full)
+y_low,lownorm=ccam.pls_predict(data,nc_low,wvl,maskfile,loadfile=loadfile_low,mean_file=means_file_low)
+y_mid,midnorm=ccam.pls_predict(data,nc_mid,wvl,maskfile,loadfile=loadfile_mid,mean_file=means_file_mid)
+y_high,highnorm=ccam.pls_predict(data,nc_high,wvl,maskfile,loadfile=loadfile_high,mean_file=means_file_high)
+
+predicts=[y_full,y_low,y_mid,y_high]
+blended=ccam.submodels_blend(predicts,ranges,inrange,refpredict,toblend,overwrite=False)
+
+targetlist,targetdists,targetamps=ccam.target_lookup(filelist,masterlist,name_subs)
+
+y_combined=numpy.zeros_like(y_high)
+print 'Writing results'
+with open(outputfile_val,'wb') as writefile:
+        writer=csv.writer(writefile,delimiter=',')
+        row=['','','','','Full','Low ('+str(lowmin)+'-'+str(lowmax)+')','Mid ('+str(midmin)+'-'+str(midmax)+')','High ('+str(highmin)+'-'+str(highmax)+')','Blended']
+        writer.writerow(row)
+        row=['','','','Norm=',fullnorm,lownorm,midnorm,highnorm]
+        writer.writerow(row)
+        row=['','','','nc=',str(nc_full),str(nc_low),str(nc_mid),str(nc_high)]
+        writer.writerow(row)
+        row=['File','Target','Distance','Power',which_elem,which_elem,which_elem,which_elem,which_elem]
+        writer.writerow(row)
+        
+        for i in range(0,len(y_combined)):
+            row=[filelist[i],targetlist[i],targetdists[i],targetamps[i],y_full[i],y_low[i],y_mid[i],y_high[i],blended[i]]
+            writer.writerow(row) 
 
 
 #get apxs CCS results
@@ -280,35 +325,6 @@ with open(outputfile_apxs,'wb') as writefile:
             row=[filelist[i],targetlist[i],targetdists[i],targetamps[i],y_full[i],y_low[i],y_mid[i],y_high[i],blended[i]]
             writer.writerow(row)        
 
-#get validation CCS results
-data,wvl,filelist=ccam.read_ccs(searchdir_val)
-
-y_full,fullnorm=ccam.pls_predict(data,nc_full,wvl,maskfile,loadfile=loadfile_full,mean_file=means_file_full)
-y_low,lownorm=ccam.pls_predict(data,nc_low,wvl,maskfile,loadfile=loadfile_low,mean_file=means_file_low)
-y_mid,midnorm=ccam.pls_predict(data,nc_mid,wvl,maskfile,loadfile=loadfile_mid,mean_file=means_file_mid)
-y_high,highnorm=ccam.pls_predict(data,nc_high,wvl,maskfile,loadfile=loadfile_high,mean_file=means_file_high)
-
-predicts=[y_full,y_low,y_mid,y_high]
-blended=ccam.submodels_blend(predicts,ranges,inrange,refpredict,toblend,overwrite=False)
-
-targetlist,targetdists,targetamps=ccam.target_lookup(filelist,masterlist,name_subs)
-
-y_combined=numpy.zeros_like(y_high)
-print 'Writing results'
-with open(outputfile_val,'wb') as writefile:
-        writer=csv.writer(writefile,delimiter=',')
-        row=['','','','','Full','Low ('+str(lowmin)+'-'+str(lowmax)+')','Mid ('+str(midmin)+'-'+str(midmax)+')','High ('+str(highmin)+'-'+str(highmax)+')','Blended']
-        writer.writerow(row)
-        row=['','','','Norm=',fullnorm,lownorm,midnorm,highnorm]
-        writer.writerow(row)
-        row=['','','','nc=',str(nc_full),str(nc_low),str(nc_mid),str(nc_high)]
-        writer.writerow(row)
-        row=['File','Target','Distance','Power',which_elem,which_elem,which_elem,which_elem,which_elem]
-        writer.writerow(row)
-        
-        for i in range(0,len(y_combined)):
-            row=[filelist[i],targetlist[i],targetdists[i],targetamps[i],y_full[i],y_low[i],y_mid[i],y_high[i],blended[i]]
-            writer.writerow(row) 
 
 #get cal target CCS results
 data,wvl,filelist=ccam.read_ccs(searchdir_cal)
@@ -341,7 +357,8 @@ with open(outputfile_cal,'wb') as writefile:
             writer.writerow(row)         
 
 
-#get CCS results
+#get CCS results (this step takes a while because it needs to read all the CCS files)
+
 data,wvl,filelist=ccam.read_ccs(searchdir)
 
 y_full,fullnorm=ccam.pls_predict(data,nc_full,wvl,maskfile,loadfile=loadfile_full,mean_file=means_file_full)

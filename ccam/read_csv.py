@@ -6,7 +6,7 @@ Created on Wed Jan 28 11:18:44 2015
 """
 import numpy
 
-def read_csv_cols(filename,skiprows,labelrow=True,skipsym='#'):
+def read_csv(filename,skiprows,labelrow=True,skipsym='#'):
     f=open(filename,'rb')  #open the file
     for i in range(skiprows):
         f.readline()    
