@@ -7,6 +7,7 @@ Created on Wed Jan 28 11:18:44 2015
 import numpy
 
 def read_csv(filename,skiprows,labelrow=True,skipsym='#'):
+    
     f=open(filename,'rb')  #open the file
     for i in range(skiprows):
         f.readline()    
@@ -22,6 +23,7 @@ def read_csv(filename,skiprows,labelrow=True,skipsym='#'):
         data=numpy.array(data)
         return data,labels
     else:
+           
         data=[]
         for row in f:
             if row[0] is not skipsym:            

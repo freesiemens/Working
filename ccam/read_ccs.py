@@ -50,7 +50,7 @@ def read_ccs(searchdir,skiprows=0,shots=False,masterlist=None,name_sub_file=None
     if shots is not True:
         means=numpy.zeros([len(filelist),6144],dtype='float64')
     if shots is True:
-        singleshots=numpy.zeros([sum_shots,6144],dtype='float64')
+        singleshots=numpy.zeros([6144,sum_shots],dtype='float64')
         files_singleshot=numpy.zeros_like([files[0]]*sum_shots)
         shotnums=numpy.zeros([sum_shots])
         rowcount=0
@@ -58,17 +58,17 @@ def read_ccs(searchdir,skiprows=0,shots=False,masterlist=None,name_sub_file=None
 
         if numpy.mod(i+1,100)==0:
             print 'Reading file #'+str(i+1)
-  
-
+        
         tempdata=ccam.read_csv(filelist[i],skiprows,labelrow=False)
+        
         wvl=numpy.array(tempdata[:,0],dtype='float')
-        if shots is not True:        
+        if shots is False:        
             means[i,:]=tempdata[:,-1]
         if shots is True:
 
             shotnums[rowcount:rowcount+nshots[i]]=range(nshots[i])
             files_singleshot[rowcount:rowcount+nshots[i]]=files[i]            
-            singleshots[rowcount:rowcount+nshots[i],:]=numpy.transpose(tempdata[:,1:-2])
+            singleshots[:,rowcount:rowcount+nshots[i]]=tempdata[:,1:-2]
             rowcount=rowcount+nshots[i]
         
 #        if i==0:
@@ -89,7 +89,8 @@ def read_ccs(searchdir,skiprows=0,shots=False,masterlist=None,name_sub_file=None
 #            medians=numpy.vstack([medians,numpy.array(tempdata[:,-2],dtype='float64')])
 #            means=numpy.vstack([means,numpy.array(tempdata[:,-1],dtype='float64')])
 
-    if shots is True:    
+    if shots is True:
+        singleshots=numpy.transpose(singleshots)
         return singleshots,wvl,files_singleshot,shotnums
     if shots is False:
         return means,wvl,files

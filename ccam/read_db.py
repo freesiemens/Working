@@ -32,9 +32,9 @@ import ccam
 
 
 def read_db(dbfile,n_elems=9,compcheck=True):
- 
-    data,labels=ccam.read_csv(dbfile,0,labelrow=True)
     
+    data,labels=ccam.read_csv(dbfile,0,labelrow=True)
+  
     names=numpy.array(data[:,0],dtype='string')
     spect_index=numpy.array(data[:,1],dtype='int')
     comps=numpy.array(data[:,2:2+n_elems],dtype='float32')

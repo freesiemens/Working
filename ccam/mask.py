@@ -23,10 +23,12 @@ wvl_masked = the wavelength array, with the masked wavelengths removed
     
 """
 import numpy
+
 def mask(spectra,wvl,maskfile):
     spectra_masked=spectra
     wvl_masked=wvl
     mask=numpy.genfromtxt(maskfile,usecols=(1,2),dtype='float',delimiter=',',skip_header=1) #read the mask file
+    
     indexes=numpy.zeros([len(wvl),mask.shape[0]])    
     for i in range(0,mask.shape[0]):
         #create an index for all elements of wvl between the min and max 

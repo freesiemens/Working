@@ -8,6 +8,8 @@ import ccam
 import numpy
 import csv
 import sys
+
+
 def generate_filenames(which_elem,outpath,plstype,maxnc,fullnorm,fullmin,fullmax,lownorm,lowmin,lowmax,midnorm,midmin,midmax,highnorm,highmin,highmax,xminmax,yminmax):
     #specify the files that hold the mean centering info
     means_file_full=outpath+'\\'+which_elem+'_'+plstype+'_nc'+str(maxnc)+'_norm'+str(fullnorm)+'_'+str(fullmin)+'-'+str(fullmax)+'_meancenters.csv'
@@ -109,7 +111,7 @@ def blend_predict(data,wvl,filelist,ranges,inrange,refpredict,toblend,masterlist
                 writer.writerow(row)        
 
 def outlier_plots(full_Qres_file,low_Qres_file,mid_Qres_file,high_Qres_file,full_T2_file,low_T2_file,mid_T2_file,high_T2_file,fullnorm,nc_full,lownorm,nc_low,midnorm,nc_mid,highnorm,nc_high,which_elem):
-
+ 
     Q_res_full,Q_labels_full=ccam.read_csv(full_Qres_file,0,labelrow=True)
     Q_res_low,Q_labels_low=ccam.read_csv(low_Qres_file,0,labelrow=True)
     Q_res_mid,Q_labels_mid=ccam.read_csv(mid_Qres_file,0,labelrow=True)
@@ -204,20 +206,20 @@ def final_model_results(y_db_full,y_db_low,y_db_mid,y_db_high,ranges,inrange,ref
 
 
 #The directory to search (recursively) for all chemcam CCS files
-searchdir=r'C:\Users\rbanderson\Documents\MSL\ChemCam\ChemCam\ops_ccam_team'
+searchdir=r'G:\ChemCam\ops_ccam_team'
 #The directory to search (recursively) for all chemcam cal target CCS files that you want to use
-searchdir_cal=r'C:\Users\rbanderson\Documents\MSL\ChemCam\ChemCam\ops_ccam_team\CalTarget 95A'
+searchdir_cal=r'G:\ChemCam\ops_ccam_team\CalTarget 95A'
 #The directory to search (recursively) for all chemcam "good APXS" CCS files that you want to use
-searchdir_apxs=r'C:\Users\rbanderson\Documents\MSL\ChemCam\ChemCam\ops_ccam_team\Best APXS Comparisons'
+searchdir_apxs=r'G:\ChemCam\ops_ccam_team\Best APXS Comparisons'
 #The directory to search (recursively) for a list of CCS files for our list of well-known Mars targets
-searchdir_val=r'C:\Users\rbanderson\Documents\MSL\ChemCam\ChemCam\ops_ccam_team\Validation Targets'
+searchdir_val=r'G:\ChemCam\ops_ccam_team\Validation Targets'
 
 #File specifying what part(s) of the spectrum to mask
 maskfile=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Input\mask_minors_noise.csv'
 #Where to write all results
 outpath=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Output\SiO2'
 #Location of the master list file (used to look up target names and other info)
-masterlist=r'C:\Users\rbanderson\Documents\MSL\ChemCam\ChemCam\ops_ccam_misc\MASTERLIST.csv'
+masterlist=r'G:\ChemCam\ops_ccam_misc\MASTERLIST.csv'
 #Location of a file with target name substitutions (this is used primarily to substitute cal target names: Cal Target 1 --> Macusanite)
 name_subs=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Input\target_name_subs.csv'
 #location of the database file containing compositions and spectra
@@ -297,7 +299,8 @@ truecomps=[comps[:,compindex],comps[:,compindex],comps[:,compindex],comps[:,comp
 final_model_results(y_db_full,y_db_low,y_db_mid,y_db_high,ranges,inrange,refpredict,toblend,truecomps,xminmax,yminmax,fullmin,fullmax,fullnorm,nc_full,lowmin,lowmax,lownorm,nc_low,midmin,midmax,midnorm,nc_mid,highmin,highmax,highnorm,nc_high,which_elem)
 
 #Read CCS data
-apxs_data,apxs_wvl,apxs_filelist=ccam.read_ccs(searchdir_apxs)
+#apxs_data,apxs_wvl,apxs_filelist,shotnums=ccam.read_ccs(searchdir_apxs,shots=True,masterlist=masterlist,name_sub_file=name_subs)
+apxs_data,apxs_wvl,apxs_filelist,=ccam.read_ccs(searchdir_apxs)
 val_data,val_wvl,val_filelist=ccam.read_ccs(searchdir_val)
 cal_data,cal_wvl,cal_filelist=ccam.read_ccs(searchdir_cal)
 all_data,all_wvl,all_filelist=ccam.read_ccs(searchdir)
@@ -318,13 +321,13 @@ blend_predict(all_data,all_wvl,all_filelist,ranges,inrange,refpredict,toblend,ma
 
 ##############################  TiO2 #####################################
 
-searchdir=r'C:\Users\rbanderson\Documents\MSL\ChemCam\ChemCam\ops_ccam_team'
-searchdir_cal=r'C:\Users\rbanderson\Documents\MSL\ChemCam\ChemCam\ops_ccam_team\CalTarget 95A'
-searchdir_apxs=r'C:\Users\rbanderson\Documents\MSL\ChemCam\ChemCam\ops_ccam_team\Best APXS Comparisons'
-searchdir_val=r'C:\Users\rbanderson\Documents\MSL\ChemCam\ChemCam\ops_ccam_team\Validation Targets'
+searchdir=r'G:\ChemCam\ops_ccam_team'
+searchdir_cal=r'G:\ChemCam\ops_ccam_team\CalTarget 95A'
+searchdir_apxs=r'G:\ChemCam\ops_ccam_team\Best APXS Comparisons'
+searchdir_val=r'G:\ChemCam\ops_ccam_team\Validation Targets'
 maskfile=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Input\mask_minors_noise.csv'
 outpath=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Output\TiO2'
-masterlist=r'C:\Users\rbanderson\Documents\MSL\ChemCam\ChemCam\ops_ccam_misc\MASTERLIST.csv'
+masterlist=r'G:\ChemCam\ops_ccam_misc\MASTERLIST.csv'
 name_subs=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Input\target_name_subs.csv'
 dbfile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\full_db_mars_corrected_dopedTiO2.csv'
 keepfile=None
@@ -420,21 +423,18 @@ blend_predict(all_data,all_wvl,all_filelist,ranges,inrange,refpredict,toblend,ma
 
 ##############################  Al2O3 #####################################
 
-searchdir=r'C:\Users\rbanderson\Documents\MSL\ChemCam\ChemCam\ops_ccam_team'
-searchdir_cal=r'C:\Users\rbanderson\Documents\MSL\ChemCam\ChemCam\ops_ccam_team\CalTarget 95A'
-searchdir_apxs=r'C:\Users\rbanderson\Documents\MSL\ChemCam\ChemCam\ops_ccam_team\Best APXS Comparisons'
-searchdir_val=r'C:\Users\rbanderson\Documents\MSL\ChemCam\ChemCam\ops_ccam_team\Validation Targets'
+searchdir=r'G:\ChemCam\ops_ccam_team'
+searchdir_cal=r'G:\ChemCam\ops_ccam_team\CalTarget 95A'
+searchdir_apxs=r'G:\ChemCam\ops_ccam_team\Best APXS Comparisons'
+searchdir_val=r'G:\ChemCam\ops_ccam_team\Validation Targets'
 maskfile=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Input\mask_minors_noise.csv'
 outpath=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Output\Al2O3'
-masterlist=r'C:\Users\rbanderson\Documents\MSL\ChemCam\ChemCam\ops_ccam_misc\MASTERLIST.csv'
+masterlist=r'G:\ChemCam\ops_ccam_misc\MASTERLIST.csv'
 name_subs=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Input\target_name_subs.csv'
 dbfile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\full_db_mars_corrected.csv'
 keepfile=None
 removefile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist.csv'
 
-
-ica_db_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\ICA_1500mm_db.csv'
-uni_db_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Univariate_1500mm_db.csv'
 
 
 which_elem='Al2O3'
@@ -527,21 +527,18 @@ blend_predict(all_data,all_wvl,all_filelist,ranges,inrange,refpredict,toblend,ma
   
 ##############################  FeOT #####################################
 
-searchdir=r'C:\Users\rbanderson\Documents\MSL\ChemCam\ChemCam\ops_ccam_team'
-searchdir_cal=r'C:\Users\rbanderson\Documents\MSL\ChemCam\ChemCam\ops_ccam_team\CalTarget 95A'
-searchdir_apxs=r'C:\Users\rbanderson\Documents\MSL\ChemCam\ChemCam\ops_ccam_team\Best APXS Comparisons'
-searchdir_val=r'C:\Users\rbanderson\Documents\MSL\ChemCam\ChemCam\ops_ccam_team\Validation Targets'
+searchdir=r'G:\ChemCam\ops_ccam_team'
+searchdir_cal=r'G:\ChemCam\ops_ccam_team\CalTarget 95A'
+searchdir_apxs=r'G:\ChemCam\ops_ccam_team\Best APXS Comparisons'
+searchdir_val=r'G:\ChemCam\ops_ccam_team\Validation Targets'
 maskfile=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Input\mask_minors_noise.csv'
 outpath=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Output\FeOT'
-masterlist=r'C:\Users\rbanderson\Documents\MSL\ChemCam\ChemCam\ops_ccam_misc\MASTERLIST.csv'
+masterlist=r'G:\ChemCam\ops_ccam_misc\MASTERLIST.csv'
 name_subs=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Input\target_name_subs.csv'
 dbfile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\full_db_mars_corrected.csv'
 keepfile=None
 removefile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist.csv'
 
-
-ica_db_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\ICA_1500mm_db.csv'
-uni_db_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Univariate_1500mm_db.csv'
 
 
 which_elem='FeOT'
@@ -631,21 +628,17 @@ blend_predict(all_data,all_wvl,all_filelist,ranges,inrange,refpredict,toblend,ma
 
 ##############################  MgO #####################################
 
-searchdir=r'M:\ChemCam MSL Data\ops_ccam_team'
-searchdir_cal=r'D:\Ryan\20150401_Python_RLS_A\CCCT'
-searchdir_apxs=r'D:\Ryan\20150401_Python_RLS_A\Best APXS Comparisons'
-searchdir_val=r'D:\Ryan\20150401_Python_RLS_A\Validation Targets'
-maskfile=r'D:\Ryan\20150401_Python_RLS_A\Input\mask_minors_noise.csv'
-outpath=r'D:\Ryan\20150401_Python_RLS_A\Output\MgO'
-masterlist=r'D:\Ryan\20150401_Python_RLS_A\Input\MASTERLIST.csv'
-name_subs=r'D:\Ryan\20150401_Python_RLS_A\Input\target_name_subs.csv'
-dbfile='D:\\Ryan\\20150401_Python_RLS_A\\Input\\full_db_mars_corrected.csv'
+searchdir=r'G:\ChemCam\ops_ccam_team'
+searchdir_cal=r'G:\ChemCam\ops_ccam_team\CalTarget 95A'
+searchdir_apxs=r'G:\ChemCam\ops_ccam_team\Best APXS Comparisons'
+searchdir_val=r'G:\ChemCam\ops_ccam_team\Validation Targets'
+maskfile=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Input\mask_minors_noise.csv'
+outpath=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Output\MgO'
+masterlist=r'G:\ChemCam\ops_ccam_misc\MASTERLIST.csv'
+name_subs=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Input\target_name_subs.csv'
+dbfile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\full_db_mars_corrected.csv'
 keepfile=None
-removefile='D:\\Ryan\\20150401_Python_RLS_A\\Input\\removelist.csv'
-
-
-#ica_db_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\ICA_1500mm_db.csv'
-#uni_db_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Univariate_1500mm_db.csv'
+removefile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist.csv'
 
 
 which_elem='MgO'
@@ -738,20 +731,17 @@ blend_predict(all_data,all_wvl,all_filelist,ranges,inrange,refpredict,toblend,ma
 
 ##############################  CaO #####################################
 
-searchdir=r'M:\ChemCam MSL Data\ops_ccam_team'
-searchdir_cal=r'D:\Ryan\20150401_Python_RLS_A\CCCT'
-searchdir_apxs=r'D:\Ryan\20150401_Python_RLS_A\Best APXS Comparisons'
-searchdir_val=r'D:\Ryan\20150401_Python_RLS_A\Validation Targets'
-maskfile=r'D:\Ryan\20150401_Python_RLS_A\Input\mask_minors_noise.csv'
-outpath=r'D:\Ryan\20150401_Python_RLS_A\Output\CaO'
-masterlist=r'D:\Ryan\20150401_Python_RLS_A\Input\MASTERLIST.csv'
-name_subs=r'D:\Ryan\20150401_Python_RLS_A\Input\target_name_subs.csv'
-dbfile='D:\\Ryan\\20150401_Python_RLS_A\\Input\\full_db_mars_corrected.csv'
+searchdir=r'G:\ChemCam\ops_ccam_team'
+searchdir_cal=r'G:\ChemCam\ops_ccam_team\CalTarget 95A'
+searchdir_apxs=r'G:\ChemCam\ops_ccam_team\Best APXS Comparisons'
+searchdir_val=r'G:\ChemCam\ops_ccam_team\Validation Targets'
+maskfile=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Input\mask_minors_noise.csv'
+outpath=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Output\CaO'
+masterlist=r'G:\ChemCam\ops_ccam_misc\MASTERLIST.csv'
+name_subs=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Input\target_name_subs.csv'
+dbfile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\full_db_mars_corrected.csv'
 keepfile=None
-removefile='D:\\Ryan\\20150401_Python_RLS_A\\Input\\removelist.csv'
-#ica_db_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\ICA_1500mm_db.csv'
-#uni_db_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Univariate_1500mm_db.csv'
-#apxslookup=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Input\CCAM-APXS_good_lookup.csv'
+removefile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist.csv'
 
 which_elem='CaO'
 plstype='sklearn'
@@ -877,19 +867,17 @@ blend_predict(all_data,all_wvl,all_filelist,ranges,inrange,refpredict,toblend,ma
   
 ##############################  Na2O #####################################
 
-searchdir=r'C:\Users\rbanderson\Documents\MSL\ChemCam\ChemCam\ops_ccam_team'
-searchdir_cal=r'C:\Users\rbanderson\Documents\MSL\ChemCam\ChemCam\ops_ccam_team\CalTarget 95A'
-searchdir_apxs=r'C:\Users\rbanderson\Documents\MSL\ChemCam\ChemCam\ops_ccam_team\Best APXS Comparisons'
-searchdir_val=r'C:\Users\rbanderson\Documents\MSL\ChemCam\ChemCam\ops_ccam_team\Validation Targets'
+searchdir=r'G:\ChemCam\ops_ccam_team'
+searchdir_cal=r'G:\ChemCam\ops_ccam_team\CalTarget 95A'
+searchdir_apxs=r'G:\ChemCam\ops_ccam_team\Best APXS Comparisons'
+searchdir_val=r'G:\ChemCam\ops_ccam_team\Validation Targets'
 maskfile=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Input\mask_minors_noise.csv'
 outpath=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Output\Na2O'
-masterlist=r'C:\Users\rbanderson\Documents\MSL\ChemCam\ChemCam\ops_ccam_misc\MASTERLIST.csv'
+masterlist=r'G:\ChemCam\ops_ccam_misc\MASTERLIST.csv'
 name_subs=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Input\target_name_subs.csv'
 dbfile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\full_db_mars_corrected.csv'
 keepfile=None
 removefile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist.csv'
-ica_db_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\ICA_1500mm_db.csv'
-uni_db_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Univariate_1500mm_db.csv'
 
 
 which_elem='Na2O'
@@ -978,19 +966,17 @@ blend_predict(all_data,all_wvl,all_filelist,ranges,inrange,refpredict,toblend,ma
 
 ##############################  K2O #####################################
 
-searchdir=r'C:\Users\rbanderson\Documents\MSL\ChemCam\ChemCam\ops_ccam_team'
-searchdir_cal=r'C:\Users\rbanderson\Documents\MSL\ChemCam\ChemCam\ops_ccam_team\CalTarget 95A'
-searchdir_apxs=r'C:\Users\rbanderson\Documents\MSL\ChemCam\ChemCam\ops_ccam_team\Best APXS Comparisons'
-searchdir_val=r'C:\Users\rbanderson\Documents\MSL\ChemCam\ChemCam\ops_ccam_team\Validation Targets'
+searchdir=r'G:\ChemCam\ops_ccam_team'
+searchdir_cal=r'G:\ChemCam\ops_ccam_team\CalTarget 95A'
+searchdir_apxs=r'G:\ChemCam\ops_ccam_team\Best APXS Comparisons'
+searchdir_val=r'G:\ChemCam\ops_ccam_team\Validation Targets'
 maskfile=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Input\mask_minors_noise.csv'
 outpath=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Output\K2O'
-masterlist=r'C:\Users\rbanderson\Documents\MSL\ChemCam\ChemCam\ops_ccam_misc\MASTERLIST.csv'
+masterlist=r'G:\ChemCam\ops_ccam_misc\MASTERLIST.csv'
 name_subs=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Input\target_name_subs.csv'
 dbfile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\full_db_mars_corrected.csv'
 keepfile=None
 removefile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist.csv'
-ica_db_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\ICA_1500mm_db.csv'
-uni_db_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Univariate_1500mm_db.csv'
 
 
 which_elem='K2O'

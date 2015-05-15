@@ -237,7 +237,7 @@ def pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=1,mincomp=0,
         RMSEP_PICRITE=numpy.zeros(nc)
         RMSEP_SHERGOTTITE=numpy.zeros(nc)
         
-        targets,dists,amps=ccam.target_lookup(cal_filelist,masterlist_file,name_sub_file)
+        targets,dists,amps,nshots=ccam.target_lookup(cal_filelist,masterlist_file,name_sub_file)
         target_comps=ccam.target_comp_lookup(targets,compfile,which_elem)
         cal_results=numpy.zeros((len(targets),nc))
        
@@ -363,6 +363,21 @@ def pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=1,mincomp=0,
             row=[names_train[i],spect_index_train[i],folds_train[i],comps_train[i]]
             row.extend(Q_res[i,:])
             writer.writerow(row)
+    with open(outpath+which_elem+'_'+str(mincomp)+'-'+str(maxcomp)+'_quartiles.csv','wb') as writefile:
+        writer=csv.writer(writefile,delimiter=',')
+        row=[which_elem]
+        writer.writerow(row)
+        row=['Min',numpy.percentile(comps[:,compindex],0)]
+        writer.writerow(row)
+        row=['1st Quartile',numpy.percentile(comps[:,compindex],25)]
+        writer.writerow(row)
+        row=['Median',numpy.percentile(comps[:,compindex],50)]
+        writer.writerow(row)
+        row=['3rd Quartile',numpy.percentile(comps[:,compindex],75)]
+        writer.writerow(row)
+        row=['Max',numpy.percentile(comps[:,compindex],100)]
+        writer.writerow(row)
+
     with open(outpath+which_elem+'_'+plstype_string+'_nc'+str(nc)+'_norm'+str(normtype)+'_'+str(mincomp)+'-'+str(maxcomp)+'_HotellingT2.csv','wb') as writefile:
         writer=csv.writer(writefile,delimiter=',')
         row=["Sample","Spectrum","Fold","True Comp"]
