@@ -25,7 +25,7 @@ maskfile = A csv file specifying which parts of the spectrum to mask.
         The third column should contain the maximum wavelengths of the masked regions
 outpath = the full path where output files should be written.
 which_elem = string specifying the name of the major oxideof interest (e.g. 'SiO2')
-testfold = which fold to hold out completely and treat as a test set
+testfold = which fold to hold out completely and treat as a test set. Set this to a file name to load a test set from a file.
 nc = number of components
 
 Optional inputs:
@@ -71,7 +71,7 @@ import sklearn.ensemble as ensemble
 import copy
 import cPickle as pickle
 
-def pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=1,mincomp=0,maxcomp=100,plstype='mlpy',keepfile=None,removefile=None,cal_dir=None,masterlist_file=None,compfile=None,name_sub_file=None,foldfile=None,nfolds=7,seed=None,n_bag=None,skscale=False,n_boost=None,max_samples=0.1,n_elems=9):
+def pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=1,mincomp=0,maxcomp=100,plstype='mlpy',keepfile=None,removefile=None,cal_dir=None,masterlist_file=None,compfile=None,name_sub_file=None,testfoldfile=None,nfolds=7,seed=None,n_bag=None,skscale=False,n_boost=None,max_samples=0.1,n_elems=9):
     plstype_string=plstype    
     if n_bag!=None:
         plstype_string=plstype+'_bag'
@@ -84,13 +84,6 @@ def pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=1,mincomp=0,
     spectra,comps,spect_index,names,labels,wvl=ccam.read_db(dbfile,compcheck=True,n_elems=n_elems)
     oxides=labels[2:]
     compindex=numpy.where(oxides==which_elem)[0]
-    
-    print 'Choosing spectra'
-    
-    which_removed=outpath+which_elem+'_'+plstype_string+'_nc'+str(nc)+'_norm'+str(normtype)+'_'+str(mincomp)+'-'+str(maxcomp)+'_removed.csv'
-    spectra,names,spect_index,comps=ccam.choose_spectra(spectra,spect_index,names,comps,compindex,mincomp=mincomp,maxcomp=maxcomp,keepfile=keepfile,removefile=removefile,which_removed=which_removed)
-        
-    
     print 'Masking spectra'
     spectra,wvl=ccam.mask(spectra,wvl,maskfile)
     
@@ -98,51 +91,79 @@ def pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=1,mincomp=0,
     spectra=ccam.normalize(spectra,wvl,normtype=normtype)
     
     
-    print 'Assigning Folds'
-    if foldfile!=None:
-        #if a fold file is specified, use it
-        folds=ccam.folds(foldfile,names)
-    else:
-        #otherwise, define random folds
-        folds=ccam.random_folds(names,nfolds,seed=seed)
-
-    names_nofold=names[(folds==0)]
-    spect_index_nofold=spect_index[(folds==0)]
-    #write a file containing the samples not assigned to folds
-    with open(which_removed,'ab') as writefile:
-        writer=csv.writer(writefile,delimiter=',',)
-        for i in range(len(names_nofold)):
-            writer.writerow([names_nofold[i],spect_index_nofold[i],'No Fold'])
+    if testfoldfile is not None:
+        print 'Defining independent test fold' 
+        testfold=numpy.genfromtxt(testfoldfile,delimiter=',',dtype='str')[:,0]
+        testfold_index=names==testfold[0]        
+        for i in range(1,len(testfold)):
+            testfold_index=testfold_index+(names==testfold[i])
+        spectra_test=spectra[(testfold_index==True)]
+        spect_index_test=spect_index[(testfold_index==True)]
+        names_test=names[(testfold_index==True)]
+        comps_test=comps[(testfold_index==True),compindex]
+        #folds_test=folds[(testfold_index==True)]    
+            
+        spectra_train=spectra[(testfold_index==False)]
+        spect_index_train=spect_index[(testfold_index==False)]
+        names_train=names[(testfold_index==False)]
+        comps_train=comps[(testfold_index==False),:]
+        #folds_train=folds[(testfold_index==False)]
+        #folds_train_unique=numpy.unique(folds_train)
+        
+    print 'Choosing spectra'
+    
+    which_removed=outpath+which_elem+'_'+plstype_string+'_nc'+str(nc)+'_norm'+str(normtype)+'_'+str(mincomp)+'-'+str(maxcomp)+'_removed.csv'
+    spectra_train,names_train,spect_index_train,comps_train=ccam.choose_spectra(spectra_train,spect_index_train,names_train,comps_train,compindex,mincomp=mincomp,maxcomp=maxcomp,keepfile=keepfile,removefile=removefile,which_removed=which_removed)
+        
+    
+  
+    print 'Assigning Training Folds'
+#    if testfoldfile!=None:
+#        #if a test fold file is specified, use it to define the test set, then split the remaining 
+#        folds=ccam.folds(foldfile,names)
+#        folds=ccam.sorted_folds(names,comps,nfolds,compindex)        
+#        
+#    else:
+        #otherwise, define sorted folds
+    folds_train=ccam.sorted_folds(names_train,comps_train,nfolds,compindex)
+        #folds=ccam.random_folds(names,nfolds,seed=seed)
+    if max(folds_train==0) is True:
+        names_nofold=names[(folds_train==0)]
+        spect_index_nofold=spect_index[(folds_train==0)]
+        #write a file containing the samples not assigned to folds
+        with open(which_removed,'ab') as writefile:
+            writer=csv.writer(writefile,delimiter=',',)
+            for i in range(len(names_nofold)):
+                writer.writerow([names_nofold[i],spect_index_nofold[i],'No Fold'])
     
     
-    #remove spectra that are not assigned to any fold
-    spectra=spectra[(folds!=0),:]
-    spect_index=spect_index[(folds!=0)]
-    names=names[(folds!=0)]
-    comps=comps[(folds!=0),:]
-    folds=folds[(folds!=0)]
+        #remove spectra that are not assigned to any fold
+        spectra_train=spectra_train[(folds_train!=0),:]
+        spect_index_train=spect_index_train[(folds_train!=0)]
+        names_train=names_train[(folds_train!=0)]
+        comps_train=comps_train[(folds_train!=0),:]
+        folds_train=folds_train[(folds_train!=0)]
+    #keep just the comkpositions for the current element
+    comps_train=numpy.squeeze(comps_train[:,compindex])
     
-    print 'Defining Training and Test Sets'
-    spectra_train=spectra[(folds!=testfold)]
-    spect_index_train=spect_index[(folds!=testfold)]
-    names_train=names[(folds!=testfold)]
-    comps_train=comps[(folds!=testfold),compindex]
-    folds_train=folds[(folds!=testfold)]
-    folds_train_unique=numpy.unique(folds_train)
+    folds_all=numpy.zeros_like(names) 
+    folds_all[testfold_index==True]='Test'
     
-    spectra_test=spectra[(folds==testfold)]
-    spect_index_test=spect_index[(folds==testfold)]
-    names_test=names[(folds==testfold)]
-    comps_test=comps[(folds==testfold),compindex]
-    folds_test=folds[(folds==testfold)]
+    for i in range(0,len(names)):
+        if testfold_index[i]==False:
+            temp=folds_train[names_train==names[i]]
+            if len(temp)>0:
+                folds_all[i]=temp[0]
+            else:
+                folds_all[i]='Outside of training set range'
     
-    print 'Do Leave One Label Out (LOLO) cross validation with all folds but the test set'
+    print 'Do Leave One Label Out (LOLO) cross validation with all training set folds'
     #define array to hold cross validation predictions and RMSEs
     train_predict_cv=numpy.zeros((len(names_train),nc))
     RMSECV=numpy.zeros(nc)
     
-    for i in folds_train_unique:
-        print 'Holding out fold #'+str(i)
+    for i in range(1,nfolds+1):
+        print 'Holding out training fold #'+str(i)
         
         if skscale==False:
         #mean center those spectra left in
@@ -176,13 +197,15 @@ def pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=1,mincomp=0,
                     PLS1model.fit(X_cv_in,Y_cv_in)
                     train_predict_cv[(folds_train==i),j-1]=numpy.squeeze(PLS1model.predict(X_cv_out)+Y_cv_in_mean)
                 if n_bag!=None:
-                    PLS1bagged=ensemble.BaggingRegressor(PLS1model,n_estimators=n_bag,max_samples=max_samples,verbose=1)
-                    PLS1bagged.fit(X_cv_in,Y_cv_in)
-                    train_predict_cv[(folds_train==i),j-1]=numpy.squeeze(PLS1bagged.predict(X_cv_out)+Y_cv_in_mean)
+                    print 'Bagging not implemented yet'
+                    #PLS1bagged=ensemble.BaggingRegressor(PLS1model,n_estimators=n_bag,max_samples=max_samples,verbose=1)
+                    #PLS1bagged.fit(X_cv_in,Y_cv_in)
+                    #train_predict_cv[(folds_train==i),j-1]=numpy.squeeze(PLS1bagged.predict(X_cv_out)+Y_cv_in_mean)
                 if n_boost!=None:
-                    PLS1boosted=ensemble.AdaBoostRegressor(PLS1model,n_estimators=n_boost)
-                    PLS1boosted.fit(X_cv_in,Y_cv_in)
-                    train_predict_cv[(folds_train==i),j-1]=numpy.squeeze(PLS1boosted.predict(X_cv_out)+Y_cv_in_mean)
+                    print 'Boosting not implemented yet'
+                    #PLS1boosted=ensemble.AdaBoostRegressor(PLS1model,n_estimators=n_boost)
+                    #PLS1boosted.fit(X_cv_in,Y_cv_in)
+                    #train_predict_cv[(folds_train==i),j-1]=numpy.squeeze(PLS1boosted.predict(X_cv_out)+Y_cv_in_mean)
     #calculate RMSECV
     for i in range(0,nc):
         sqerr=(train_predict_cv[:,i]-comps_train)**2.0
@@ -191,6 +214,7 @@ def pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=1,mincomp=0,
     #mean center full model
     if skscale==False:
         X,X_mean=ccam.meancenter(spectra_train)
+
         X_test=ccam.meancenter(spectra_test,X_mean=X_mean)[0]
         X_all=ccam.meancenter(spectra,X_mean=X_mean)[0]
         
@@ -276,7 +300,7 @@ def pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=1,mincomp=0,
                 
                 E=X-numpy.dot(PLS1model.x_scores_,PLS1model.x_loadings_.transpose())
                 Q_res[:,j-1]=numpy.dot(E,E.transpose()).diagonal()
-                
+
                 trainset_results[:,j-1]=numpy.squeeze(PLS1model.predict(X)+Y_mean)
                 testset_results[:,j-1]=numpy.squeeze(PLS1model.predict(X_test)+Y_mean)
                 results[:,j-1]=numpy.squeeze(PLS1model.predict(X_all)+Y_mean)
@@ -285,34 +309,35 @@ def pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=1,mincomp=0,
 
                     
                 if cal_dir != None:
-                    comps_copy=copy.copy(target_comps)
                     cal_results[:,j-1]=numpy.squeeze(PLS1model.predict(cal_data_centered)+Y_mean)
                     RMSEP_KGAMEDS[j-1],RMSEP_MACUSANITE[j-1],RMSEP_NAU2HIS[j-1],RMSEP_NAU2LOS[j-1],RMSEP_NAU2MEDS[j-1],RMSEP_NORITE[j-1],RMSEP_PICRITE[j-1],RMSEP_SHERGOTTITE[j-1],RMSEP_cal_good[j-1]=cal_rmses(targets,nc,target_comps,j,cal_data_centered,Y_mean,mincomp,maxcomp,cal_results)
    
             if n_bag!=None:
-                PLS1bagged=ensemble.BaggingRegressor(PLS1model,n_estimators=n_bag,max_samples=max_samples,verbose=1)
-                PLS1bagged.fit(X,Y)
-                trainset_results[:,j-1]=numpy.squeeze(PLS1bagged.predict(X)+Y_mean)
-                testset_results[:,j-1]=numpy.squeeze(PLS1bagged.predict(X_test)+Y_mean)
-                results[:,j-1]=numpy.squeeze(PLS1bagged.predict(X_all)+Y_mean)
-                beta[:,j-1]=None
-                model_list.append([PLS1bagged])
-                if cal_dir != None:
-                    comps_copy=copy.copy(target_comps)
-                    cal_results[:,j-1]=numpy.squeeze(PLS1bagged.predict(cal_data_centered)+Y_mean)
-                    RMSEP_KGAMEDS[j-1],RMSEP_MACUSANITE[j-1],RMSEP_NAU2HIS[j-1],RMSEP_NAU2LOS[j-1],RMSEP_NAU2MEDS[j-1],RMSEP_NORITE[j-1],RMSEP_PICRITE[j-1],RMSEP_SHERGOTTITE[j-1],RMSEP_cal_good[j-1]=cal_rmses(targets,nc,target_comps,j,cal_data_centered,Y_mean,mincomp,maxcomp,cal_results)
+                print 'Bagging not fully implemented'                
+#                PLS1bagged=ensemble.BaggingRegressor(PLS1model,n_estimators=n_bag,max_samples=max_samples,verbose=1)
+#                PLS1bagged.fit(X,Y)
+#                trainset_results[:,j-1]=numpy.squeeze(PLS1bagged.predict(X)+Y_mean)
+#                testset_results[:,j-1]=numpy.squeeze(PLS1bagged.predict(X_test)+Y_mean)
+#                results[:,j-1]=numpy.squeeze(PLS1bagged.predict(X_all)+Y_mean)
+#                beta[:,j-1]=None
+#                model_list.append([PLS1bagged])
+#                if cal_dir != None:
+#                    comps_copy=copy.copy(target_comps)
+#                    cal_results[:,j-1]=numpy.squeeze(PLS1bagged.predict(cal_data_centered)+Y_mean)
+#                    RMSEP_KGAMEDS[j-1],RMSEP_MACUSANITE[j-1],RMSEP_NAU2HIS[j-1],RMSEP_NAU2LOS[j-1],RMSEP_NAU2MEDS[j-1],RMSEP_NORITE[j-1],RMSEP_PICRITE[j-1],RMSEP_SHERGOTTITE[j-1],RMSEP_cal_good[j-1]=cal_rmses(targets,nc,target_comps,j,cal_data_centered,Y_mean,mincomp,maxcomp,cal_results)
             if n_boost!=None:
-                PLS1boosted=ensemble.AdaBoostRegressor(PLS1model,n_estimators=n_boost)
-                PLS1boosted.fit(X,Y)
-                trainset_results[:,j-1]=numpy.squeeze(PLS1boosted.predict(X)+Y_mean)
-                testset_results[:,j-1]=numpy.squeeze(PLS1boosted.predict(X_test)+Y_mean)
-                results[:,j-1]=numpy.squeeze(PLS1boosted.predict(X_all)+Y_mean)
-                beta[:,j-1]=None
-                model_list.append([PLS1boosted])
-                if cal_dir != None:
-                    comps_copy=copy.copy(target_comps)
-                    cal_results[:,j-1]=numpy.squeeze(PLS1boosted.predict(cal_data_centered)+Y_mean)
-                    RMSEP_KGAMEDS[j-1],RMSEP_MACUSANITE[j-1],RMSEP_NAU2HIS[j-1],RMSEP_NAU2LOS[j-1],RMSEP_NAU2MEDS[j-1],RMSEP_NORITE[j-1],RMSEP_PICRITE[j-1],RMSEP_SHERGOTTITE[j-1],RMSEP_cal_good[j-1]=cal_rmses(targets,nc,target_comps,j,cal_data_centered,Y_mean,mincomp,maxcomp,cal_results)
+                print 'Boosting not fully implemented'                
+#                PLS1boosted=ensemble.AdaBoostRegressor(PLS1model,n_estimators=n_boost)
+#                PLS1boosted.fit(X,Y)
+#                trainset_results[:,j-1]=numpy.squeeze(PLS1boosted.predict(X)+Y_mean)
+#                testset_results[:,j-1]=numpy.squeeze(PLS1boosted.predict(X_test)+Y_mean)
+#                results[:,j-1]=numpy.squeeze(PLS1boosted.predict(X_all)+Y_mean)
+#                beta[:,j-1]=None
+#                model_list.append([PLS1boosted])
+#                if cal_dir != None:
+#                    comps_copy=copy.copy(target_comps)
+#                    cal_results[:,j-1]=numpy.squeeze(PLS1boosted.predict(cal_data_centered)+Y_mean)
+#                    RMSEP_KGAMEDS[j-1],RMSEP_MACUSANITE[j-1],RMSEP_NAU2HIS[j-1],RMSEP_NAU2LOS[j-1],RMSEP_NAU2MEDS[j-1],RMSEP_NORITE[j-1],RMSEP_PICRITE[j-1],RMSEP_SHERGOTTITE[j-1],RMSEP_cal_good[j-1]=cal_rmses(targets,nc,target_comps,j,cal_data_centered,Y_mean,mincomp,maxcomp,cal_results)
    
         RMSEC[j-1]=numpy.sqrt(numpy.mean((trainset_results[:,j-1]-comps_train)**2.0))
         RMSEP[j-1]=numpy.sqrt(numpy.mean((testset_results[:,j-1]-comps_test)**2.0))
@@ -428,11 +453,11 @@ def pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=1,mincomp=0,
             
     with open(outpath+which_elem+'_'+plstype_string+'_nc'+str(nc)+'_norm'+str(normtype)+'_'+str(mincomp)+'-'+str(maxcomp)+'_test_predict.csv','wb') as writefile:
         writer=csv.writer(writefile,delimiter=',')
-        row=['Sample','Spectrum','Fold','True_Comp']
+        row=['Sample','Spectrum','True_Comp']
         row.extend(range(1,nc+1))
         writer.writerow(row)
         for i in range(0,len(names_test)):
-            row=[names_test[i],spect_index_test[i],folds_test[i],comps_test[i]]
+            row=[names_test[i],spect_index_test[i],comps_test[i]]
             row.extend(testset_results[i,:])
             writer.writerow(row)
     
@@ -442,7 +467,8 @@ def pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=1,mincomp=0,
         row.extend(range(1,nc+1))
         writer.writerow(row)
         for i in range(0,len(names)):
-            row=[names[i],spect_index[i],folds[i],comps[i,compindex]]
+            print i
+            row=[names[i],spect_index[i],folds_all[i],comps[i,compindex][0]]
             row.extend(results[i,:])
             writer.writerow(row)
             
@@ -469,8 +495,8 @@ def pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=1,mincomp=0,
         writer.writerow(['Spectral database =',dbfile])
         writer.writerow(['Spectra Kept =',keepfile])
         writer.writerow(['Spectra Removed =',which_removed])
-        writer.writerow(['Fold Definition =',foldfile])
-        writer.writerow(['Test Fold =',maskfile])
+        writer.writerow(['Test Fold Definition =',testfoldfile])
+        writer.writerow(['# of Training Set Folds =',nfolds])
         writer.writerow(['Mask File =',maskfile])
         writer.writerow(['Algorithm =',plstype_string])
         writer.writerow(['# of components =',nc])

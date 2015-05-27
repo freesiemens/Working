@@ -14,10 +14,10 @@ or by the sum for each spectrometer (normtype = 3)
 import numpy
 import copy
 def normalize(spectra,wvl,normtype=3):
-    spectra_norm=spectra 
+    spectra_norm=copy.copy(spectra)
     if normtype==3:
         uv_index=(wvl<=340.797)  #create an index for the UV range
-        vis_index=vis_index=(wvl>=382.138)&(wvl<=469.090) #create an index for the VIS range
+        vis_index=(wvl>=382.138)&(wvl<=469.090) #create an index for the VIS range
         vnir_index=(wvl>=473.184) #create an index for the VNIR range
         uvtotals=numpy.sum(spectra[:,uv_index],axis=1)  #calculate the totals of each spectrum in the UV range
         vistotals=numpy.sum(spectra[:,vis_index],axis=1)  #calculate the totals of each spectrum in the VIS range

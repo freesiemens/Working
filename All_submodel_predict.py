@@ -208,7 +208,7 @@ def blend_test_predict(full_test_file,low_test_file,mid_test_file,high_test_file
     plot_title=which_elem+' Test Set Results'
 
     xminmax=[numpy.min(y_actual)*0.9,numpy.max(y_actual)*1.1]
-    yminmax=[numpy.min(predicts)*0.9,numpy.max(predicts)*1.1]
+    yminmax=[numpy.min(predicts)*0.9,numpy.min([numpy.max(predicts)*1.1,numpy.max(y_actual*2)])]
     truecomps=[y_actual,y_actual,y_actual,y_actual,y_actual]
     outfile=outpath+'\\'+which_elem+'_testset_1to1.png'
     outfilefull=outpath+'\\'+which_elem+'_full_testset_1to1.png'
@@ -223,9 +223,15 @@ def blend_test_predict(full_test_file,low_test_file,mid_test_file,high_test_file
     ccam.Plot1to1(truecomps[3],predicts[3],plot_title,labels[3],colors[3],markers[3],outfilehigh,xminmax=xminmax,yminmax=yminmax,ylabel='Prediction (wt.%)',xlabel='wt.%',one_to_one=True)
     ccam.Plot1to1(truecomps[4],predicts[4],plot_title,labels[4],colors[4],markers[4],outfileblend,xminmax=xminmax,yminmax=yminmax,ylabel='Prediction (wt.%)',xlabel='wt.%',one_to_one=True)
     
-    
-    
-    return blended,y_actual
+    targetnames=full_results[:,0]
+
+    blend_test_output=numpy.transpose(numpy.vstack([targetnames,numpy.squeeze(y_actual),numpy.squeeze(blended)]))
+    labelrow=['Target','Actual','PLS Blended']
+    blend_test_output=numpy.vstack([labelrow,blend_test_output])
+    numpy.savetxt(outpath+'\\'+which_elem+'_testset_blended.csv',blend_test_output,delimiter=',',fmt='%s')
+
+
+    return blended,y_actual,targetnames
    
 def final_model_results(y_db_full,y_db_low,y_db_mid,y_db_high,ranges,inrange,refpredict,toblend,truecomps,xminmax,yminmax,fullmin,fullmax,fullnorm,nc_full,lowmin,lowmax,lownorm,nc_low,midmin,midmax,midnorm,nc_mid,highmin,highmax,highnorm,nc_high,which_elem):
     predicts=[y_db_full,y_db_low,y_db_mid,y_db_high]    
@@ -396,9 +402,9 @@ blend_array[:,4]=numpy.array(toblend)[:,0]
 blend_array[:,5]=numpy.array(toblend)[:,1]
 
 numpy.savetxt(which_elem+'_blend_array.csv',numpy.vstack([['ranges_mins','ranges_maxes','inrange','refpredict','toblend1','toblend2'],blend_array]),delimiter=',',fmt='%s')
+SiO2_blended_test,SiO2_test_y_actual,SiO2_test_targets=blend_test_predict(full_test_file,low_test_file,mid_test_file,high_test_file,ranges,inrange,refpredict,toblend,nc_full,nc_low,nc_mid,nc_high,which_elem,outpath)
 
 if get_results is True:
-    blended_test,test_y_actual=blend_test_predict(full_test_file,low_test_file,mid_test_file,high_test_file,ranges,inrange,refpredict,toblend,nc_full,nc_low,nc_mid,nc_high,which_elem,outpath)
     
     truecomps=[comps[:,compindex],comps[:,compindex],comps[:,compindex],comps[:,compindex],comps[:,compindex]]
     
@@ -577,9 +583,10 @@ blend_array[:,5]=numpy.array(toblend)[:,1]
 
 
 numpy.savetxt(which_elem+'_blend_array.csv',numpy.vstack([['ranges_mins','ranges_maxes','inrange','refpredict','toblend1','toblend2'],blend_array]),delimiter=',',fmt='%s')
+TiO2_blended_test,TiO2_test_y_actual,TiO2_test_targets=blend_test_predict(full_test_file,low_test_file,mid_test_file,high_test_file,ranges,inrange,refpredict,toblend,nc_full,nc_low,nc_mid,nc_high,which_elem,outpath)
 if get_results is True:
     
-    blended_test,test_y_actual=blend_test_predict(full_test_file,low_test_file,mid_test_file,high_test_file,ranges,inrange,refpredict,toblend,nc_full,nc_low,nc_mid,nc_high,which_elem,outpath)
+    
     
     truecomps=[comps[:,compindex],comps[:,compindex],comps[:,compindex],comps[:,compindex],comps[:,compindex]]
     final_model_results(y_db_full,y_db_low,y_db_mid,y_db_high,ranges,inrange,refpredict,toblend,truecomps,xminmax,yminmax,fullmin,fullmax,fullnorm,nc_full,lowmin,lowmax,lownorm,nc_low,midmin,midmax,midnorm,nc_mid,highmin,highmax,highnorm,nc_high,which_elem)
@@ -720,9 +727,9 @@ blend_array[:,5]=numpy.array(toblend)[:,1]
 
 
 numpy.savetxt(which_elem+'_blend_array.csv',numpy.vstack([['ranges_mins','ranges_maxes','inrange','refpredict','toblend1','toblend2'],blend_array]),delimiter=',',fmt='%s')
-
+Al2O3_blended_test,Al2O3_test_y_actual,Al2O3_test_targets=blend_test_predict(full_test_file,low_test_file,mid_test_file,high_test_file,ranges,inrange,refpredict,toblend,nc_full,nc_low,nc_mid,nc_high,which_elem,outpath)
 if get_results is True:
-    blended_test,test_y_actual=blend_test_predict(full_test_file,low_test_file,mid_test_file,high_test_file,ranges,inrange,refpredict,toblend,nc_full,nc_low,nc_mid,nc_high,which_elem,outpath)
+    
     
     truecomps=[comps[:,compindex],comps[:,compindex],comps[:,compindex],comps[:,compindex],comps[:,compindex]]
     final_model_results(y_db_full,y_db_low,y_db_mid,y_db_high,ranges,inrange,refpredict,toblend,truecomps,xminmax,yminmax,fullmin,fullmax,fullnorm,nc_full,lowmin,lowmax,lownorm,nc_low,midmin,midmax,midnorm,nc_mid,highmin,highmax,highnorm,nc_high,which_elem)
@@ -866,8 +873,9 @@ blend_array[:,5]=numpy.array(toblend)[:,1]
 
 
 numpy.savetxt(which_elem+'_blend_array.csv',numpy.vstack([['ranges_mins','ranges_maxes','inrange','refpredict','toblend1','toblend2'],blend_array]),delimiter=',',fmt='%s')
+FeOT_blended_test,FeOT_test_y_actual,FeOT_test_targets=blend_test_predict(full_test_file,low_test_file,mid_test_file,high_test_file,ranges,inrange,refpredict,toblend,nc_full,nc_low,nc_mid,nc_high,which_elem,outpath)
 if get_results is True:
-    blended_test,test_y_actual=blend_test_predict(full_test_file,low_test_file,mid_test_file,high_test_file,ranges,inrange,refpredict,toblend,nc_full,nc_low,nc_mid,nc_high,which_elem,outpath)
+    
     
     truecomps=[comps[:,compindex],comps[:,compindex],comps[:,compindex],comps[:,compindex],comps[:,compindex]]
     final_model_results(y_db_full,y_db_low,y_db_mid,y_db_high,ranges,inrange,refpredict,toblend,truecomps,xminmax,yminmax,fullmin,fullmax,fullnorm,nc_full,lowmin,lowmax,lownorm,nc_low,midmin,midmax,midnorm,nc_mid,highmin,highmax,highnorm,nc_high,which_elem)
@@ -1005,9 +1013,9 @@ blend_array[:,5]=numpy.array(toblend)[:,1]
 
 
 numpy.savetxt(which_elem+'_blend_array.csv',numpy.vstack([['ranges_mins','ranges_maxes','inrange','refpredict','toblend1','toblend2'],blend_array]),delimiter=',',fmt='%s')
-
+MgO_blended_test,MgO_test_y_actual,MgO_test_targets=blend_test_predict(full_test_file,low_test_file,mid_test_file,high_test_file,ranges,inrange,refpredict,toblend,nc_full,nc_low,nc_mid,nc_high,which_elem,outpath)
 if get_results is True:
-    blended_test,test_y_actual=blend_test_predict(full_test_file,low_test_file,mid_test_file,high_test_file,ranges,inrange,refpredict,toblend,nc_full,nc_low,nc_mid,nc_high,which_elem,outpath)
+    
     
     
     truecomps=[comps[:,compindex],comps[:,compindex],comps[:,compindex],comps[:,compindex],comps[:,compindex]]
@@ -1151,8 +1159,9 @@ blend_array[:,5]=numpy.array(toblend)[:,1]
 
 
 numpy.savetxt(which_elem+'_blend_array.csv',numpy.vstack([['ranges_mins','ranges_maxes','inrange','refpredict','toblend1','toblend2'],blend_array]),delimiter=',',fmt='%s')
+CaO_blended_test,CaO_test_y_actual,CaO_test_target=blend_test_predict(full_test_file,low_test_file,mid_test_file,high_test_file,ranges,inrange,refpredict,toblend,nc_full,nc_low,nc_mid,nc_high,which_elem,outpath)
 if get_results is True:
-    blended_test,test_y_actual=blend_test_predict(full_test_file,low_test_file,mid_test_file,high_test_file,ranges,inrange,refpredict,toblend,nc_full,nc_low,nc_mid,nc_high,which_elem,outpath)
+    
     
     truecomps=[comps[:,compindex],comps[:,compindex],comps[:,compindex],comps[:,compindex],comps[:,compindex]]
     final_model_results(y_db_full,y_db_low,y_db_mid,y_db_high,ranges,inrange,refpredict,toblend,truecomps,xminmax,yminmax,fullmin,fullmax,fullnorm,nc_full,lowmin,lowmax,lownorm,nc_low,midmin,midmax,midnorm,nc_mid,highmin,highmax,highnorm,nc_high,which_elem)
@@ -1323,8 +1332,9 @@ blend_array[:,5]=numpy.array(toblend)[:,1]
 
 
 numpy.savetxt(which_elem+'_blend_array.csv',numpy.vstack([['ranges_mins','ranges_maxes','inrange','refpredict','toblend1','toblend2'],blend_array]),delimiter=',',fmt='%s')
+Na2O_blended_test,Na2O_test_y_actual,Na2O_test_targets=blend_test_predict(full_test_file,full_test_file,full_test_file,full_test_file,ranges,inrange,refpredict,toblend,nc_full,nc_low,nc_mid,nc_high,which_elem,outpath)
 if get_results is True:
-    blended_test,test_y_actual=blend_test_predict(full_test_file,full_test_file,full_test_file,full_test_file,ranges,inrange,refpredict,toblend,nc_full,nc_low,nc_mid,nc_high,which_elem,outpath)
+    
     
     truecomps=[comps[:,compindex],comps[:,compindex],comps[:,compindex],comps[:,compindex],comps[:,compindex]]
     final_model_results(y_db_full,y_db_low,y_db_mid,y_db_high,ranges,inrange,refpredict,toblend,truecomps,xminmax,yminmax,fullmin,fullmax,fullnorm,nc_full,lowmin,lowmax,lownorm,nc_low,midmin,midmax,midnorm,nc_mid,highmin,highmax,highnorm,nc_high,which_elem)
@@ -1459,9 +1469,9 @@ blend_array[:,5]=numpy.array(toblend)[:,1]
 numpy.savetxt(which_elem+'_blend_array.csv',numpy.vstack([['ranges_mins','ranges_maxes','inrange','refpredict','toblend1','toblend2'],blend_array]),delimiter=',',fmt='%s')
 
 
-
+K2O_blended_test,K2O_test_y_actual,K2O_test_targets=blend_test_predict(full_test_file,low_test_file,mid_test_file,high_test_file,ranges,inrange,refpredict,toblend,nc_full,nc_low,nc_mid,nc_high,which_elem,outpath)
 if get_results is True:
-    blended_test,test_y_actual=blend_test_predict(full_test_file,low_test_file,mid_test_file,high_test_file,ranges,inrange,refpredict,toblend,nc_full,nc_low,nc_mid,nc_high,which_elem,outpath)
+    
     
     truecomps=[comps[:,compindex],comps[:,compindex],comps[:,compindex],comps[:,compindex],comps[:,compindex]]
     final_model_results(y_db_full,y_db_low,y_db_mid,y_db_high,ranges,inrange,refpredict,toblend,truecomps,xminmax,yminmax,fullmin,fullmax,fullnorm,nc_full,lowmin,lowmax,lownorm,nc_low,midmin,midmax,midnorm,nc_mid,highmin,highmax,highnorm,nc_high,which_elem)
@@ -1493,5 +1503,6 @@ firstcol=numpy.vstack([' ','y_mean=',regress_wvl])
 meancenters_output=numpy.hstack([firstcol,meancenters_output])
 numpy.savetxt('all_pls_meancenters.csv',meancenters_output,delimiter=',',fmt='%s')
 
+SiO2_test_results=numpy.hstack([SiO2_blended_test,SiO2_test_y_actual])
 
 print 'stop'

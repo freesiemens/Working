@@ -4,11 +4,18 @@ Created on Tue May 19 12:19:44 2015
 
 @author: rbanderson
 """
+
 from PySide import QtGui  
 from PySide import QtCore
 from PySide import QtUiTools
 import ccam
 import numpy
+#need these to help pyinstaller find the correct modules
+#from PySide import QtXml
+#import sklearn.utils.sparsetools._graph_validation
+#import scipy
+#import scipy.special._ufuncs
+
 
 class MyWidget(QtGui.QMainWindow):
     def __init__(self, *args):  
@@ -50,7 +57,7 @@ class MyWidget(QtGui.QMainWindow):
         #Calculate compositions
         self.myWidget.calc_button.clicked.connect(self.calc_comp)
         
-        self.onFinish
+
         
     def choosedir(self):
         self.searchdir=QtGui.QFileDialog.getExistingDirectory(self,dir=self.searchdir)
@@ -111,7 +118,12 @@ class MyWidget(QtGui.QMainWindow):
                 
         blended_all=self.pls_blend(comps_all)
         self.myWidget.progressBar.setValue(len(filelist))
-        self.write_results(blended_all,shotnum_all,targets_all,dists_all,amps_all)
+        if self.shots is False:
+            shotnum_all='placeholder'
+            targets_all=targets
+            dists_all=dists
+            amps_all=amps
+        self.write_results(blended_all,shotnum_all,targets_all,dists_all,amps_all,filename_all)
             
 
     
@@ -170,17 +182,19 @@ class MyWidget(QtGui.QMainWindow):
                 toblend.append(blendarray[j,4:].tolist())
                 
             blended[:,i]=ccam.submodels_blend(predict,ranges,inrange,refpredict,toblend)
+    
         return blended
-    def write_results(self,blended_all,shotnum_all,targets_all,dists_all,amps_all):
+        
+    def write_results(self,blended_all,shotnum_all,targets_all,dists_all,amps_all,filename_all):
         if self.shots is True:
-            labelrow=numpy.array(['Target','Shot Number','Distance (m)','Laser Power'])
+            labelrow=numpy.array(['File','Target','Shot Number','Distance (m)','Laser Power'])
             labelrow=numpy.hstack([labelrow,self.elems])
-            output=numpy.vstack([targets_all,shotnum_all+1,dists_all,amps_all])
+            output=numpy.vstack([filename_all,targets_all,shotnum_all+1,dists_all,amps_all])
             outfile='ccam_comps_predict_singleshots.csv'
         if self.shots is False:
-            labelrow=numpy.array(['Target','Distance (m)','Laser Power'])
+            labelrow=numpy.array(['File','Target','Distance (m)','Laser Power'])
             labelrow=numpy.hstack([labelrow,self.elems])
-            output=numpy.vstack([targets_all,dists_all,amps_all])
+            output=numpy.vstack([filename_all,targets_all,dists_all,amps_all])
             outfile='ccam_comps_predict.csv'
         output=numpy.hstack([numpy.transpose(output),blended_all])
 

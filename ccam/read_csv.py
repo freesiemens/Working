@@ -12,12 +12,13 @@ def read_csv(filename,skiprows,labelrow=True,skipsym='#'):
     for i in range(skiprows):
         f.readline()    
     if labelrow==True:
-        labels=f.readline() #read the label row
+        labels=f.readline().rstrip() #read the label row
+        
         labels=numpy.array(labels.split(',')) #split it on commas and convert to a string array
         data=[]
         for row in f:
             if row[0] is not skipsym:            
-                data.append(row.split(','))
+                data.append(row.rstrip().split(','))
             
         f.close()
         data=numpy.array(data)
@@ -27,7 +28,7 @@ def read_csv(filename,skiprows,labelrow=True,skipsym='#'):
         data=[]
         for row in f:
             if row[0] is not skipsym:            
-                data.append(row.split(','))
+                data.append(row.rstrip().split(','))
             
         f.close()
         data=numpy.array(data)
