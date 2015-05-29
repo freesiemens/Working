@@ -1,8 +1,30 @@
+function fitfunc_linear,X,P
+return,P[2]*(X-P[1])+P[0]
+end
+
+function fitfunc_cubic,X,P
+X1=X-P[1]
+return,P[2]*X1+P[3]*X1^3.0+P[0]
+end
+
+function fitfunc_5,X,P
+X1=X-P[1]
+return,P[2]*X1+P[3]*X1^3.0+P[4]*X1^5.0+P[0]
+end  
+
+function fitfunc_sig,X,P
+X1=X-P[1]
+Y=P[0]/(P[4]+2.71828^(-P[2]*(X1-P[1])))+P[3]
+
+return,Y
+end  
+
+
   
 function dynamic_rmsep,predicts,test_predicts,elems,calctest=calctest
 rmseps=predicts*0.0+9999
-window,0
-window,1
+
+
 for i=0,n_elements(elems)-1 do begin
   if elems[i] eq 'SiO2' then temp_test_predicts=test_predicts.SiO2
   if elems[i] eq 'TiO2' then temp_test_predicts=test_predicts.TiO2
@@ -51,13 +73,50 @@ for i=0,n_elements(elems)-1 do begin
     endelse
     
   endfor
+ if keyword_set(calctest) then begin
+  window,0
   wset,0
+  device,decomposed=0
+  loadct,0
   plot,whichpredicts,temp_rmseps,psym=2,xtitle='Predicted '+elems[i],ytitle='Local RMSEP'
-  write_gif,elems[i]+'_RMSEPvsPredict.gif',tvrd()
+  
  ; wset,1
  ; ploterror,temp_test_predicts[0,*],temp_Test_predicts[1,*],temp_rmseps*0,temp_rmseps,psym=3
    
-  stop
+   parinfo=replicate({value:0, limited:[0,0], limits:[0,0]}, 6)
+   parinfo[0].limited[0]=1
+   ;parinfo[1].value=0.0
+   
+   P_sig=mpfitfun('fitfunc_sig',whichpredicts,temp_rmseps,parinfo=parinfo,weights=10.0/temp_rmseps)
+   
+   parinfo[*].limited[0]=1
+   P_linear=mpfitfun('fitfunc_linear',whichpredicts,temp_rmseps,parinfo=parinfo,weights=10.0/temp_rmseps)
+   
+   P_cubic=mpfitfun('fitfunc_cubic',whichpredicts,temp_rmseps,parinfo=parinfo)
+   
+   ;P_5=mpfitfun('fitfunc_5',whichpredicts,temp_rmseps,parinfo=parinfo)
+   ;parinfo=replicate({value:1, limited:[0,0], limits:[0,0]}, 5)
+  
+
+   foo1=fitfunc_linear(whichpredicts,P_linear)
+   foo3=fitfunc_cubic(whichpredicts,P_cubic)
+   ;foo5=fitfunc_5(whichpredicts,P_5)
+   
+   foosig=fitfunc_sig(whichpredicts,P_sig)
+   loadct,13
+   
+   oplot,whichpredicts,foo1,color=250
+   oplot,whichpredicts,foo3,color=200
+   ;oplot,whichpredicts,foo5,color=100
+   oplot,whichpredicts,foosig,color=150
+   write_tiff,elems[i]+'_RMSEPvsPredict.tif',reverse(tvrd(true=1),3),planarconfig=1,orientation=1,compression=1
+   print,sqrt(mean((foo1-temp_rmseps)^2.0))
+   print,sqrt(mean((foo3-temp_rmseps)^2.0))
+  ; print,sqrt(mean((foo5-temp_rmseps)^2.0))
+   print,sqrt(mean((foosig-temp_rmseps)^2.0))
+   stop
+   endif
+  
   if keyword_set(calctest) then begin
      if elems[i] eq 'SiO2' then test_predicts.SiO2_rmsep=temp_rmseps
      if elems[i] eq 'TiO2' then test_predicts.TiO2_rmsep=temp_rmseps
@@ -74,7 +133,7 @@ for i=0,n_elements(elems)-1 do begin
   
   
 endfor
-stop
+
 
 return,rmseps
 end   
@@ -128,7 +187,11 @@ function pls_blend,comps,blend_array_dir,elems,filelist
         blended=comps.full*0.0        
         for k=0,n_elements(elems)-1 do begin
             ;#reconstruct the blend input settings from the blend array file
-            blendarray=rd_tfile(blend_array_dir+'\\'+elems[k]+'_blend_array.csv',/autocol,delim=',')
+            blendarray=rd_tfile(blend_array_dir+elems[k]+'_blend_array.csv',/autocol,delim=',')
+            help,blendarray,output=status
+            
+            ;xmess,status
+            xmess,[blend_array_dir,status],wid=wid
             blend_labels=blendarray[0,*]
             blendarray=blendarray[*,1:*]
             ranges=float(blendarray[0:1,*])
@@ -159,7 +222,7 @@ function pls_blend,comps,blend_array_dir,elems,filelist
       return,blended
 end
 
-pro write_results,blended_all,targets_all,filelist_all,amps_all,dists_all,elems,shots,shotnum_all,ica_comps_all,ica_pls_combined
+pro write_results,comps_all,targets_all,filelist_all,amps_all,dists_all,totals_All,elems,shots,shotnum_all,rmseps,searchdir,ica=ica,pls=pls
         caldat,systime(/jul),mm,dd,yy
         yy=strtrim(yy,2)
         mm=strtrim(mm,2)
@@ -168,50 +231,54 @@ pro write_results,blended_all,targets_all,filelist_all,amps_all,dists_all,elems,
         if strlen(dd) eq 1 then dd='0'+dd
         today=yy+mm+dd
         if shots eq 1 then begin
-            labelrow=['File','Target','Shot Number','Distance (m)','Laser Power',elems,'Total']
-            output=transpose([[filelist_all],[targets_all],[strtrim(shotnum_all+1,2)],[strtrim(dists_all,2)],[amps_all]])
-            plsoutfile='ccam_comps_singleshots_pls_'+today+'.csv'
-            icaoutfile='ccam_comps_singleshots_ica_'+today+'.csv'
-            outfile='ccam_comps_singleshots_'+today+'.csv'
+            labelrow=['File','Target','Shot Number','Distance (m)','Laser Power','Spectrum Total',elems,'Total',elems+'_RMSEP']
+            
+            output=transpose([[filelist_all],[targets_all],[strtrim(shotnum_all+1,2)],[strtrim(dists_all,2)],[amps_all],[strtrim(totals_all,2)]])
+            plsoutfile=searchdir+'DO_NOT_USE_ccam_comps_singleshots_pls_'+today+'.csv'
+            icaoutfile=searchdir+'DO_NOT_USE_ccam_comps_singleshots_ica_'+today+'.csv'
+            outfile=searchdir+'DO_NOT_USE_ccam_comps_singleshots_'+today+'.csv'
             
         endif
         if shots eq 0 then begin
-            labelrow=['File','Target','Distance (m)','Laser Power',elems,'Total']
-            output=transpose([[filelist_all],[targets_all],[strtrim(dists_all,2)],[amps_all]])
-            plsoutfile='ccam_comps_pls_'+today+'.csv'
-            icaoutfile='ccam_comps_ica_'+today+'.csv'
-            outfile='ccam_comps_'+today+'.csv'
+            labelrow=['File','Target','Distance (m)','Laser Power','Spectrum Total',elems,'Total',elems+'_RMSEP']
+            
+            output=transpose([[filelist_all],[targets_all],[strtrim(dists_all,2)],[amps_all],[strtrim(totals_all,2)]])
+            plsoutfile=searchdir+'DO_NOT_USE_ccam_comps_pls_'+today+'.csv'
+            icaoutfile=searchdir+'DO_NOT_USE_ccam_comps_ica_'+today+'.csv'
+            outfile=searchdir+'DO_NOT_USE_ccam_comps_'+today+'.csv'
         endif
-        plstotals=total(blended_all,1)
-        icatotals=total(ica_comps_all,1)
-        totals=total(ica_pls_combined,1)
         
-        plsoutput=[output,strtrim(blended_all,2),strtrim(transpose(totals),2)]
-        icaoutput=[output,strtrim(ica_comps_all,2),strtrim(transpose(totals),2)]
-        alloutput=[output,strtrim(ica_pls_combined,2),strtrim(transpose(totals),2)]
         
-        plsoutput=[[labelrow],[plsoutput]]
-        icaoutput=[[labelrow],[icaoutput]]
-        alloutput=[[labelrow],[alloutput]]
-        
-        write_csv,plsoutfile,plsoutput
-        write_csv,icaoutfile,icaoutput
-        write_csv,outfile,alloutput
+
+          totals=total(comps_all,1)
+          
+          output=[output,strtrim(comps_all,2),strtrim(transpose(totals),2),strtrim(RMSEPs,2)]
+          output=[[labelrow],[output]]
+          
+          if keyword_set(pls) then begin
+            write_csv,plsoutfile,output 
+          endif else if keyword_set(ica) then begin
+            write_csv,icaoutfile,output
+          endif else write_csv,outfile,output
+                
+
 end
             
 
 
-function calc_comp,searchdir,shots,maskfile,masterfile,recursive,pls_settings_labels,pls_norms,pls_ncs,pls_coeffs,meancenter_labels,ymeancenters,meancenters,blend_array_dir,pls_testresult_dir
+function calc_comp,searchdir,shots,maskfile,masterfile,recursive,pls_settings_labels,pls_norms,pls_ncs,pls_coeffs,meancenter_labels,ymeancenters,meancenters,blend_array_dir,testresult_dir,os=os
+        if os eq 'Windows' then slash='\' else slash='/'
+        
         elems=['SiO2','TiO2','Al2O3','FeOT','MgO','CaO','Na2O','K2O']
 
-        SiO2_pls_testresult=rd_tfile(pls_testresult_dir+'\'+elems[0]+'_testset_blended.csv',3,delim=',');[1:*,*]
-        TiO2_pls_testresult=rd_tfile(pls_testresult_dir+'\'+elems[1]+'_testset_blended.csv',3,delim=',');[1:*,*]
-        Al2O3_pls_testresult=rd_tfile(pls_testresult_dir+'\'+elems[2]+'_testset_blended.csv',3,delim=',');[1:*,*]
-        FeOT_pls_testresult=rd_tfile(pls_testresult_dir+'\'+elems[3]+'_testset_blended.csv',3,delim=',');[1:*,*]
-        MgO_pls_testresult=rd_tfile(pls_testresult_dir+'\'+elems[4]+'_testset_blended.csv',3,delim=',');[1:*,*]
-        CaO_pls_testresult=rd_tfile(pls_testresult_dir+'\'+elems[5]+'_testset_blended.csv',3,delim=',');[1:*,*]
-        Na2O_pls_testresult=rd_tfile(pls_testresult_dir+'\'+elems[6]+'_testset_blended.csv',3,delim=',');[1:*,*]
-        K2O_pls_testresult=rd_tfile(pls_testresult_dir+'\'+elems[7]+'_testset_blended.csv',3,delim=',');[1:*,*]
+        SiO2_pls_testresult=rd_tfile(testresult_dir+elems[0]+'_testset_blended.csv',3,delim=',');[1:*,*]
+        TiO2_pls_testresult=rd_tfile(testresult_dir+elems[1]+'_testset_blended.csv',3,delim=',');[1:*,*]
+        Al2O3_pls_testresult=rd_tfile(testresult_dir+elems[2]+'_testset_blended.csv',3,delim=',');[1:*,*]
+        FeOT_pls_testresult=rd_tfile(testresult_dir+elems[3]+'_testset_blended.csv',3,delim=',');[1:*,*]
+        MgO_pls_testresult=rd_tfile(testresult_dir+elems[4]+'_testset_blended.csv',3,delim=',');[1:*,*]
+        CaO_pls_testresult=rd_tfile(testresult_dir+elems[5]+'_testset_blended.csv',3,delim=',');[1:*,*]
+        Na2O_pls_testresult=rd_tfile(testresult_dir+elems[6]+'_testset_blended.csv',3,delim=',');[1:*,*]
+        K2O_pls_testresult=rd_tfile(testresult_dir+elems[7]+'_testset_blended.csv',3,delim=',');[1:*,*]
         
         pls_testresult={SiO2:float(SiO2_pls_testresult[1:*,1:*]),TiO2:float(TiO2_pls_testresult[1:*,1:*]),$
           Al2O3:float(Al2O3_pls_testresult[1:*,1:*]),FeOT:float(FeOT_pls_testresult[1:*,1:*]),MgO:float(MgO_pls_testresult[1:*,1:*]),$
@@ -219,33 +286,51 @@ function calc_comp,searchdir,shots,maskfile,masterfile,recursive,pls_settings_la
           SiO2_RMSEP:float(SiO2_pls_testresult[1:*,1:*])*0,TiO2_RMSEP:float(TiO2_pls_testresult[1:*,1:*])*0,Al2O3_RMSEP:float(Al2O3_pls_testresult[1:*,1:*])*0,$
           FeOT_RMSEP:float(FeOT_pls_testresult[1:*,1:*])*0,MgO_RMSEP:float(MgO_pls_testresult[1:*,1:*])*0,CaO_RMSEP:float(CaO_pls_testresult[1:*,1:*])*0,$
           Na2O_RMSEP:float(Na2O_pls_testresult[1:*,1:*])*0,K2O_RMSEP:float(K2O_pls_testresult[1:*,1:*])*0}
-        print,'Getting CCS files...'
-        filelist=ccam_filelist(searchdir,pathlist=pathlist,filelist_sols=filelist_sols,minsol=0,maxsol=999999,recursive=recursive,filelist_sclock=filelist_sclock)
-        
-        ;Run Olivier's ICA code
-        ica_comps_all = transpose(ICR(pathlist+filelist,shot=shots,fn_good_index=fn_good_index))
+        ;print,'Getting CCS files...'
+        xmess,"Reading CCS files in "+searchdir,/nowait,wid=wid
+        filelist=ccam_filelist(searchdir,pathlist=pathlist,filelist_sols=filelist_sols,minsol=0,maxsol=999999,recursive=recursive,filelist_sclock=filelist_sclock,os=os)
+        ;Look up target info
         stop
+        targets=ccam_filelist_targets(masterfile,filelist,filelist_sclock,filelist_nshots=filelist_nshots,filelist_dists=filelist_dists,filelist_amps=filelist_amps)
+        widget_control,/dest,wid
+        
+        ;Run ICA code
+        xmess,"Running ICA calculation...",/nowait,wid=wid
+        ica_comps_all = transpose(ICR(pathlist+filelist,shot=shots,fn_good_index=fn_good_index))
+        if keyword_set(shots) then begin
+          ica_comps=*ica_comps_all[0]
+          for i=1,n_elements(filelist)-1 do begin
+            ica_comps=[ica_comps,*ica_comps_All[i]]
+            
+          endfor
+          ica_comps_all=transpose(ica_comps)
+        endif
+        
+        widget_control,/dest,wid
+        
         filelist=filelist(fn_good_index)
         pathlist=pathlist(fn_good_index)
         filelist_sols=filelist_sols(fn_good_index)
         filelist_sclock=filelist_sclock(fn_good_index)
-        stop
+        targets=targets(fn_good_index)
+        filelist_nshots=filelist_nshots(fn_good_index)
+        filelist_dists=filelist_dists(fn_good_index)
+        filelist_amps=filelist_amps(fn_good_index)
+        
         ;stop
         
 
 
         ;self.myWidget.progressBar.setMaximum(len(filelist))
         
-        ;Look up target info
-        targets=ccam_filelist_targets(masterfile,filelist,filelist_sclock,filelist_nshots=filelist_nshots,filelist_dists=filelist_dists,filelist_amps=filelist_amps)
-        
-
+     
+     xmess,"Running PLS calculation...",/nowait,wid=wid
         ;Loop through each file in the file list, apply norm and mask, and run PLS calculations
         for i=0,n_elements(filelist)-1 do begin
             ;app.processEvents()          
             ;self.myWidget.progressBar.setValue(i)
-            ;print,pathlist[i]+'\'+filelist[i]
-            restore,pathlist[i]+'\'+filelist[i]
+            ;print,pathlist[i]+slash+filelist[i]
+            restore,pathlist[i]+slash+filelist[i]
             if shots eq 1 then begin
                 singleshots=[transpose(uv),transpose(vis),transpose(vnir)]
                 wvl=[defuv,defvis,defvnir]
@@ -254,7 +339,7 @@ function calc_comp,searchdir,shots,maskfile,masterfile,recursive,pls_settings_la
                 singleshots_masked=ccam_mask(singleshots,wvl,maskfile,masked_wvl=masked_wvl)
                 
                 
-                spectra_masked_norm1=ccam_norm(singleshots_masked,masked_wvl,1)
+                spectra_masked_norm1=ccam_norm(singleshots_masked,masked_wvl,1,totals=totals_temp)
                 spectra_masked_norm3=ccam_norm(singleshots_masked,masked_wvl,3)
                 
                 
@@ -268,7 +353,7 @@ function calc_comp,searchdir,shots,maskfile,masterfile,recursive,pls_settings_la
                 
                 meanspect_masked=ccam_mask(meanspect,wvl,maskfile,masked_wvl=masked_wvl)
                 
-                spectra_masked_norm1=ccam_norm(meanspect_masked,masked_wvl,1)
+                spectra_masked_norm1=ccam_norm(meanspect_masked,masked_wvl,1,totals=totals_temp)
                 spectra_masked_norm3=ccam_norm(meanspect_masked,masked_wvl,3)
                 
 
@@ -284,6 +369,7 @@ function calc_comp,searchdir,shots,maskfile,masterfile,recursive,pls_settings_la
                 targets_all=replicate(targets[i],nshots)
                 dists_all=replicate(filelist_dists[i],nshots)
                 amps_all=replicate(filelist_amps[i],nshots)
+                totals_all=totals_temp
                     
             endif else begin
                 comps_all={full:[[comps_all.full],[comps_temp.full]],low:[[comps_all.low],[comps_temp.low]],mid:[[comps_all.mid],[comps_temp.mid]],high:[[comps_all.high],[comps_temp.high]]}
@@ -293,7 +379,8 @@ function calc_comp,searchdir,shots,maskfile,masterfile,recursive,pls_settings_la
                 targets_all=[targets_all,replicate(targets[i],nshots)]
                 dists_all=[dists_all,replicate(filelist_dists[i],nshots)]
                 amps_all=[amps_all,replicate(filelist_amps[i],nshots)]
-
+                totals_all=[totals_All,totals_temp]
+                
             endelse
         endfor
         
@@ -301,15 +388,23 @@ function calc_comp,searchdir,shots,maskfile,masterfile,recursive,pls_settings_la
         blended_all=pls_blend(comps_all,blend_array_dir,elems,filelist_all)
         ;foo=[pls_testresult.SiO2[0,*],pls_testresult.TiO2[0,*],pls_testresult.Al2O3[0,*],pls_testresult.FeOT[0,*],pls_testresult.MgO[0,*],pls_testresult.CaO[0,*],pls_testresult.Na2O[0,*],pls_testresult.K2O[0,*]]
         ;stop
-        pls_rmseps=dynamic_rmsep(blended_all,pls_testresult,elems,calctest=1)
-        
+        widget_control,/dest,wid
+        xmess,"Calculating RMSEPs",/nowait,wid=wid
+        pls_rmseps=dynamic_rmsep(blended_all,pls_testresult,elems,calctest=0)
+        widget_control,/dest,wid
         ica_pls_combined=$
           [0.5*blended_all[0,*]+0.5*ica_comps_all[0,*],0.5*blended_all[1,*]+0.5*ica_comps_all[1,*],$
           0.75*blended_all[2,*]+0.25*ica_comps_all[2,*],0.75*blended_all[3,*]+0.25*ica_comps_all[3,*],$
           0.5*blended_all[4,*]+0.5*ica_comps_all[4,*],0.5*blended_all[5,*]+0.5*ica_comps_all[5,*],$
           0.4*blended_all[6,*]+0.6*ica_comps_all[6,*],0.4*blended_all[7,*]+0.6*ica_comps_all[7,*]]
+        ;write_results,comps_all,targets_all,filelist_all,amps_all,dists_all,elems,shots,shotnum_all,rmseps,searchdir,ica=ica,pls=pls
         
-        write_results,blended_all,targets_all,filelist_all,amps_all,dists_all,elems,shots,shotnum_all,ica_comps_all,ica_pls_combined
-  
+        write_results,blended_all,targets_all,filelist_all,amps_all,dists_all,totals_all,elems,shots,shotnum_all,$
+        pls_rmseps,searchdir,ica=0,pls=1
+        write_results,ica_comps_all,targets_all,filelist_all,amps_all,dists_all,totals_all,elems,shots,shotnum_all,$
+        pls_rmseps*0,searchdir,ica=1,pls=0
+        write_results,ica_pls_combined,targets_all,filelist_all,amps_all,dists_all,totals_all,elems,shots,shotnum_all,$
+        pls_rmseps*0,searchdir,ica=0,pls=0
+        
 end
  

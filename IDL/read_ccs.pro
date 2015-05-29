@@ -49,6 +49,7 @@ nft=0
 n0=5
 spp=ptrarr(nf,/allocate_heap)
 fn_good=fn
+
 if keyword_set(shot) then begin
     for i=0,nf-1 do begin
       restore,fn[i]

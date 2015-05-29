@@ -125,52 +125,27 @@ case widget of
  
   'OK': begin
     ; check that data has been defined, if not error message
-
     if strlen(calcparam.searchdir) EQ 0 then begin
       ok = Error_Message('Need to define the data path first!')
     endif else begin
-      ; check the number of components entered by the user
-;      WIDGET_CONTROL,calcparam.text2,GET_VALUE=indata
-;      print, indata
-      ; check validity
-;      if calcparam.recalc eq 1 and calcparam.nc_type eq 0 then begin
-;         ok = Error_Message("Can't have 'fixed' and 'recalculate' both selected! Exiting...")
-;         widget_control,event.top,/destroy
-;         
-;      endif
-      
-;      if((indata GT 0) AND (indata LE 50)) then begin
-;        calcparam.nc=indata
-        ; gets the OK if that is fine
-        calcparam.status = 'OK'
-; widget not destroyed after selecting the calculations
-        widget_control,event.top,/destroy
-;      endif else if ((indata GT 0) AND (indata GT 50)) then begin
-;        ok = Error_Message('Number of components too high, reset to 10!')
-;        calcparam.nc=10
-;      endif else begin
-;        ok = Error_Message('Number of components value not allowed, reset to 10!')
-;        calcparam.nc=10
-;      endelse    
+       calcparam.status = 'OK'
+       print,calcparam.status
+       *calcparamptr = calcparam
+       widget_control,event.top,/destroy
     endelse
-print,calcparam.status    
-  end
+   end
+  
+  
   'Cancel': begin
     calcparam.status = 'Cancel'
+    *calcparamptr = calcparam
     widget_control,event.top,/destroy
   end
-
-  
-
-   
-  
   else : ok = Error_Message('Event not recognized!')
-  
-    
   
 endcase
 
-
+help,calcparam,/struct
 
 ; save state information
 *calcparamptr = calcparam
@@ -187,27 +162,65 @@ calcparam=*calcparamptr
 
 ; save result
 
-save,calcparam,filename=calcparam.workpath+'pdl_tool_paramfile.sav'
+;save,calcparam,filename=calcparam.workpath+'pdl_tool_paramfile.sav'
 
 
 result = {workpath:calcparam.workpath, searchdir:calcparam.searchdir, $
-status:calcparam.status,singleshots:calcparam.singleshots,recursive:calcparam.recursive,masterlist:calcparam.masterlist}
+status:calcparam.status,singleshots:calcparam.singleshots,recursive:calcparam.recursive,masterlist:calcparam.masterlist,$
+mask:calcparam.mask,pls_settings_labels:calcparam.pls_settings_labels,pls_norms:calcparam.pls_norms,pls_ncs:calcparam.pls_ncs,$
+pls_coeffs:calcparam.pls_coeffs,meancenter_labels:calcparam.meancenter_labels,ymeancenters:calcparam.ymeancenters,meancenters:calcparam.meancenters,$
+blend_Array_dir:calcparam.blend_array_dir,testresult_dir:calcparam.testresult_dir}
 *calcparamptr = result
+
+configinfo=$
+  [['searchdir',calcparam.searchdir],$
+  ['masterlist',calcparam.masterlist],$
+  ['maskfile',calcparam.mask],$
+  ['meancenters_file',calcparam.meancenters_file],$
+  ['settings_coeffs_file',calcparam.settings_coeffs_file],$
+  ['blend_array_dir',calcparam.blend_array_dir],$
+  ['testresult_dir',calcparam.testresult_dir]]
+write_csv,'pdl_tool_config.csv',configinfo
 
 end
 
 pro pdl_tool
 
+configcheck=file_search('pdl_tool_config.csv')
+if strlen(configcheck[0]) eq 0 then begin
+  xmess ,'No config file found! Click ok to create one!'
+  searchdir='.'
+  masterlist1=dialog_pickfile(title='Choose the Season 1 masterlist file')
+  masterlist2=dialog_pickfile(title='Choose the Season 2 masterlist file')
+  masterlist3=dialog_pickfile(title='Choose the Season 3 masterlist file')
+  maskfile=dialog_pickfile(title='Choose the mask file')
+  meancenters_file=dialog_pickfile(title='Choose the PLS meancenters file')
+  settings_coeffs_file=dialog_pickfile(title='Choose the PLS settings and coefficients file')
+  blend_array_dir=dialog_pickfile(title='Choose the directory with PLS blend settings files',/directory)
+  testresult_dir=dialog_pickfile(title='Choose the directory with the test set result files',/directory)
+  configdata=[['searchdir',searchdir],['masterlist1',masterlist1],['masterlist2',masterlist2],['masterlist3',masterlist3],$
+    ['maskfile',maskfile],['meancenters_file',meancenters_file],['settings_coeffs_file',settings_coeffs_file],['blend_array_dir',blend_array_dir],['testresult_dir',testresult_dir]]
+  write_csv,'pdl_tool_config.csv',configdata
+  
+endif
+stop
 configdata=rd_tfile('pdl_tool_config.csv',/autocol,delim=',')
-searchdir=configdata[1,where(configdata[0,*] eq 'searchdir')]
-masterlist=configdata[1,where(configdata[0,*] eq 'masterlist')]
-maskfile=configdata[1,where(configdata[0,*] eq 'maskfile')]
-meancenters_file=configdata[1,where(configdata[0,*] eq 'meancenters_file')]
-settings_coeffs_file=configdata[1,where(configdata[0,*] eq 'settings_coeffs_file')]
-blend_array_dir=configdata[1,where(configdata[0,*] eq 'blend_array_dir')]
-pls_testresult_dir=configdata[1,where(configdata[0,*] eq 'pls_testresult_dir')]
+strreplace,configdata,'"',''
+strreplace,configdata,'"',''
+
+searchdir=configdata[1,0]
+masterlist1=configdata[1,1]
+masterlist2=configdata[1,2]
+masterlist3=configdata[1,3]
+masterlist=[masterlist1,masterlist2,masterlist3]
+maskfile=configdata[1,4]
+meancenters_file=configdata[1,5]
+settings_coeffs_file=configdata[1,6]
+blend_array_dir=configdata[1,7]
+testresult_dir=configdata[1,8]
 
 meancenters=rd_tfile(meancenters_file,/autocol,delim=',')
+
 meancenter_labels=meancenters[1:*,0]
 ymeancenters=double(meancenters[1:*,1])
 meancenters=double(meancenters[1:*,2:*])
@@ -241,7 +254,7 @@ tlb=widget_base(column=1, title="PDL_TOOL", $
   
 ; create base to hold everything except buttons
 main=widget_base(tlb, column=1, frame=1)
-
+warning = widget_label(main, value='WARNING: THIS IS NOT THE FINAL VERSION OF THE TOOL!!')
 ; create file widgets
 fbase = widget_base(main, row=1, /base_align_center)
 label = widget_label(fbase, value='Search Directory:')
@@ -271,40 +284,9 @@ okbut2=widget_button(okbase, value='Cancel', uvalue='Cancel', xsize=butsize)
 widget_control, tlb, /realize
 
 ; define working directory path
-    help,/source_files,output=source_list
-;    xmess, source_list
-; look for pdl_tool
-; if not there then inc me
-    me=where(strpos(source_list,'pdl_tool') ge 0)
-    pname=strpos(source_list(me),'pdl_tool')
-    if pname(0) gt 0 then begin
-       fullpath=source_list(me(0))
-    endif else begin
-       ok = Error_Message('Source path is not detected!')
-    endelse
-
-    start=strpos(fullpath,"PDL_TOOL")
-
-; strip off extra
-    if start(0) ge 0 then begin
-
-        therest=strmid(fullpath,start(0)+8,strlen(fullpath)-8)
-               
-    endif else begin
-        therest=fullpath
-    endelse
-    shorter=strtrim(therest(0),1)
-;    xmess, shorter
-;;; VM comment ;;;
-   mepos=strpos(shorter,'pdl_tool.pro') ; for tests
-;   mepos=strpos(shorter,'pdl_tool.sav') ; for virtual machine
-    ;print,mepos
-    ;stop
-    mepath=strmid(shorter,0,mepos(0))
+cd,current=mepath
+   
     defsysv,'!work_dir',mepath
-    ;print,'working directory',mepath
-;    xmess, mepath
-    cd, mepath
 
 ; create and store state information
 
@@ -312,7 +294,8 @@ calcparam = {workpath:mepath, searchdir:searchdir, $
 Mask:maskfile, status:'Cancel', text1:text1, pls:0,singleshots:0,$
 Recursive:1,masterlist:masterlist,pls_settings_labels:pls_settings_labels,$
 pls_norms:pls_norms,pls_ncs:pls_ncs,pls_coeffs:pls_coeffs,meancenter_labels:meancenter_labels,$
-ymeancenters:ymeancenters,meancenters:meancenters,blend_array_dir:blend_array_dir,pls_testresult_dir:pls_testresult_dir}
+ymeancenters:ymeancenters,meancenters:meancenters,meancenters_file:meancenters_file,settings_coeffs_file:settings_coeffs_file,$
+blend_array_dir:blend_array_dir,testresult_dir:testresult_dir}
 calcparamptr = ptr_new(calcparam)
 widget_control, tlb, set_uvalue=calcparamptr
 
@@ -327,7 +310,7 @@ print, 'workpath =', result.workpath
 print, 'searchdir =', result.searchdir
 ;print, 'number components =', result.nc
 ;print, 'nc type =', result.nc_type
-print, 'Mask =', result.Mask
+;print, 'Mask =', result.Mask
 print, 'status =', result.status
 
 ;xmess, [result.workpath, result.searchdir]
@@ -337,16 +320,16 @@ print, 'done creating widgets!'
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 if (result.status EQ 'OK') then begin
-  
-  print, 'start the PLS calculations'
-  
-  xmess,"Please Wait, Calculating...",/nowait,wid=wid
-  print,result.pls
+;check operating system
+help,!version,output=ver_info
+os=ver_info(where(strpos(ver_info,'OS_FAMILY') ne -1))
+os=repstr(repstr(repstr(repstr(os,' ',''),'OS_FAMILY',''),'STRING',''),"'",'')
+
   widget_control,/hourglass
   
   comps=calc_comp(result.searchdir,result.singleshots,result.mask,result.masterlist,result.recursive,result.pls_settings_labels,$
     result.pls_norms,result.pls_ncs,result.pls_coeffs,result.meancenter_labels,result.ymeancenters,result.meancenters,result.blend_array_dir,$
-    result.pls_testresult_dir)
+    result.testresult_dir,os=os)
   
   
   ;stop
@@ -361,7 +344,7 @@ if (result.status EQ 'OK') then begin
 ;    fixedfileox=result.fixedfileox,recalc=result.recalc,dbfile=result.dbfile,compdbfile=result.compdbfile, $
 ;    stdevscale=result.stdevscale, normtot=result.normtot,clipzero=result.clipzero,nfoldfile=result.foldfile,testset=result.testnum,masterlist=result.masterlist,spectrometer_weights=result.weights
 ;  
-  widget_control,/dest,wid
+  
   xmess ,"Processing complete" 
   wait,1
 endif

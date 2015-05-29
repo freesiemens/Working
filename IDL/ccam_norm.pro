@@ -1,5 +1,6 @@
-function ccam_norm,spectra,wvl,normtype
+function ccam_norm,spectra,wvl,normtype,totals=totals
    spectra_norm=spectra
+   totals=total(spectra,1)
    if normtype eq 3 then begin
       uvindex=where(wvl le 340.797)
       visindex=where(wvl ge 382.138 and wvl le 469.090)
@@ -16,7 +17,7 @@ function ccam_norm,spectra,wvl,normtype
    endif
    
    if normtype eq 1 then begin
-      totals=total(spectra,1)
+      
       for i=0,n_elements(totals)-1 do begin
          spectra_norm[*,i]=spectra[*,i]/totals[i]
       endfor
