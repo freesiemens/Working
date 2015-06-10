@@ -28,219 +28,219 @@ masterlist_file=r'G:\ChemCam\ops_ccam_misc\MASTERLIST.csv'
 #Location of a file with target name substitutions (this is used primarily to substitute cal target names: Cal Target 1 --> Macusanite)
 name_sub_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Input\target_name_subs.csv'
 
-
-
-##############################  SiO2 #####################################
-
-#Which element do you want to build models for?
-which_elem='SiO2'
-
-#Specify where to write all output files
-outpath='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Output\\'+which_elem+'\\'
-
-#How many folds do you want to use?
-nfolds=5
-#which fold do you want to use as the test set?
-testfold=2
-#How many componenets should be used in each model?
-nc=20
-#What seed should be used for the random number generater that randomly assigns samples to folds (using a seed allows the folds to be random but reproducible)
-seed=100
-#What algorithm to use (mlpy or sklearn - results are the same)
-plstype='sklearn'
-
-
-
-##calculate full model#
-#If you have a remove file specific to this submodel, enter it here (e.g. for outlier removal)
-removefile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist.csv'
-#set the range of compositions in the submodel
-mincomp=0
-maxcomp=100
-#Set the normalization  for the submodel
-normtype=1
-ccam.pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=normtype,mincomp=mincomp,maxcomp=maxcomp,plstype=plstype,keepfile=keepfile,removefile=removefile,cal_dir=cal_dir,masterlist_file=masterlist_file,compfile=dbfile,name_sub_file=name_sub_file,testfoldfile=testfoldfile,nfolds=nfolds,seed=seed,n_bag=None,n_boost=None,skscale=False)
-
-#Set the normalization  for the submodel
-normtype=3
-ccam.pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=normtype,mincomp=mincomp,maxcomp=maxcomp,plstype=plstype,keepfile=keepfile,removefile=removefile,cal_dir=cal_dir,masterlist_file=masterlist_file,compfile=dbfile,name_sub_file=name_sub_file,testfoldfile=testfoldfile,nfolds=nfolds,seed=seed,n_bag=None,n_boost=None,skscale=False)
-
-
-#calculate mid model
-#If you have a remove file specific to this submodel, enter it here (e.g. for outlier removal)
-removefile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist.csv'
-#set the range of compositions in the submodel
-mincomp=30
-maxcomp=70
-
-#Set the normalization  for the submodel
-normtype=3
-#Run the calibration and generate the model
-ccam.pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=normtype,mincomp=mincomp,maxcomp=maxcomp,plstype=plstype,keepfile=keepfile,removefile=removefile,cal_dir=cal_dir,masterlist_file=masterlist_file,compfile=dbfile,name_sub_file=name_sub_file,testfoldfile=testfoldfile,nfolds=nfolds,seed=seed,n_bag=None,n_boost=None,skscale=False)
-
-#Set the normalization  for the submodel
-normtype=1
-ccam.pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=normtype,mincomp=mincomp,maxcomp=maxcomp,plstype=plstype,keepfile=keepfile,removefile=removefile,cal_dir=cal_dir,masterlist_file=masterlist_file,compfile=dbfile,name_sub_file=name_sub_file,testfoldfile=testfoldfile,nfolds=nfolds,seed=seed,n_bag=None,n_boost=None,skscale=False)
-
-
-#calculate low model
-#If you have a remove file specific to this submodel, enter it here (e.g. for outlier removal)
-removefile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist_SiO2_0-50.csv'
-#set the range of compositions in the submodel
-mincomp=0
-maxcomp=50
-
-#Set the normalization  for the submodel
-normtype=1
-ccam.pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=normtype,mincomp=mincomp,maxcomp=maxcomp,plstype=plstype,keepfile=keepfile,removefile=removefile,cal_dir=cal_dir,masterlist_file=masterlist_file,compfile=dbfile,name_sub_file=name_sub_file,testfoldfile=testfoldfile,nfolds=nfolds,seed=seed,n_bag=None,n_boost=None,skscale=False)
-
-#Set the normalization  for the submodel
-normtype=3
-ccam.pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=normtype,mincomp=mincomp,maxcomp=maxcomp,plstype=plstype,keepfile=keepfile,removefile=removefile,cal_dir=cal_dir,masterlist_file=masterlist_file,compfile=dbfile,name_sub_file=name_sub_file,testfoldfile=testfoldfile,nfolds=nfolds,seed=seed,n_bag=None,n_boost=None,skscale=False)
-
-
-#Calculate high model
-#If you have a remove file specific to this submodel, enter it here (e.g. for outlier removal)
-removefile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist.csv'
-#set the range of compositions in the submodel
-mincomp=60
-maxcomp=100
-
-#Set the normalization  for the submodel
-normtype=1
-ccam.pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=normtype,mincomp=mincomp,maxcomp=maxcomp,plstype=plstype,keepfile=keepfile,removefile=removefile,cal_dir=cal_dir,masterlist_file=masterlist_file,compfile=dbfile,name_sub_file=name_sub_file,testfoldfile=testfoldfile,nfolds=nfolds,seed=seed,n_bag=None,n_boost=None,skscale=False)
-
-
-#Set the normalization  for the submodel
-normtype=3
-ccam.pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=normtype,mincomp=mincomp,maxcomp=maxcomp,plstype=plstype,keepfile=keepfile,removefile=removefile,cal_dir=cal_dir,masterlist_file=masterlist_file,compfile=dbfile,name_sub_file=name_sub_file,testfoldfile=testfoldfile,nfolds=nfolds,seed=seed,n_bag=None,n_boost=None,skscale=False)
-
-
-##############################  TiO2 #####################################
-dbfile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\full_db_mars_corrected_dopedTiO2.csv'
-removefile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist.csv'
-maskfile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\mask_minors_noise.csv'
-
-keepfile=None#'C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\Si_full_included.csv'
-outpath='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Output\\TiO2\\'
-
-name_sub_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Input\target_name_subs.csv'
-
-
-which_elem='TiO2'
-mincomp=0
-maxcomp=100
-nfolds=5
-testfold=2
-nc=30
-seed=100
-plstype='sklearn'
-
-#Calculate high model
-testfoldfile=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Input\TiO2_sortfold_testfold.csv'
-removefile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist_TiO2_doped_3-100.csv'
-mincomp=3
-maxcomp=100
-normtype=1
-ccam.pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=normtype,mincomp=mincomp,maxcomp=maxcomp,plstype=plstype,keepfile=keepfile,removefile=removefile,cal_dir=cal_dir,masterlist_file=masterlist_file,compfile=dbfile,name_sub_file=name_sub_file,testfoldfile=testfoldfile,nfolds=nfolds,seed=seed,n_bag=None,n_boost=None,skscale=False)
-
-normtype=3
-ccam.pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=normtype,mincomp=mincomp,maxcomp=maxcomp,plstype=plstype,keepfile=keepfile,removefile=removefile,cal_dir=cal_dir,masterlist_file=masterlist_file,compfile=dbfile,name_sub_file=name_sub_file,testfoldfile=testfoldfile,nfolds=nfolds,seed=seed,n_bag=None,n_boost=None,skscale=False)
-
-##calculate full model
-removefile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist_TiO2_doped_0-100.csv'
-testfoldfile=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Input\TiO2_sortfold_testfold.csv'#'C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\folds_TiO2_doped_0-100.csv'
-mincomp=0
-maxcomp=100
-normtype=1
-ccam.pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=normtype,mincomp=mincomp,maxcomp=maxcomp,plstype=plstype,keepfile=keepfile,removefile=removefile,cal_dir=cal_dir,masterlist_file=masterlist_file,compfile=dbfile,name_sub_file=name_sub_file,testfoldfile=testfoldfile,nfolds=nfolds,seed=seed,n_bag=None,n_boost=None,skscale=False)
-
-normtype=3
-ccam.pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=normtype,mincomp=mincomp,maxcomp=maxcomp,plstype=plstype,keepfile=keepfile,removefile=removefile,cal_dir=cal_dir,masterlist_file=masterlist_file,compfile=dbfile,name_sub_file=name_sub_file,testfoldfile=testfoldfile,nfolds=nfolds,seed=seed,n_bag=None,n_boost=None,skscale=False)
-
-#calculate med model
-removefile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist_TiO2_doped_1-5.csv'
-testfoldfile=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Input\TiO2_sortfold_testfold.csv'
-mincomp=1
-maxcomp=5
-normtype=1
-ccam.pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=normtype,mincomp=mincomp,maxcomp=maxcomp,plstype=plstype,keepfile=keepfile,removefile=removefile,cal_dir=cal_dir,masterlist_file=masterlist_file,compfile=dbfile,name_sub_file=name_sub_file,testfoldfile=testfoldfile,nfolds=nfolds,seed=seed,n_bag=None,n_boost=None,skscale=False)
-
-normtype=3
-ccam.pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=normtype,mincomp=mincomp,maxcomp=maxcomp,plstype=plstype,keepfile=keepfile,removefile=removefile,cal_dir=cal_dir,masterlist_file=masterlist_file,compfile=dbfile,name_sub_file=name_sub_file,testfoldfile=testfoldfile,nfolds=nfolds,seed=seed,n_bag=None,n_boost=None,skscale=False)
-
-#calculate low model
-testfoldfile=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Input\TiO2_sortfold_testfold.csv'
-removefile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist.csv'
-mincomp=0
-maxcomp=2
-normtype=3
-ccam.pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=normtype,mincomp=mincomp,maxcomp=maxcomp,plstype=plstype,keepfile=keepfile,removefile=removefile,cal_dir=cal_dir,masterlist_file=masterlist_file,compfile=dbfile,name_sub_file=name_sub_file,testfoldfile=testfoldfile,nfolds=nfolds,seed=seed,n_bag=None,n_boost=None,skscale=False)
-
-normtype=1
-ccam.pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=normtype,mincomp=mincomp,maxcomp=maxcomp,plstype=plstype,keepfile=keepfile,removefile=removefile,cal_dir=cal_dir,masterlist_file=masterlist_file,compfile=dbfile,name_sub_file=name_sub_file,testfoldfile=testfoldfile,nfolds=nfolds,seed=seed,n_bag=None,n_boost=None,skscale=False)
-##############################  Al2O3 #####################################
-dbfile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\full_db_mars_corrected.csv'
-removefile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist.csv'
-testfoldfile=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Input\Al2O3_sortfold_testfold.csv'#'C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\folds.csv'
-maskfile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\mask_minors_noise.csv'
-
-keepfile=None#'C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\Si_full_included.csv'
-outpath='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Output\\Al2O3\\'
-
-name_sub_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Input\target_name_subs.csv'
-
-
-which_elem='Al2O3'
-mincomp=0
-maxcomp=100
-nfolds=5
-testfold=2
-nc=20
-seed=100
-plstype='sklearn'
-
-
-##calculate full model
-removefile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist_Al2O3_0-100.csv'
-
-normtype=1
-ccam.pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=normtype,mincomp=mincomp,maxcomp=maxcomp,plstype=plstype,keepfile=keepfile,removefile=removefile,cal_dir=cal_dir,masterlist_file=masterlist_file,compfile=dbfile,name_sub_file=name_sub_file,testfoldfile=testfoldfile,nfolds=nfolds,seed=seed,n_bag=None,n_boost=None,skscale=False)
-
-normtype=3
-ccam.pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=normtype,mincomp=mincomp,maxcomp=maxcomp,plstype=plstype,keepfile=keepfile,removefile=removefile,cal_dir=cal_dir,masterlist_file=masterlist_file,compfile=dbfile,name_sub_file=name_sub_file,testfoldfile=testfoldfile,nfolds=nfolds,seed=seed,n_bag=None,n_boost=None,skscale=False)
-
-#Calculate high model
-removefile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist_Al2O3_20-100.csv'
-mincomp=20
-maxcomp=100
-normtype=1
-ccam.pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=normtype,mincomp=mincomp,maxcomp=maxcomp,plstype=plstype,keepfile=keepfile,removefile=removefile,cal_dir=cal_dir,masterlist_file=masterlist_file,compfile=dbfile,name_sub_file=name_sub_file,testfoldfile=testfoldfile,nfolds=nfolds,seed=seed,n_bag=None,n_boost=None,skscale=False)
-
-normtype=3
-ccam.pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=normtype,mincomp=mincomp,maxcomp=maxcomp,plstype=plstype,keepfile=keepfile,removefile=removefile,cal_dir=cal_dir,masterlist_file=masterlist_file,compfile=dbfile,name_sub_file=name_sub_file,testfoldfile=testfoldfile,nfolds=nfolds,seed=seed,n_bag=None,n_boost=None,skscale=False)
-
-
-#calculate low model
-removefile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist_Al2O3_0-12.csv'
-mincomp=0
-maxcomp=12
-normtype=3
-ccam.pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=normtype,mincomp=mincomp,maxcomp=maxcomp,plstype=plstype,keepfile=keepfile,removefile=removefile,cal_dir=cal_dir,masterlist_file=masterlist_file,compfile=dbfile,name_sub_file=name_sub_file,testfoldfile=testfoldfile,nfolds=nfolds,seed=seed,n_bag=None,n_boost=None,skscale=False)
-
-normtype=1
-ccam.pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=normtype,mincomp=mincomp,maxcomp=maxcomp,plstype=plstype,keepfile=keepfile,removefile=removefile,cal_dir=cal_dir,masterlist_file=masterlist_file,compfile=dbfile,name_sub_file=name_sub_file,testfoldfile=testfoldfile,nfolds=nfolds,seed=seed,n_bag=None,n_boost=None,skscale=False)
-
-#calculate med model
-removefile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist_Al2O3_10-25.csv'
-mincomp=10
-maxcomp=25
-
-normtype=1
-ccam.pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=normtype,mincomp=mincomp,maxcomp=maxcomp,plstype=plstype,keepfile=keepfile,removefile=removefile,cal_dir=cal_dir,masterlist_file=masterlist_file,compfile=dbfile,name_sub_file=name_sub_file,testfoldfile=testfoldfile,nfolds=nfolds,seed=seed,n_bag=None,n_boost=None,skscale=False)
-
-normtype=3
-ccam.pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=normtype,mincomp=mincomp,maxcomp=maxcomp,plstype=plstype,keepfile=keepfile,removefile=removefile,cal_dir=cal_dir,masterlist_file=masterlist_file,compfile=dbfile,name_sub_file=name_sub_file,testfoldfile=testfoldfile,nfolds=nfolds,seed=seed,n_bag=None,n_boost=None,skscale=False)
+#
+#
+###############################  SiO2 #####################################
+#
+##Which element do you want to build models for?
+#which_elem='SiO2'
+#
+##Specify where to write all output files
+#outpath='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Output\\'+which_elem+'\\'
+#
+##How many folds do you want to use?
+#nfolds=5
+##which fold do you want to use as the test set?
+#testfold=2
+##How many componenets should be used in each model?
+#nc=20
+##What seed should be used for the random number generater that randomly assigns samples to folds (using a seed allows the folds to be random but reproducible)
+#seed=100
+##What algorithm to use (mlpy or sklearn - results are the same)
+#plstype='sklearn'
+#
+#
+#
+###calculate full model#
+##If you have a remove file specific to this submodel, enter it here (e.g. for outlier removal)
+#removefile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist.csv'
+##set the range of compositions in the submodel
+#mincomp=0
+#maxcomp=100
+##Set the normalization  for the submodel
+#normtype=1
+#ccam.pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=normtype,mincomp=mincomp,maxcomp=maxcomp,plstype=plstype,keepfile=keepfile,removefile=removefile,cal_dir=cal_dir,masterlist_file=masterlist_file,compfile=dbfile,name_sub_file=name_sub_file,testfoldfile=testfoldfile,nfolds=nfolds,seed=seed,n_bag=None,n_boost=None,skscale=False)
+#
+##Set the normalization  for the submodel
+#normtype=3
+#ccam.pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=normtype,mincomp=mincomp,maxcomp=maxcomp,plstype=plstype,keepfile=keepfile,removefile=removefile,cal_dir=cal_dir,masterlist_file=masterlist_file,compfile=dbfile,name_sub_file=name_sub_file,testfoldfile=testfoldfile,nfolds=nfolds,seed=seed,n_bag=None,n_boost=None,skscale=False)
+#
+#
+##calculate mid model
+##If you have a remove file specific to this submodel, enter it here (e.g. for outlier removal)
+#removefile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist.csv'
+##set the range of compositions in the submodel
+#mincomp=30
+#maxcomp=70
+#
+##Set the normalization  for the submodel
+#normtype=3
+##Run the calibration and generate the model
+#ccam.pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=normtype,mincomp=mincomp,maxcomp=maxcomp,plstype=plstype,keepfile=keepfile,removefile=removefile,cal_dir=cal_dir,masterlist_file=masterlist_file,compfile=dbfile,name_sub_file=name_sub_file,testfoldfile=testfoldfile,nfolds=nfolds,seed=seed,n_bag=None,n_boost=None,skscale=False)
+#
+##Set the normalization  for the submodel
+#normtype=1
+#ccam.pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=normtype,mincomp=mincomp,maxcomp=maxcomp,plstype=plstype,keepfile=keepfile,removefile=removefile,cal_dir=cal_dir,masterlist_file=masterlist_file,compfile=dbfile,name_sub_file=name_sub_file,testfoldfile=testfoldfile,nfolds=nfolds,seed=seed,n_bag=None,n_boost=None,skscale=False)
+#
+#
+##calculate low model
+##If you have a remove file specific to this submodel, enter it here (e.g. for outlier removal)
+#removefile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist_SiO2_0-50.csv'
+##set the range of compositions in the submodel
+#mincomp=0
+#maxcomp=50
+#
+##Set the normalization  for the submodel
+#normtype=1
+#ccam.pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=normtype,mincomp=mincomp,maxcomp=maxcomp,plstype=plstype,keepfile=keepfile,removefile=removefile,cal_dir=cal_dir,masterlist_file=masterlist_file,compfile=dbfile,name_sub_file=name_sub_file,testfoldfile=testfoldfile,nfolds=nfolds,seed=seed,n_bag=None,n_boost=None,skscale=False)
+#
+##Set the normalization  for the submodel
+#normtype=3
+#ccam.pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=normtype,mincomp=mincomp,maxcomp=maxcomp,plstype=plstype,keepfile=keepfile,removefile=removefile,cal_dir=cal_dir,masterlist_file=masterlist_file,compfile=dbfile,name_sub_file=name_sub_file,testfoldfile=testfoldfile,nfolds=nfolds,seed=seed,n_bag=None,n_boost=None,skscale=False)
+#
+#
+##Calculate high model
+##If you have a remove file specific to this submodel, enter it here (e.g. for outlier removal)
+#removefile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist.csv'
+##set the range of compositions in the submodel
+#mincomp=60
+#maxcomp=100
+#
+##Set the normalization  for the submodel
+#normtype=1
+#ccam.pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=normtype,mincomp=mincomp,maxcomp=maxcomp,plstype=plstype,keepfile=keepfile,removefile=removefile,cal_dir=cal_dir,masterlist_file=masterlist_file,compfile=dbfile,name_sub_file=name_sub_file,testfoldfile=testfoldfile,nfolds=nfolds,seed=seed,n_bag=None,n_boost=None,skscale=False)
+#
+#
+##Set the normalization  for the submodel
+#normtype=3
+#ccam.pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=normtype,mincomp=mincomp,maxcomp=maxcomp,plstype=plstype,keepfile=keepfile,removefile=removefile,cal_dir=cal_dir,masterlist_file=masterlist_file,compfile=dbfile,name_sub_file=name_sub_file,testfoldfile=testfoldfile,nfolds=nfolds,seed=seed,n_bag=None,n_boost=None,skscale=False)
+#
+#
+###############################  TiO2 #####################################
+#dbfile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\full_db_mars_corrected_dopedTiO2.csv'
+#removefile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist.csv'
+#maskfile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\mask_minors_noise.csv'
+#
+#keepfile=None#'C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\Si_full_included.csv'
+#outpath='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Output\\TiO2\\'
+#
+#name_sub_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Input\target_name_subs.csv'
+#
+#
+#which_elem='TiO2'
+#mincomp=0
+#maxcomp=100
+#nfolds=5
+#testfold=2
+#nc=30
+#seed=100
+#plstype='sklearn'
+#
+##Calculate high model
+#testfoldfile=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Input\TiO2_sortfold_testfold.csv'
+#removefile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist_TiO2_doped_3-100.csv'
+#mincomp=3
+#maxcomp=100
+#normtype=1
+#ccam.pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=normtype,mincomp=mincomp,maxcomp=maxcomp,plstype=plstype,keepfile=keepfile,removefile=removefile,cal_dir=cal_dir,masterlist_file=masterlist_file,compfile=dbfile,name_sub_file=name_sub_file,testfoldfile=testfoldfile,nfolds=nfolds,seed=seed,n_bag=None,n_boost=None,skscale=False)
+#
+#normtype=3
+#ccam.pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=normtype,mincomp=mincomp,maxcomp=maxcomp,plstype=plstype,keepfile=keepfile,removefile=removefile,cal_dir=cal_dir,masterlist_file=masterlist_file,compfile=dbfile,name_sub_file=name_sub_file,testfoldfile=testfoldfile,nfolds=nfolds,seed=seed,n_bag=None,n_boost=None,skscale=False)
+#
+###calculate full model
+#removefile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist_TiO2_doped_0-100.csv'
+#testfoldfile=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Input\TiO2_sortfold_testfold.csv'#'C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\folds_TiO2_doped_0-100.csv'
+#mincomp=0
+#maxcomp=100
+#normtype=1
+#ccam.pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=normtype,mincomp=mincomp,maxcomp=maxcomp,plstype=plstype,keepfile=keepfile,removefile=removefile,cal_dir=cal_dir,masterlist_file=masterlist_file,compfile=dbfile,name_sub_file=name_sub_file,testfoldfile=testfoldfile,nfolds=nfolds,seed=seed,n_bag=None,n_boost=None,skscale=False)
+#
+#normtype=3
+#ccam.pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=normtype,mincomp=mincomp,maxcomp=maxcomp,plstype=plstype,keepfile=keepfile,removefile=removefile,cal_dir=cal_dir,masterlist_file=masterlist_file,compfile=dbfile,name_sub_file=name_sub_file,testfoldfile=testfoldfile,nfolds=nfolds,seed=seed,n_bag=None,n_boost=None,skscale=False)
+#
+##calculate med model
+#removefile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist_TiO2_doped_1-5.csv'
+#testfoldfile=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Input\TiO2_sortfold_testfold.csv'
+#mincomp=1
+#maxcomp=5
+#normtype=1
+#ccam.pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=normtype,mincomp=mincomp,maxcomp=maxcomp,plstype=plstype,keepfile=keepfile,removefile=removefile,cal_dir=cal_dir,masterlist_file=masterlist_file,compfile=dbfile,name_sub_file=name_sub_file,testfoldfile=testfoldfile,nfolds=nfolds,seed=seed,n_bag=None,n_boost=None,skscale=False)
+#
+#normtype=3
+#ccam.pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=normtype,mincomp=mincomp,maxcomp=maxcomp,plstype=plstype,keepfile=keepfile,removefile=removefile,cal_dir=cal_dir,masterlist_file=masterlist_file,compfile=dbfile,name_sub_file=name_sub_file,testfoldfile=testfoldfile,nfolds=nfolds,seed=seed,n_bag=None,n_boost=None,skscale=False)
+#
+##calculate low model
+#testfoldfile=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Input\TiO2_sortfold_testfold.csv'
+#removefile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist.csv'
+#mincomp=0
+#maxcomp=2
+#normtype=3
+#ccam.pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=normtype,mincomp=mincomp,maxcomp=maxcomp,plstype=plstype,keepfile=keepfile,removefile=removefile,cal_dir=cal_dir,masterlist_file=masterlist_file,compfile=dbfile,name_sub_file=name_sub_file,testfoldfile=testfoldfile,nfolds=nfolds,seed=seed,n_bag=None,n_boost=None,skscale=False)
+#
+#normtype=1
+#ccam.pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=normtype,mincomp=mincomp,maxcomp=maxcomp,plstype=plstype,keepfile=keepfile,removefile=removefile,cal_dir=cal_dir,masterlist_file=masterlist_file,compfile=dbfile,name_sub_file=name_sub_file,testfoldfile=testfoldfile,nfolds=nfolds,seed=seed,n_bag=None,n_boost=None,skscale=False)
+###############################  Al2O3 #####################################
+#dbfile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\full_db_mars_corrected.csv'
+#removefile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist.csv'
+#testfoldfile=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Input\Al2O3_sortfold_testfold.csv'#'C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\folds.csv'
+#maskfile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\mask_minors_noise.csv'
+#
+#keepfile=None#'C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\Si_full_included.csv'
+#outpath='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Output\\Al2O3\\'
+#
+#name_sub_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Input\target_name_subs.csv'
+#
+#
+#which_elem='Al2O3'
+#mincomp=0
+#maxcomp=100
+#nfolds=5
+#testfold=2
+#nc=20
+#seed=100
+#plstype='sklearn'
+#
+#
+###calculate full model
+#removefile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist_Al2O3_0-100.csv'
+#
+#normtype=1
+#ccam.pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=normtype,mincomp=mincomp,maxcomp=maxcomp,plstype=plstype,keepfile=keepfile,removefile=removefile,cal_dir=cal_dir,masterlist_file=masterlist_file,compfile=dbfile,name_sub_file=name_sub_file,testfoldfile=testfoldfile,nfolds=nfolds,seed=seed,n_bag=None,n_boost=None,skscale=False)
+#
+#normtype=3
+#ccam.pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=normtype,mincomp=mincomp,maxcomp=maxcomp,plstype=plstype,keepfile=keepfile,removefile=removefile,cal_dir=cal_dir,masterlist_file=masterlist_file,compfile=dbfile,name_sub_file=name_sub_file,testfoldfile=testfoldfile,nfolds=nfolds,seed=seed,n_bag=None,n_boost=None,skscale=False)
+#
+##Calculate high model
+#removefile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist_Al2O3_20-100.csv'
+#mincomp=20
+#maxcomp=100
+#normtype=1
+#ccam.pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=normtype,mincomp=mincomp,maxcomp=maxcomp,plstype=plstype,keepfile=keepfile,removefile=removefile,cal_dir=cal_dir,masterlist_file=masterlist_file,compfile=dbfile,name_sub_file=name_sub_file,testfoldfile=testfoldfile,nfolds=nfolds,seed=seed,n_bag=None,n_boost=None,skscale=False)
+#
+#normtype=3
+#ccam.pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=normtype,mincomp=mincomp,maxcomp=maxcomp,plstype=plstype,keepfile=keepfile,removefile=removefile,cal_dir=cal_dir,masterlist_file=masterlist_file,compfile=dbfile,name_sub_file=name_sub_file,testfoldfile=testfoldfile,nfolds=nfolds,seed=seed,n_bag=None,n_boost=None,skscale=False)
+#
+#
+##calculate low model
+#removefile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist_Al2O3_0-12.csv'
+#mincomp=0
+#maxcomp=12
+#normtype=3
+#ccam.pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=normtype,mincomp=mincomp,maxcomp=maxcomp,plstype=plstype,keepfile=keepfile,removefile=removefile,cal_dir=cal_dir,masterlist_file=masterlist_file,compfile=dbfile,name_sub_file=name_sub_file,testfoldfile=testfoldfile,nfolds=nfolds,seed=seed,n_bag=None,n_boost=None,skscale=False)
+#
+#normtype=1
+#ccam.pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=normtype,mincomp=mincomp,maxcomp=maxcomp,plstype=plstype,keepfile=keepfile,removefile=removefile,cal_dir=cal_dir,masterlist_file=masterlist_file,compfile=dbfile,name_sub_file=name_sub_file,testfoldfile=testfoldfile,nfolds=nfolds,seed=seed,n_bag=None,n_boost=None,skscale=False)
+#
+##calculate med model
+#removefile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist_Al2O3_10-25.csv'
+#mincomp=10
+#maxcomp=25
+#
+#normtype=1
+#ccam.pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=normtype,mincomp=mincomp,maxcomp=maxcomp,plstype=plstype,keepfile=keepfile,removefile=removefile,cal_dir=cal_dir,masterlist_file=masterlist_file,compfile=dbfile,name_sub_file=name_sub_file,testfoldfile=testfoldfile,nfolds=nfolds,seed=seed,n_bag=None,n_boost=None,skscale=False)
+#
+#normtype=3
+#ccam.pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=normtype,mincomp=mincomp,maxcomp=maxcomp,plstype=plstype,keepfile=keepfile,removefile=removefile,cal_dir=cal_dir,masterlist_file=masterlist_file,compfile=dbfile,name_sub_file=name_sub_file,testfoldfile=testfoldfile,nfolds=nfolds,seed=seed,n_bag=None,n_boost=None,skscale=False)
 
 
 ##############################  FeOT #####################################
@@ -267,12 +267,12 @@ plstype='sklearn'
 
 #calculate full model
 #removefile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist_FeOT_0-100.csv'
-
-normtype=1
-ccam.pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=normtype,mincomp=mincomp,maxcomp=maxcomp,plstype=plstype,keepfile=keepfile,removefile=removefile,cal_dir=cal_dir,masterlist_file=masterlist_file,compfile=dbfile,name_sub_file=name_sub_file,testfoldfile=testfoldfile,nfolds=nfolds,seed=seed,n_bag=None,n_boost=None,skscale=False)
-
-normtype=3
-ccam.pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=normtype,mincomp=mincomp,maxcomp=maxcomp,plstype=plstype,keepfile=keepfile,removefile=removefile,cal_dir=cal_dir,masterlist_file=masterlist_file,compfile=dbfile,name_sub_file=name_sub_file,testfoldfile=testfoldfile,nfolds=nfolds,seed=seed,n_bag=None,n_boost=None,skscale=False)
+#
+#normtype=1
+#ccam.pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=normtype,mincomp=mincomp,maxcomp=maxcomp,plstype=plstype,keepfile=keepfile,removefile=removefile,cal_dir=cal_dir,masterlist_file=masterlist_file,compfile=dbfile,name_sub_file=name_sub_file,testfoldfile=testfoldfile,nfolds=nfolds,seed=seed,n_bag=None,n_boost=None,skscale=False)
+#
+#normtype=3
+#ccam.pls_cal(dbfile,maskfile,outpath,which_elem,testfold,nc,normtype=normtype,mincomp=mincomp,maxcomp=maxcomp,plstype=plstype,keepfile=keepfile,removefile=removefile,cal_dir=cal_dir,masterlist_file=masterlist_file,compfile=dbfile,name_sub_file=name_sub_file,testfoldfile=testfoldfile,nfolds=nfolds,seed=seed,n_bag=None,n_boost=None,skscale=False)
 
 #Calculate high model
 #removefile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist_FeOT_0-15.csv'

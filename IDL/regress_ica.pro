@@ -62,6 +62,8 @@ FUNCTION regress_ica,cf,ica_rgr
   end
   
   if t eq 10 then begin
+    
+ 
      for n=0,nsp-1 do begin
         cft=*cf(n)
         For nel=0,n_elements(ica_rgr)-1 do begin
@@ -81,10 +83,12 @@ FUNCTION regress_ica,cf,ica_rgr
         cft(where(cft lt 0.))=0.
         cft(where(finite(cft) eq 0))=0.
         *cfa(n)=cft
-        
+  
      end
 
   end else begin
+    
+ 
      for n=0,nsp-1 do begin
         cft=cf(n,*)
         For nel=0,n_elements(ica_rgr)-1 do begin
@@ -105,8 +109,9 @@ FUNCTION regress_ica,cf,ica_rgr
         if (n0 gt 0) then cft(i0)=0.
         
         cfa(n,*)=cft
- 
+     
      end
+     
   end
 
   RETURN,cfa

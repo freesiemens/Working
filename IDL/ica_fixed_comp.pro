@@ -69,10 +69,16 @@ cf=fltarr(ns,nc)
 
 if keyword_set(cov) then begin
    ;else cf=compute_ica_score(s1r,c1)
-   for l=0,ns-1 do for n=0,nc-1 do cf(l,n)=correlate(s1r(*,l),c1(*,n),/cov)
+   for l=0,ns-1 do begin
+     for n=0,nc-1 do cf(l,n)=correlate(s1r(*,l),c1(*,n),/cov)
+
+   endfor
 
 end else begin
-   for l=0,ns-1 do for n=0,nc-1 do cf(l,n)=correlate(s1r(*,l),c1(*,n))
+   for l=0,ns-1 do begin
+     for n=0,nc-1 do cf(l,n)=correlate(s1r(*,l),c1(*,n))
+
+   endfor
 end
 
 return,cf
@@ -88,6 +94,7 @@ Function Ica_Fixed_Comp,sp_in,cp,norm=norm,std=std
   if t eq 10 then begin
      nusp=n_elements(sp_in)
      cf=ptrarr(nusp,/allocate_heap)
+     
      for n=0,nusp-1 do begin
          if keyword_set(norm) then begin 
         spnm3=norm_cc(*sp_in[n],3)

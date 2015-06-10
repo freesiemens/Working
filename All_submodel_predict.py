@@ -257,6 +257,7 @@ def final_model_results(y_db_full,y_db_low,y_db_mid,y_db_high,ranges,inrange,ref
             writer=csv.writer(writefile,delimiter=',')
             row=['','','','Full ('+str(fullmin)+'-'+str(fullmax)+')','Low ('+str(lowmin)+'-'+str(lowmax)+')','High ('+str(highmin)+'-'+str(highmax)+')','Blended']
             writer.writerow(row)
+          
             row=['','','Norm=',fullnorm,lownorm,highnorm]
             writer.writerow(row)
             row=['','','nc=',str(nc_full),str(nc_low),str(nc_high)]
@@ -270,7 +271,7 @@ def final_model_results(y_db_full,y_db_low,y_db_mid,y_db_high,ranges,inrange,ref
 
 
 #######################################
-get_results=False
+get_results=True
 
 
 ##############################  SiO2 #####################################
@@ -328,7 +329,7 @@ highnorm=1
 
 #specify the number of components to use for each submodel
 nc_full=9
-nc_low=13
+nc_low=12#13
 nc_mid=10
 nc_high=6
 
@@ -373,6 +374,7 @@ if get_results is True:
     spectra,comps,spect_index,names,labels,wvl=ccam.read_db(dbfile,compcheck=True)
     oxides=labels[2:]
     compindex=numpy.where(oxides==which_elem)[0]
+
     
     print 'Choosing spectra'
     
@@ -940,7 +942,7 @@ highnorm=3
 nc_full=7
 nc_low=5
 nc_mid=7
-nc_high=7
+nc_high=4#7
 means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,full_cv_file,low_cv_file,mid_cv_file,high_cv_file,outfile1to1,outfile1to1_full,outfile1to1_low,outfile1to1_mid,outfile1to1_high,imgfile,imgfile_blended,imgfile_full,imgfile_low,imgfile_mid,imgfile_high,full_Qres_file,low_Qres_file,mid_Qres_file,high_Qres_file,full_T2_file,low_T2_file,mid_T2_file,high_T2_file,outfile_Q_T2,outfile_Q_T2_low,outfile_Q_T2_mid,outfile_Q_T2_high,outputfile,outputfile_apxs,outputfile_val,outputfile_cal,db_outputfile,full_test_file,low_test_file,mid_test_file,high_test_file,regressfile_full,regressfile_low,regressfile_mid,regressfile_high=generate_filenames(which_elem,outpath,plstype,maxnc,fullnorm,fullmin,fullmax,lownorm,lowmin,lowmax,midnorm,midmin,midmax,highnorm,highmin,highmax,xminmax,yminmax)
 
 #get final model settings and info

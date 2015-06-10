@@ -40,6 +40,7 @@
 ; MODIFICATION HISTORY:
 ; O. Forni: May 2015
 ; R. Anderson: May 26, 2015 - Added output of index for "good" file names
+; R. Anderson: June 2, 2015 - Added Progress Bar
 ;-
 FUNCTION read_ccs,fn,shot=shot,fn_good_index=fn_good_index
 
@@ -49,6 +50,7 @@ nft=0
 n0=5
 spp=ptrarr(nf,/allocate_heap)
 fn_good=fn
+progbar=Obj_New('cgProgressBar',/start,percent=0,title='Reading '+strtrim(nf,2)+' files for ICA')
 
 if keyword_set(shot) then begin
     for i=0,nf-1 do begin
@@ -58,6 +60,7 @@ if keyword_set(shot) then begin
       sp=transpose([[uv],[vis],[vnir]])
        *spp[nft]=sp
       nft+=1
+      progbar->Update,float(i+1)/nf*100
     end
 
 end else begin
@@ -77,6 +80,7 @@ end else begin
          
          *spp[nft]=[sp0,sp1,sp2]
          nft+=1
+         progbar->Update,float(i+1)/nf*100
       end
       if (suv(1) le 1) then fn_good[i]=''
       
@@ -84,6 +88,7 @@ end else begin
    
    spp=spp(0:nft-1)
 end
+progbar->Destroy
 fn_good_index=where(fn_good ne '')
 
 gain=fltarr(6144)
