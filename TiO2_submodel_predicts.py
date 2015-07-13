@@ -23,7 +23,11 @@ masterlist=r'C:\Users\rbanderson\Documents\MSL\ChemCam\ChemCam\ops_ccam_misc\MAS
 name_subs=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Input\target_name_subs.csv'
 dbfile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\full_db_mars_corrected.csv'
 keepfile=None
-removefile=None#'C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist.csv'
+removefile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist.csv'
+
+
+ica_db_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\ICA_1500mm_db.csv'
+uni_db_file=r'C:\Users\rbanderson\Documents\MSL\ChemCam\Data Processing\Univariate_1500mm_db.csv'
 
 
 which_elem='TiO2'
@@ -32,29 +36,29 @@ mincomp=0
 maxcomp=100
 
 #set plot range
-xminmax=[0,15]
+xminmax=[0,10]
 yminmax=xminmax
 
-maxnc=30
+maxnc=20
 fullmin=0
 fullmax=100
 lowmin=0
 lowmax=2
-midmin=1
-midmax=5
-highmin=3
+midmin=0
+midmax=2
+highmin=1
 highmax=100
 
-fullnorm=3
+fullnorm=1
 lownorm=1
 midnorm=1
 highnorm=1
 
 #specify the number of components to use for each submodel
-nc_full=6
-nc_low=5
+nc_full=5
+nc_low=4
 nc_mid=4
-nc_high=5
+nc_high=4
 
 #specify the files that hold the mean centering info
 means_file_full=outpath+'\\'+which_elem+'_'+plstype+'_nc'+str(maxnc)+'_norm'+str(fullnorm)+'_'+str(fullmin)+'-'+str(fullmax)+'_meancenters.csv'
@@ -203,18 +207,18 @@ y_db_high,highnorm=ccam.pls_predict(spectra,nc_high,wvl,maskfile,loadfile=loadfi
 
 
 """
-If full model 0 to 1, use the low model
-if full model is 1 to 2, blend the low and high model using full as reference
+If full model 0 to 1.5, use the low model
+if full model is 1.5 to 2, blend the low and high model using full as reference
 if full model is 2 to 100 use high
 Use full for all others
 Do not overwrite predictions that have already been set in a previous round of logic.
 """
 
 predicts=[y_db_full,y_db_low,y_db_mid,y_db_high]
-ranges=[[0,1],[1,2],[2,4],[4,100],[0,100]]
-inrange=[0,0,0,0,0]
-refpredict=[0,0,0,0,0]
-toblend=[[1,1],[1,2],[2,3],[3,3],[0,0]]
+ranges=[[0,1.5],[1.5,2],[2,100],[0,100]]
+inrange=[0,0,0,0]
+refpredict=[0,0,0,0]
+toblend=[[1,1],[1,3],[3,3],[0,0]]
 
 blended2=ccam.submodels_blend(predicts,ranges,inrange,refpredict,toblend,overwrite=False)
 

@@ -110,7 +110,7 @@ blend_Array_dir:calcparam.blend_array_dir,testresult_dir:calcparam.testresult_di
 
 end
 
-pro pdl_tool
+pro spdl_tool
 
 ;configcheck=file_search('pdl_tool_config.csv')
 ;if strlen(configcheck[0]) eq 0 then begin

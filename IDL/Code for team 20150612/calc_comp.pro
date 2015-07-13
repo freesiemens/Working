@@ -1,3 +1,74 @@
+;+
+; NAME:
+;        CALC_COMP
+;        Includes also:
+;           PLOT_1TO1
+;           GET_TESTSET_INFO
+;           DYNAMIC_RMSEP
+;           PLS_COMP
+;           PLS_SUBMODELS
+;           PLS_BLEND
+;           WRITE_RESULTS
+;
+; PURPOSE:
+;        TBD
+;
+; CALLING SEQUENCE:
+;        TBD 
+;
+; INPUTS:
+;        TBD
+;
+; OPTIONAL INPUTS:
+;        TBD
+;
+; KEYWORD PARAMETERS:
+;        TBD
+;
+; OUTPUTS:
+;       TBD
+;
+; OPTIONAL OUTPUTS:
+;       TBD
+;
+; RESTRICTIONS:
+;       TBD
+;
+; PROCEDURE:
+;       TBD
+;
+; EXAMPLE:
+;       TBD
+;
+; MODIFICATION HISTORY:
+; Unknown origin
+; O. Gasnault: June 25-26, 2015 - Secure usage of WHERE at different places:
+;    In GET_TESTSET_INFO:
+;       Introduce NAL, the number of AL2O3INDEX for which Al must be corrected
+;          and don't apply it if all Al contents are larger than 15 wt% in the
+;          test set (never?)
+;       Introduce TEST1, TEST2, and TEST3 to check the validity of the
+;          conditions on SIO2_TEST_FEOT_TRUE and SIO2TEMP (test1 was not
+;          returning in index, so the last value of SiO2 was erroneously
+;          modified - impact on SiO2 RMSEP is TBD).
+;    In DYNAMIC_RMSEP:
+;       Introduce INDX in the calculation of IND, instead of a comparison of
+;          float values (risky).
+;       Add a test on the size of IND (should never be 0).
+;       Use IMIN rather than a comparison of float values (risky) in
+;          RMSEPS[i,j]=YY[IMIN].
+;    In PLS_COMP: Check that the submodel exists with NL (should not happen).
+;    In PLS_BLEND: Add /NULL to WHERE in case all BLENDED values are positive
+;       (otherwise would put K (last element) to 0 for PLS).
+;    In WRITE_RESULTS: Force TOTALS to be an array even for a single value
+;      (single file analysis) to be compatible with the use of TRANSPOSE.
+;    In CALC_COMP:
+;       Introduce NAL, as in GET_TESTSET_INFO above for Al; Note that this case
+;          may happen, it depends on the input files
+;       Introduce TEST1, TEST2, and TEST3 as in GET_TESTSET_INFO above for Si;
+;          Note that this case may happen, it depends on the input files.
+;-
+
 pro plot_1to1,actual,predict,title=title,outfile=outfile
     prettyplot,actual,predict,psym=0,color=0,thick=0,xtitle='Actual wt.%',ytitle='Predicted wt.%',charsize=2,$
        xthick=2,ythick=2,oplot=0,symsize=0.75,xsize=1200,ysize=1000,title=title,xrange=[0,max(actual*1.1)],yrange=[0,max(predict)*1.1],winnum=0
@@ -96,21 +167,21 @@ function get_testset_info,testresult_dir,elems,quartiles=quartiles,actuals=actua
       ;combine the PLS and ICA test set results
       TiO2=0.5*TiO2_pls_test+0.5*TiO2_ica_test
       Al2O3=0.75*Al2O3_pls_test+0.25*Al2O3_ica_test
-      Al2O3index=where(Al2O3 lt 15.0)
-      Al2O3[Al2O3index]=0.06667*Al2O3[Al2O3index]^2+(1-0.06667*Al2O3[Al2O3index])*Al2O3_ica_test[Al2O3index]
+      Al2O3index=where(Al2O3 lt 15.0, nal)
+      if nal gt 0 then Al2O3[Al2O3index]=0.06667*Al2O3[Al2O3index]^2+(1-0.06667*Al2O3[Al2O3index])*Al2O3_ica_test[Al2O3index]
       FeOT=0.75*FeOT_pls_test+0.25*FeOT_ica_test
       SiO2temp=0.5*SiO2_pls_test+0.5*SiO2_ica_test
       SiO2=SiO2temp
       ;We don't have FeOT test predictions for the SiO2 test set because the FeOT test set was defined separately
       ;Instead use the FeOT actuals to determine SiO2. This is "cheating" somewhat because it doesn't include the 
       ;FeOT uncertainties
-      SiO2[where(SiO2_test_FeOT_true gt 30)]=0.75*SiO2_pls_test[where(SiO2_test_FeOT_true gt 30)]+0.25*SiO2_ica_test[where(SiO2_test_FeOT_true gt 30)]
-      SiO2[where(SiO2_test_FeOT_true le 30 and SiO2temp ge 30)]=SiO2temp[where(SiO2_test_FeOT_true le 30 and SiO2temp ge 30)]
-      SiO2[where(SiO2_test_FeOT_true le 30 and SiO2temp lt 30)]=$
-        SiO2temp[where(SiO2_test_FeOT_true le 30 and SiO2temp lt 30)]*$
-        SiO2temp[where(SiO2_test_FeOT_true le 30 and SiO2temp lt 30)]*$
-        0.03333+(1-0.0333*SiO2temp[where(SiO2_test_FeOT_true le 30 and SiO2temp lt 30)])*$
-        SiO2_ica_test[where(SiO2_test_FeOT_true le 30 and SiO2temp lt 30)]
+      test1 = where(SiO2_test_FeOT_true gt 30, nt1)
+      test2 = where(SiO2_test_FeOT_true le 30 and SiO2temp ge 30, nt2)
+      test3 = where(SiO2_test_FeOT_true le 30 and SiO2temp lt 30, nt3)
+      if nt1 gt 0 then SiO2[test1]=0.75*SiO2_pls_test[test1]+0.25*SiO2_ica_test[test1]
+      if nt2 gt 0 then SiO2[test2]=SiO2temp[test2]
+      if nt3 gt 0 then SiO2[test3]=SiO2temp[test3]*SiO2temp[test3]*0.03333+$
+                                (1-0.0333*SiO2temp[test3])*SiO2_ica_test[test3]
       MgO=0.5*MgO_pls_test+0.5*MgO_ica_test
       CaO=0.5*CaO_pls_test+0.5*CaO_ica_test
       Na2O=0.4*Na2O_pls_test+0.6*Na2O_ica_test
@@ -239,13 +310,16 @@ for i=0,n_elements(elems)-1 do begin
   
   ;find the extrema of the smoothed RMSEPs
   extremas=extrema(y)
-  ;Get the maximum RMSEP value meyond the last extremum
-  endmax=max(y(max(extremas):*))
+  ;Get the maximum RMSEP value beyond the last extremum
+  mx = max(extremas)
+  endmax=max(y(mx:*), indx)
+  indx = indx+mx   ; Define index of maximum ENDMAX value after index MX 
   ;Define the index of RMSEP values to keep.
   ;The dummy prediction value must be less than the value where endmax occurs, and the RMSEP must be more than 1% lower then endmax 
   ;(this ensures that the last few RMSEP points have at least a slightly positive slope)
   ; 
-  ind=where(dummypredicts lt (dummypredicts(where(y eq endmax)))[0] and abs(y-y[n_elements(y)-1]) gt 0.01*y[n_elements(y)-1]); and y-endmax gt 0.1*endmax); and dummypredicts gt dummypredicts[max(extremas)]))
+  ind=where(dummypredicts lt (dummypredicts(indx))[0] and abs(y-y[n_elements(y)-1]) gt 0.01*y[n_elements(y)-1], nind); and y-endmax gt 0.1*endmax); and dummypredicts gt dummypredicts[max(extremas)]))
+  if nind eq 0 then message,'IND is empty, cannot define a subset for RMSEP.'
 
   ;keep a subset of the dummy predictions and RMSEPs
   x=dummypredicts[ind]
@@ -271,7 +345,8 @@ for i=0,n_elements(elems)-1 do begin
   
   ;Look up the expected RMSEP for the actual predictions
    for j=0,n_elements(predicts[i,*])-1 do begin
-       rmseps[i,j]=yy[where(abs(predicts[i,j]-xx) eq min(abs(predicts[i,j]-xx)))]
+       !null = min(abs(predicts[i,j]-xx), imin)   ;Find index of minimum value
+       rmseps[i,j]=yy[imin]
    endfor
 ;   
 ;   ;Get the test set RMSEPs
@@ -287,7 +362,8 @@ return,rmseps
 end   
     
 function pls_comp,currentelem,nshots,which_submodel,ymeancenters,meancenters,pls_settings_labels,pls_norms,pls_coeffs,spectra_norm1,spectra_norm3
-        labelindex=where(pls_settings_labels eq currentelem+'_'+which_submodel)
+        labelindex=where(pls_settings_labels eq currentelem+'_'+which_submodel, nl)
+        if nl eq 0 then message,'No submodel for: '+currentelem+'_'+which_submodel
         y_mean=rebin([ymeancenters[labelindex]],1,nshots)
         fullnorm=pls_norms[labelindex]
         full_coeff=pls_coeffs[labelindex,*]
@@ -348,7 +424,7 @@ function pls_blend,comps,blend_array_dir,elems,filelist
                   endif
             endfor
          endfor
-      blended[where(blended lt 0)]=0 ;Set any negative results to zero
+      blended[where(blended lt 0, /null)]=0 ;Set any negative results to zero
       return,blended
 end
 
@@ -388,7 +464,11 @@ pro write_results,comps_all,targets_all,filelist_all,amps_all,dists_all,totals_A
         labelrow=[[testset_quartiles_out],[labelrow]]
         
         ;Calculate the composition totals
-        totals=total(comps_all,1)
+        sz = (size(comps_all))[0]
+        if sz eq 1 then $
+           totals=[total(comps_all,1)] $  ;force array for use of TRANSPOSE next step
+           else $
+                totals=total(comps_all,1)
         
         ;Add the totals and RMSEPs to the output array  
           output=[output,strtrim(comps_all,2),strtrim(transpose(totals),2),strtrim(RMSEPs,2)]
@@ -495,13 +575,18 @@ function calc_comp,searchdir,shots,maskfile,masterfile,recursive,pls_settings_la
         ;Combine the PLS and ICA results
         TiO2=0.5*plsvals[1,*]+0.5*icavals[1,*]
         Al2O3=0.75*plsvals[2,*]+0.25*icavals[2,*]
-        Al2O3[where(Al2O3 lt 15.0)]=0.06667*Al2O3[where(Al2O3 lt 15.0)]^2+(1-0.06667*Al2O3[where(Al2O3 lt 15.0)])*icavals[2,[where(Al2O3 lt 15.0)]]
+        Al2O3index=where(Al2O3 lt 15.0, nal)
+        if nal gt 0 then $ 
+           Al2O3[Al2O3index]=0.06667*Al2O3[Al2O3index]^2+(1-0.06667*Al2O3[Al2O3index])*icavals[2,[Al2O3index]]
         FeOT=0.75*plsvals[3,*]+0.25*icavals[3,*]
         SiO2temp=0.5*plsvals[0,*]+0.5*icavals[0,*]
         SiO2=SiO2temp
-        SiO2[where(FeOt gt 30)]=0.75*plsvals[0,[where(FeOt gt 30)]]+0.25*icavals[0,[where(FeOt gt 30)]]
-        SiO2[where(FeOT le 30 and SiO2temp ge 30)]=SiO2temp[where(FeOT le 30 and SiO2temp ge 30)]
-        SiO2[where(FeOT le 30 and SiO2temp lt 30)]=SiO2temp[where(FeOT le 30 and SiO2temp lt 30)]*SiO2temp[where(FeOT le 30 and SiO2temp lt 30)]*0.03333+(1-0.0333*SiO2temp[where(FeOT le 30 and SiO2temp lt 30)])*icavals[0,[where(FeOT le 30 and SiO2temp lt 30)]]
+        test1 = where(FeOT gt 30, nt1)
+        test2 = where(FeOT le 30 and SiO2temp ge 30, nt2)
+        test3 = where(FeOT le 30 and SiO2temp lt 30, nt3)
+        if nt1 gt 0 then SiO2[test1]=0.75*plsvals[0,[test1]]+0.25*icavals[0,[test1]]
+        if nt2 gt 0 then SiO2[test2]=SiO2temp[test2]
+        if nt3 gt 0 then SiO2[test3]=SiO2temp[test3]*SiO2temp[test3]*0.03333+(1-0.0333*SiO2temp[test3])*icavals[0,[test3]]
         MgO=0.5*plsvals[4,*]+0.5*icavals[4,*]
         CaO=0.5*plsvals[5,*]+0.5*icavals[5,*]
         Na2O=0.4*plsvals[6,*]+0.6*icavals[6,*]
