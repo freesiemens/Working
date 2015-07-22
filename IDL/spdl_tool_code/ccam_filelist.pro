@@ -13,6 +13,7 @@
 ; Modified 27-JUN-2015 by Olivier Gasnault. Add /NULL in search for CCAM15305 in case that seqID is not present;
 ;                                           Add a TEST to see if there is any GOODSOLS left.
 ;Modified 9 Jul 2015 by Ryan Anderson. Return a hash with data rather than using a bunch of keywords.
+;Modified 13 Jul 2015 by Ryan Anderson: Return an array of hashes instead
 
 function ccam_filelist,searchdir,searchstring=searchstring,minsol=minsol,maxsol=maxsol,recursive=recursive,allversions=allversions
 ;check operating system
@@ -103,6 +104,7 @@ if not(keyword_set(allversions)) then begin
 endif
 cd,currentdir ;change back to the original working directory
 
-return,hash('filelist',filelist,'sclock',filelist_sclock,'sols',filelist_sols,'pathlist',pathlist)
+out_data=hash('filelist',filelist,'sclock',filelist_sclock,'sols',filelist_sols,'pathlist',pathlist)
+return,out_data
 
 end

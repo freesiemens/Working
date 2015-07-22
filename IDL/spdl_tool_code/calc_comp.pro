@@ -21,7 +21,8 @@
 ;       
 ;
 ; CALLING SEQUENCE:
-;        calc_comp,searchdir,shots,recursive,configfile,software_version,quiet=quiet
+;        calc_comp,searchdir,shots,recursive,configfile,software_version,quiet=quiet,pls_output=pls_output,ica_output=ica_output,calcstdevs=calcstdevs
+;        
 ; INPUTS:
 ;        searchdir = The path to search for suitable spectra files
 ;        shots = If set to 1, calculate single shot results. If set to 0, use the average spectra.
@@ -34,9 +35,11 @@
 ;
 ; KEYWORD PARAMETERS:
 ;        Quiet = If set, suppress all pop-up windows
-;
+;        pls_output = Set to 1 to output the pls results separately
+;        ica_output = Set to 1 to output the ICA results separately
+;        calcstdevs = Set to 1 to calculate the single shot stdevs and report them along with the mean results
 ; OUTPUTS:
-;       No values are returned. The program produces an output file in the search directory with a name like: ccam_comps_20150707.csv
+;       No values are returned directly. The program produces output file(s) in the search directory.
 ;       
 ; OPTIONAL OUTPUTS:
 ;       
@@ -47,8 +50,7 @@
 ;       shots=0
 ;       recursive=1
 ;       software_version='sPDL Tool v2 (July 7, 2015)'
-;       quiet=0
-;       calc_comp,searchdir,shots,recursive,configfile,software_version,quiet=quiet
+;       calc_comp,searchdir,shots,recursive,configfile,software_version,quiet=0,ica_output=1,pls_output=1,calcstdevs=1
 ;
 ; MODIFICATION HISTORY:
 ; R. Anderson: June 2015 - Write initial code
@@ -84,7 +86,7 @@
 ;                           - Made software version an input so that it is defined in spdl_tool rather than here
 ;                           - Modified all structures to hashes, which allows streamlining of some parts of the code (because you can loop through them)
 ;                           - Added more comments and documentation before each function
-;                           - General reorganization
+;                           - Lots of general reorganization
 ;                           
 ;-
 
@@ -301,48 +303,6 @@ endfor
 
 return,rmseps
 end   
-    
-    
-;+
-;This function applies the spectrum mask and normalization and does the PLS composition calculation
-; for each submodel by multiplying the regression coefficients by the spectrum and adding back the y mean. 
-; It also keeps track of the pre-norm spectrum total
-;Inputs:
-;       elems = string array containing major element oxide labels
-;       pls_settings = structure containing the pls settings
-;       spectra = spectra from unknown target 
-;       wvl = array containing the wavelength definitions for the spectrum (used for masking)
-;       
-;;-    
- 
-function pls_submodels,elems,pls_settings,spectra,wvl
-  which_submodel=['full','low','mid','high']
-  comps=hash('full',[],'low',[],'mid',[],'high',[],'spect_total',[])
-
-  ;apply the mask and normalization
-  spectra=ccam_mask(spectra,wvl,pls_settings['maskfile'],masked_wvl=masked_wvl)
-  spectra_norm1=ccam_norm(spectra,masked_wvl,1,totals=totals_temp)
-  spectra_norm3=ccam_norm(spectra,masked_wvl,3)
-  nshots=n_elements(spectra_norm1[0,*])
-  
-  for n=0,n_elements(which_submodel)-1 do begin
-    for j=0,n_elements(elems)-1 do begin
-        labelindex=where(pls_settings['labels'] eq elems[j]+'_'+which_submodel[n], nl)
-        if nl eq 0 then message,'No submodel for: '+elems[j]+'_'+which_submodel[n]
-        y_mean=rebin([(pls_settings['ymeancenters'])[labelindex]],1,nshots)
-        fullnorm=(pls_settings['norms'])[labelindex]
-        full_coeff=(pls_settings['coeffs'])[labelindex,*]
-        full_meancenter=rebin(reform((pls_settings['meancenters'])[labelindex,*]),$
-          n_elements((pls_settings['meancenters'])[labelindex,*]),nshots)
-        if fullnorm eq 1 then comp=matrix_multiply(full_coeff,spectra_norm1-full_meancenter)+y_mean
-        if fullnorm eq 3 then comp=matrix_multiply(full_coeff,spectra_norm3-full_meancenter)+y_mean
-        comps[which_submodel[n]]=[comps[which_submodel[n]],comp]
-    endfor
-  endfor
-  comps['spect_total']=totals_temp
-  
-  return,comps
-end         
 
 
 ;+
@@ -358,7 +318,7 @@ function pls_blend,comps,blend_array_dir,elems
         blended=comps['full']*0.0        
         for k=0,n_elements(elems)-1 do begin
             ;#reconstruct the blend input settings from the blend array file
-            blendarray=rd_tfile(blend_array_dir+elems[k]+'_blend_array.csv',/autocol,delim=',')
+            blendarray=rd_tfile(blend_array_dir+elems[k]+'_blend_array.csv',autocol=1,delim=',')
             blend_labels=blendarray[0,*]
             blendarray=blendarray[*,1:*]
             ranges=float(blendarray[0:1,*])
@@ -380,76 +340,79 @@ function pls_blend,comps,blend_array_dir,elems
       blended[where(blended lt 0, /null)]=0 ;Set any negative results to zero
       return,blended
 end
+    
+    
+;+
+;This function applies the spectrum mask and normalization and does the PLS composition calculation
+; for each submodel by multiplying the regression coefficients by the spectrum and adding back the y mean. 
+; It also keeps track of the pre-norm spectrum total
+;Inputs:
+;       elems = string array containing major element oxide labels
+;       pls_settings = structure containing the pls settings
+;       spectra = spectra from unknown target 
+;       wvl = array containing the wavelength definitions for the spectrum (used for masking)
+;       totals = This keyword returns the spectrum totals prior to normalizatoin       
+;;-    
+ 
+function pls_submodels,elems,pls_settings,spectra,wvl,totals=totals
+  which_submodel=['full','low','mid','high']
+  comps=hash('full',[],'low',[],'mid',[],'high',[],'spect_total',[])
+
+  ;apply the mask and normalization
+  spectra=ccam_mask(spectra,wvl,pls_settings['maskfile'],masked_wvl=masked_wvl)
+  spectra_norm1=ccam_norm(spectra,masked_wvl,1,totals=totals)
+  spectra_norm3=ccam_norm(spectra,masked_wvl,3)
+  nshots=n_elements(spectra_norm1[0,*])
+  
+  for n=0,n_elements(which_submodel)-1 do begin
+    for j=0,n_elements(elems)-1 do begin
+        labelindex=where(pls_settings['labels'] eq elems[j]+'_'+which_submodel[n], nl)
+        if nl eq 0 then message,'No submodel for: '+elems[j]+'_'+which_submodel[n]
+        y_mean=rebin([(pls_settings['ymeancenters'])[labelindex]],1,nshots)
+        fullnorm=(pls_settings['norms'])[labelindex]
+        full_coeff=(pls_settings['coeffs'])[labelindex,*]
+        full_meancenter=rebin(reform((pls_settings['meancenters'])[labelindex,*]),$
+          n_elements((pls_settings['meancenters'])[labelindex,*]),nshots)
+        if fullnorm eq 1 then comp=matrix_multiply(full_coeff,spectra_norm1-full_meancenter)+y_mean
+        if fullnorm eq 3 then comp=matrix_multiply(full_coeff,spectra_norm3-full_meancenter)+y_mean
+        comps[which_submodel[n]]=[comps[which_submodel[n]],comp]
+    endfor
+  endfor
+  
+  plsvals=pls_blend(comps,pls_settings['blend_array_dir'],elems)
+  return,plsvals
+end         
+
+
 
 ;+
-;This function does the PLS calculations, starting with file list and settings and returning PLS predictions. 
-;This is accomplished by calling several of the functions described above
+;This function does the PLS calculations. It is called by pls_and_ica in a loop, once for each file.  
 ;
 ;Inputs:
-;       file_data = structure containing file list and associated metadata
+;       spectra = array containing input spectra
+;       wvl = array containing the wavelengths of each bin in spectra
+;       pls_results = hash containing the results
+;       file_data = hash containing file name and associated metadata
 ;       pls_settings = structure containing all the required settings to run PLS
-;       shots = Set to 1 to calculate single shot results
 ;       elems = string array of major element oxide labels
-;       quiet = set to 1 to suppress progress bars and other popups
 ;Outputs:
-;       pls_results = Structure containing the blended submodel results along with associated metadata
+;       pls_results = hash containing the blended submodel results along with associated metadata
 ;-
-function pls,file_data,pls_settings,shots,elems,quiet=quiet
-        ;Loop through each file in the file list, restore it and and run PLS calculations
-        if keyword_set(shots) then shotstext=' single-shot ' else shotstext=' '
-        if not(quiet) then progbar=Obj_New('cgProgressBar',/start,percent=0,title=$
-          'Running'+shotstext+'PLS calculation for '+strtrim(n_elements(file_data['filelist']),2)+' files',xsize=325)
-        
-        for i=0,n_elements(file_data['filelist'])-1 do begin
-           restore,(file_data['pathlist'])[i]+(file_data['filelist'])[i]
-           wvl=[defuv,defvis,defvnir]
-            if shots eq 1 then begin
-                spectra=[transpose(uv),transpose(vis),transpose(vnir)]
-                shotnum=indgen(n_elements(uv[*,0]))
-                nshots=(file_data['nshots'])[i]
-            endif 
-            if shots eq 0 then begin
-                shotnum=(file_data['nshots'])[i]
-                spectra=[auv,avis,avnir]
-                nshots=1
-            endif    
-
-            ;Run PLS calculations
-            comps_temp=pls_submodels(elems,pls_settings,spectra,wvl)
-            
-            ;store the results and metadata
-            if i eq 0 then begin
-                comps_all=comps_temp
-                filelist_all=replicate((file_data['filelist'])[i],nshots)
-                shotnum_all=shotnum
-                targets_all=replicate((file_data['targets'])[i],nshots)
-                dists_all=replicate((file_data['dists'])[i],nshots)
-                amps_all=replicate((file_data['amps'])[i],nshots)
-                    
-            endif else begin
-              
-                comps_all=hash('full',[[comps_all['full']],[comps_temp['full']]],$
-                  'low',[[comps_all['low']],[comps_temp['low']]],$
-                  'mid',[[comps_all['mid']],[comps_temp['mid']]],$
-                  'high',[[comps_all['high']],[comps_temp['high']]],$
-                  'spect_total',[comps_all['spect_total'],comps_temp['spect_total']])
-                filelist_all=[filelist_all,replicate((file_data['filelist'])[i],nshots)]
-                shotnum_all=[shotnum_all,shotnum]
-                targets_all=[targets_all,replicate((file_data['targets'])[i],nshots)]
-                dists_all=[dists_all,replicate((file_data['dists'])[i],nshots)]
-                amps_all=[amps_all,replicate((file_data['amps'])[i],nshots)]
-                
-            endelse
-            totals_all=comps_all['spect_total']
-           if not(quiet) then  progbar -> Update,float(i+1)/n_elements(file_data['filelist'])*100
-        endfor
-        if not(quiet) then progbar->Destroy
-        
-        ;Blend the PLS submodels  
-        plsvals=pls_blend(comps_all,pls_settings['blend_array_dir'],elems)
-        pls_results=hash('comps',plsvals,'totals',totals_all,'filelist',filelist_all,'shotnum',shotnum_all,'targets',targets_all,'dists',dists_all,'amps',amps_all)
-        
-        return,pls_results
+function pls,spectra,wvl,pls_results,file_data,pls_settings,elems
+    
+    shotnum=indgen(n_elements(spectra[0,*]))
+    nshots=file_data['nshots']
+    ;Run PLS calculations
+       
+    pls_results['comps']=[[pls_results['comps']],[pls_submodels(elems,pls_settings,spectra,wvl,totals=totals)]]
+    pls_results['files']=[pls_results['files'],replicate(file_data['file'],nshots)]
+    pls_results['shotnum']=[pls_results['shotnum'],shotnum]
+    pls_results['targets']=[pls_results['targets'],replicate(file_data['target'],nshots)]
+    pls_results['dists']=[pls_results['dists'],replicate(file_data['dist'],nshots)]
+    pls_results['amps']=[pls_results['amps'],replicate(file_data['amps'],nshots)]
+    pls_results['totals']=[pls_results['totals'],totals]
+    
+    return,pls_results
 
 end
 
@@ -484,27 +447,41 @@ function ica_pls_combine,plsvals,icavals
     K2O=0.25*plsvals[7,*]+0.75*icavals[7,*]
       
     ica_pls_combined=[SiO2,TiO2,Al2O3,FeOT,MgO,CaO,Na2O,K2O]
+    ;print,ica_pls_combined
+    
     return,ica_pls_combined
 end
 
 ;+
 ;This program writes the quantitative ChemCam results to an output file.
 ;Inputs:
-;       results = this is a structure containing the quantitative results (ICA, PLS, or combined) and associated metadata (file list, targets, laser energy, etc)
+;       results = this is a structure containing the quantitative results (ICA, PLS, or combined) and rmseps and stdevs
+;       file_data = this hash contains metadata for the results (file name, target, distance, laser power etc)
 ;       elems = this is a string array containing the major oxide labels
-;       shots = set to 1 if the results are for single shots
-;       rmseps = RMSEPs generated by dynamic_rmsep
 ;       searchdir =  The directory that was searched for valid ChemCam files (results are written to this directory)
-;       testset_quartiles = quartilse calculated for the test set
+;       testset_quartiles = quartiles calculated for the test set
 ;       software_version = Name, version number, and date of the current software
 ;       ica = Set to 1 (and provide ICA results in 'results') to output ICA results
 ;       pls = Set to 1 (and provide PLS results in 'results') to output PLS results
-;       calcstdevs = Set to 1 to include single shot standard deviations with the averaged results
+;       stdevs = Set to 1 to include single shot standard deviations with the averaged results
+;       shots = set to 1 for single shot results
 ;Outputs:
 ;       The specified result files will be written in the search directory
 ;-
-pro write_results,results,elems,shots,rmseps,searchdir,testset_quartiles,software_version,ica=ica,pls=pls,calcstdevs=calcstdevs
-
+pro write_results,results,file_data,elems,searchdir,testset_quartiles,software_version,ica=ica,pls=pls,stdevs=stdevs,shots=shots
+    if keyword_set(shots) and keyword_set(stdevs) then begin
+      xmess,"Warning: stdevs can't be included for single shot results!"
+      return
+    endif
+    
+    if keyword_set(iva) and keyword_set(pls) then begin
+      xmess,"Warning: Both ICA and PLS keywords are set. This script only handles results from one method at a time."
+      return
+    endif
+    
+    ;Set the appropriate hash key to use to access results
+    if keyword_set(shots) then resultkey='shots' else resultkey='means'
+    
     ;get the current date
     caldat,systime(/jul),mm,dd,yy
     yy=strtrim(yy,2)
@@ -513,94 +490,85 @@ pro write_results,results,elems,shots,rmseps,searchdir,testset_quartiles,softwar
     dd=strtrim(dd,2)
     if strlen(dd) eq 1 then dd='0'+dd
     today=yy+mm+dd
+   
     ;Set up the output array
-    if shots eq 1 then begin
-        labelrow=['File','Target','Shot Number','Distance (m)','Laser Power','Spectrum Total']
-        for n=0,n_elements(elems)-1 do labelrow=[labelrow,elems[n],string(177b),elems[n]+'_RMSEP']
-        labelrow=[labelrow,'Totals']
-        output=transpose([[results['filelist']],[results['targets']],[strtrim(results['shotnum']+1,2)],[strtrim(results['dists'],2)],[results['amps']],[strtrim(results['totals'],2)]])
-        plsoutfile=searchdir+'ccam_comps_singleshots_pls_'+today+'.csv'
-        icaoutfile=searchdir+'ccam_comps_singleshots_ica_'+today+'.csv'
-        outfile=searchdir+'ccam_comps_singleshots_'+today+'.csv'
-        pad=strarr(5,6)
-        spacer=2
-    endif
-    if shots eq 0 then begin
-        labelrow=['File','Target','Distance (m)','Laser Power','Spectrum Total']
-        if keyword_Set(calcstdevs) then begin
-           for n=0,n_elements(elems)-1 do labelrow=[labelrow,elems[n],string(177b),elems[n]+'_RMSEP',elems[n]+'_shots_stdev']
-           spacer=3
-        endif else begin
-           for n=0,n_elements(elems)-1 do labelrow=[labelrow,elems[n],string(177b),elems[n]+'_RMSEP']
-           spacer=2
-        endelse
-        labelrow=[labelrow,'Totals']
-        output=transpose([[results['filelist']],[results['targets']],[strtrim(results['dists'],2)],[results['amps']],[strtrim(results['totals'],2)]])
-        plsoutfile=searchdir+'ccam_comps_pls_'+today+'.csv'
-        icaoutfile=searchdir+'ccam_comps_ica_'+today+'.csv'
-        outfile=searchdir+'ccam_comps_'+today+'.csv'
-        pad=strarr(4,6)
-    endif
-  
+    if keyword_set(shots) then begin
+       labelrow=['File','Target','Shot Number'] 
+       output=[[file_data['filelist']],[file_data['targets']],[strtrim(file_data['shotnum']+1,2)]]  
+    endif else begin
+       labelrow=['File','Target']
+       output=[[file_data['filelist']],[file_data['targets']]]
+    endelse
+    output=transpose(output)
+    pad=strarr(n_elements(labelrow)-1,6) ;create an empty padding array to use later
+    
+    ;add columns for RMSEPs and, if needed, stdevs
+    if keyword_Set(stdevs) then begin
+       for n=0,n_elements(elems)-1 do labelrow=[labelrow,elems[n],'+/-',elems[n]+' RMSEP',elems[n]+'_shots_stdev']
+       spacer=3
+    endif else begin
+       for n=0,n_elements(elems)-1 do labelrow=[labelrow,elems[n],'+/-',elems[n]+' RMSEP']
+       spacer=2
+       
+    endelse
+    labelrow=[labelrow,'Sum of Oxides','Distance (m)','Laser Power','Spectrum Total']
+    
+    ;set up output file name
+    outputfile=searchdir+'ccam_comps'
+    if keyword_Set(pls) then outputfile=outputfile+'_pls' else if keyword_set(ica) then outputfile=outputfile+'_ica'
+    if keyword_set(shots) then outputfile=outputfile+'_singleshots'
+    outputfile=outputfile+'_'+today+'.csv'
+    
+    ;get composition totals
+    comptotals=[total(results[resultkey],1)]
+    comptotals=string(comptotals,format='(F0.2)') 
+    
     ;Set up the quartile info for the top of the file
     testset_quartiles_out=[[elems[0],replicate(' ',spacer)],[transpose(strtrim(testset_quartiles[*,0],2)),replicate(' ',spacer,5)]]
     for n=1,n_elements(elems)-1 do testset_quartiles_out=[testset_quartiles_out,[[elems[n],replicate(' ',spacer)],[transpose(strtrim(testset_quartiles[*,n],2)),replicate(' ',spacer,5)]]]
     quartile_labels=['Testset Quartiles','Min','1st','Med','3rd','Max']
+    
     testset_quartiles_out=[transpose(quartile_labels),testset_quartiles_out]
-    testset_quartiles_out=[pad,testset_quartiles_out]
-    testset_quartiles_out=[testset_quartiles_out,strarr(n_elements(labelrow)-n_elements(testset_quartiles_out[*,0]),6)]
+    testset_quartiles_out=[pad,testset_quartiles_out,[strarr(4,6)]]
     labelrow=[[testset_quartiles_out],[labelrow]]
     
-    ;Calculate the composition totals
-    sz = (size(results['comps']))[0]
-    if sz eq 1 then $
-       totals=[total(results['comps'],1)] $  ;force array for use of TRANSPOSE next step
-       else $
-            totals=total(results['comps'],1)
-   
-    totals=string(totals,format='(F0.2)') 
     ;Create an array full of plus-minus signs of the same length as the output array
-    plusminus=transpose(strarr(n_elements((results['comps'])[0,*]))+string(177B))
+    plusminus=transpose(strarr(n_elements(results[resultkey,0,*]))+'+/-')
     
     ;round the compositions and RMSEPs to an appropriate number of digits
     formats=['(F0.1)','(F0.2)','(F0.1)','(F0.1)','(F0.1)','(F0.1)','(F0.2)','(F0.2)']
-    results_rounded=hash()
-    rmseps_rounded=hash()
+    results_rounded=strarr(size(results[resultkey],/dim))
+    rmseps_rounded=strarr(size(results[resultkey],/dim))
     for i=0,n_elements(elems)-1 do begin
-      results_rounded=results_rounded+hash(elems[i],string((results['comps'])[i,*],format=formats[i]))
-      rmseps_rounded=rmseps_rounded+hash(elems[i],string(RMSEPs[i,*],format=formats[i]))
+      results_rounded[i,*]=string(results[resultkey,i,*],format=formats[i])
+      rmseps_rounded[i,*]=string(results[resultkey+'_rmseps',i,*],format=formats[i])
     endfor
-
- 
-    ;Add the totals and RMSEPs (and stdevs if specified) to the output array   
-    if keyword_set(calcstdevs) and not(keyword_set(shots)) then begin
+    
+    ;Add the compositions, totals, RMSEPs (and stdevs if specified) to the output array   
+    if keyword_set(stdevs) then begin
         ;Round the stdevs
-        stdevs_rounded=hash()
+        stdevs_rounded=strarr(size(results[resultkey],/dim))
         for i=0,n_elements(elems)-1 do begin
-          stdevs_rounded=stdevs_rounded+hash(elems[i],string((results['stdevs'])[i,*],format=formats[i]))
-          output=[output,transpose(results_rounded[elems[i]]),plusminus,transpose(rmseps_rounded[elems[i]]),transpose(stdevs_rounded[elems[i]])]
+          stdevs_rounded[i,*]=string(results['stdevs',i,*],format=formats[i])
+          output=[output,results_rounded[i,*],plusminus,rmseps_rounded[i,*],stdevs_rounded[i,*]]
         endfor
-        output=[output,transpose(totals)]
-        
     endif else begin
         for i=0,n_elements(elems)-1 do begin
-          output=[output,transpose(results_rounded[elems[i]]),plusminus,transpose(rmseps_rounded[elems[i]])]
+          output=[output,results_rounded[i,*],plusminus,rmseps_rounded[i,*]]
         endfor
-        output=[output,transpose(totals)]
     endelse
-    
+    output=[output,transpose([comptotals]),transpose(strtrim(file_data['dists'],2)),transpose(file_data['amps']),transpose(strtrim(file_data['totals'],2))]
     output=[[labelrow],[output]]
+    
     ;Add the software version
     output[0,0]=software_version
         
-    ;Output the desired results
-    if keyword_set(pls) then begin
-       output[0,1]='PLS RESULTS'
-       write_csv,plsoutfile,output 
-    endif else if keyword_set(ica) then begin
-       output[0,1]='ICA RESULTS'
-       write_csv,icaoutfile,output
-    endif else write_csv,outfile,output
+    ;Label what type of results these are
+    output[0,1]='COMBINED PLS+ICA RESULTS'
+    if keyword_set(pls) then output[0,1]='PLS RESULTS'
+    if keyword_set(ica) then output[0,1]='ICA RESULTS'
+    
+    write_csv,outputfile,output
 end
   
     
@@ -612,81 +580,138 @@ end
 ;       elems = String array containing major oxide names
 ;       test_info = Hash containing the test set results
 ;       searchdir = String with the path for the search directory
-;       software_varesion = String containing the software version, name, and date
+;       software_version = String containing the software version, name, and date
 ;       shots = Set this to 1 to calculate single shot results
 ;       quiet = Set this to 1 to suppress pop-ups
 ;       calcstdevs = If shots = 1 and calcstdevs = 1, calculate the standard deviations of single shot results if shots also equals 1. 
 ;                    If shots = 0 and calcstdevs = 1, then write the stdevs of single shot results in the means output file
-;       stdevs = If shots = 0 and calcstdevs = 1 this is an input variable containing the standard deviations for single shot results
 ;       ica_output = Set to 1 to write the ICA output
 ;       pls_output = Set to 1 to write the PLS output
 ;Outputs:
-;      stdevs = If shots = 1 and calcstdevs = 1 this is an output variable containing the standard deviations for single shot results
 ;      Calculation results are written to .csv files in the search directory
 ;;-
-pro pls_and_ica,file_data,pls_settings,elems,test_info,searchdir,software_version,shots=shots,quiet=quiet,calcstdevs=calcstdevs,stdevs=stdevs,ica_output=ica_output,pls_output=pls_output
+pro pls_and_ica,file_data,pls_settings,elems,test_info,searchdir,software_version,shots=shots,quiet=quiet,calcstdevs=calcstdevs,ica_output=ica_output,pls_output=pls_output
+       
+       ;create the hashes to contain the results
+        pls_results=hash('means',[],'shots',[])
+        combined_results=hash('means',[],'shots',[])
+        
+        
+        if keyword_Set(calcstdevs) then both=1
        ;Get the ICA results first
-       icavals = transpose(ICR(file_data['pathlist']+file_data['filelist'],shot=shots,fn_good_index=fn_good_index,quiet=quiet))
+       ica_results = ICR(file_data['pathlist']+file_data['filelist'],shot=shots,fn_good_index=fn_good_index,quiet=quiet,both=both)
        if keyword_Set(shots) then begin
-           ica_comps=*icavals[0]
-           for i=1,n_elements(file_data['filelist'])-1 do ica_comps=[ica_comps,*icavals[i]]
-           icavals=transpose(ica_comps)
+           ica_comps=*(ica_results['shots'])[0]
+           for i=1,n_elements(file_data['filelist'])-1 do ica_comps=[ica_comps,*(ica_results['shots'])[i]]
+           ica_results['shots']=transpose(ica_comps)
        endif
-       ica_rmseps=dynamic_rmsep(icavals,test_info['ICA'],test_info['actuals'],elems)
+       ica_results['means']=transpose(ica_results['means'])
+       ;get RMSEPs and put them in the results hash
+       if not(keyword_set(shots)) or keyword_set(calcstdevs) then ica_results=ica_results+hash('means_rmseps',dynamic_rmsep(ica_results['means'],test_info['ICA'],test_info['actuals'],elems))
+       if keyword_set(shots) or keyword_set(calcstdevs) then ica_results=ica_results+hash('shots_rmseps',dynamic_rmsep(ica_results['shots'],test_info['ICA'],test_info['actuals'],elems))
        
        ;ICA does not use certain files. Remove these from the list before proceeding to PLS  
+       
        file_data_keys=file_data.keys()
-       for i=0,n_elements(file_data_keys)-1 do file_data[file_data_keys[i]]=(file_data[file_data_keys[i]])[fn_good_index]  
+       for n=0,n_elements(file_data_keys)-1 do file_data[file_data_keys[n]]=file_data[file_data_keys[n],fn_good_index]
+       
       
-      ;Get the PLS results
-       pls_results=pls(file_data,pls_settings,shots,elems,quiet=quiet)
-       pls_rmseps=dynamic_rmsep(pls_results['comps'],test_info['PLS'],test_info['actuals'],elems)
-       
-       ;Combine the results
-       ica_pls_combined=ica_pls_combine(pls_results['comps'],icavals)
-       rmseps=dynamic_rmsep(ica_pls_combined,test_info['combined'],test_info['actuals'],elems)
-       
-       ;Use the metadata stored in pls_results to create similar hashes for the combined and ICA results
-       pls_result_keys=pls_results.keys()
-       pls_result_keys=pls_result_keys[where(pls_result_keys ne 'comps')]
-       combined_results=hash('comps',ica_pls_combined)+pls_results[pls_result_keys]
-       ica_results=hash('comps',icavals)+pls_results[pls_result_keys]
-       
-       ;If shots and calcstdevs are set, then get the stdev of the single shot results
-       if keyword_set(calcstdevs) and keyword_set(shots) then begin
-           ;Get stdev of shots for each point
-           uniqfiles=combined_results['filelist']
-           uniqfiles=uniqfiles(uniq(uniqfiles,sort(uniqfiles)))
-           combined_stdev=dblarr(n_elements(elems),n_elements(uniqfiles))
-           pls_stdev=dblarr(n_elements(elems),n_elements(uniqfiles))
-           ica_stdev=dblarr(n_elements(elems),n_elements(uniqfiles))
-           for i=0,n_elements(uniqfiles)-1 do begin
-              ind=where(combined_results['filelist'] eq uniqfiles[i])
-              ind2=where((combined_results['shotnum'])[ind] gt 4)
-              combined_stdev[*,i]=stddev((combined_results['comps'])[*,ind[ind2]],dimension=2)
-              pls_stdev[*,i]=stddev((pls_results['comps'])[*,ind[ind2]],dimension=2)
-              ica_stdev[*,i]=stddev(icavals[*,ind[ind2]],dimension=2)
-           endfor
-           stdevs=hash('combined',combined_stdev,'pls',pls_stdev,'ica',ica_stdev)
+      ;Loop through each file in the file list, restore it and and run PLS calculations
+        shotstext=' '
+        if keyword_set(shots) and not(keyword_set(calcstdevs)) then shotstext=' single-shot '
+        if keyword_set(calcstdevs) then shotstext=' single-shot and mean ' else shotstext=' '
+        if not(quiet) then progbar=Obj_New('cgProgressBar',/start,percent=0,title=$
+        'Running'+shotstext+'PLS calculation for '+strtrim(n_elements(file_data['filelist']),2)+' files',xsize=375)
+        
+        ;Create a new hash to hold the expanded metadata for single shot results
+        file_data_shots=hash('sols',[],'filelist',[],'shotnum',[],'targets',[],'dists',[],'amps',[],'totals',[],'sclock',[])
+        ;Also add totals to the file data hash
+        file_data=file_data+hash('totals',[])
+        
+        for i=0,n_elements(file_data['filelist'])-1 do begin
+           restore,file_data['pathlist',i]+file_data['filelist',i],/relaxed
+           wvl=[defuv,defvis,defvnir]
+           spectra=[transpose(uv),transpose(vis),transpose(vnir)]
+           spectra_mean=[auv,avis,avnir]
            
-        endif
-        
-        ;If calcstdev is set but shots is not, then we are working with the mean results, and the stdevs need to be added to them
-        if keyword_set(calcstdevs) and not(keyword_set(shots)) then begin
-            
-            ;Append the stdev data to the result structures
-            combined_results=combined_results+hash('stdevs',stdevs['combined'])
-            ica_results=ica_results+hash('stdevs',stdevs['ica'])
-            pls_results=pls_results+hash('stdevs',stdevs['pls'])
-            
-        endif
-        
-       ;Output results
+           shotnum=indgen(n_elements(spectra[0,*]))
+           
+            nshots=file_data['nshots',i]
+           
+           ;Calculate single shot results and fill in the single shot metadata
+           if keyword_set(shots) or keyword_set(calcstdevs) then begin
+              pls_results['shots']=[[pls_results['shots']],[pls_submodels(elems,pls_settings,spectra,wvl,totals=totals)]]
+              combined_results['shots']=ica_pls_combine(pls_results['shots'],ica_results['shots'])
+              file_data_shots['filelist']=[file_data_shots['filelist'],replicate(file_data['filelist',i],nshots)]
+              file_data_shots['shotnum']=[file_data_shots['shotnum'],shotnum]
+              file_data_shots['targets']=[file_data_shots['targets'],replicate(file_data['targets',i],nshots)]
+              file_data_shots['dists']=[file_data_shots['dists'],replicate(file_data['dists',i],nshots)]
+              file_data_shots['amps']=[file_data_shots['amps'],replicate(file_data['amps',i],nshots)]
+              file_data_shots['sclock']=[file_data_shots['sclock'],replicate(file_data['sclock',i],nshots)]
+              file_data_shots['sols']=[file_data_shots['sols'],replicate(file_data['sols',i],nshots)]
+              file_data_shots['totals']=[file_data_shots['totals'],totals]
+           endif
+           ;calculate mean results
+           if not(keyword_set(shots)) or keyword_Set(calcstdevs) then begin
+              pls_results['means']=[[pls_results['means']],[pls_submodels(elems,pls_settings,spectra_mean,wvl,totals=totals)]]
+              combined_results['means']=ica_pls_combine(pls_results['means'],ica_results['means'])
+              file_data['totals']=[file_data['totals'],totals]
+           endif
+           
+           if not(quiet) then  progbar -> Update,float(i+1)/n_elements(file_data['filelist'])*100
+        endfor
+      if not(quiet) then progbar->Destroy
        
-        if keyword_set(ica_output) then write_results,ica_results,elems,shots,ica_rmseps,searchdir,test_info['quartiles'],software_version,ica=1,pls=0,calcstdevs=calcstdevs
-        if keyword_set(pls_output) then write_results,pls_results,elems,shots,pls_rmseps,searchdir,test_info['quartiles'],software_version,ica=0,pls=1,calcstdevs=calcstdevs
-        write_results,combined_results,elems,shots,rmseps,searchdir,test_info['quartiles'],software_version,ica=0,pls=0,calcstdevs=calcstdevs
+      ;Get RMSEPs 
+      if keyword_Set(shots) or keyword_set(calcstdevs) then begin
+         pls_results=pls_results+hash('shots_rmseps',dynamic_rmsep(pls_results['shots'],test_info['PLS'],test_info['actuals'],elems))
+         combined_results=combined_results+hash('shots_rmseps',dynamic_rmsep(combined_results['shots'],test_info['PLS'],test_info['actuals'],elems))
+      endif
+      if not(keyword_set(shots)) or keyword_set(calcstdevs) then begin
+         pls_results=pls_results+hash('means_rmseps',dynamic_rmsep(pls_results['means'],test_info['PLS'],test_info['actuals'],elems))    
+         combined_results=combined_results+hash('means_rmseps',dynamic_rmsep(combined_results['means'],test_info['combined'],test_info['actuals'],elems))
+      endif
+      
+        
+       ;If shots and calcstdevs are set, then get the stdev of the single shot results
+       if keyword_set(calcstdevs) then begin
+           combined_stdev=dblarr(n_elements(elems),n_elements(file_data['filelist']))
+           pls_stdev=dblarr(n_elements(elems),n_elements(file_data['filelist']))
+           ica_stdev=dblarr(n_elements(elems),n_elements(file_data['filelist']))
+           for i=0,n_elements(file_data['filelist'])-1 do begin
+              ind=where(file_data_shots['filelist'] eq file_data['filelist',i])
+              ind2=where(file_data_shots['shotnum',ind]+1 ge 6) ;calculate stdev of shots 6 and higher
+              combined_stdev[*,i]=0
+              pls_stdev[*,i]=0
+              ica_stdev[*,i]=0
+              if ind2[0] ne -1 then begin
+                 if n_elements(ind[ind2]) gt 1 then begin
+                    combined_stdev[*,i]=stddev(combined_results['shots',*,ind[ind2]],dimension=2)
+                    pls_stdev[*,i]=stddev(pls_results['shots',*,ind[ind2]],dimension=2)
+                    ica_stdev[*,i]=stddev(ica_results['shots',*,ind[ind2]],dimension=2)
+                 endif 
+              endif
+           endfor
+           
+           combined_results=combined_results+hash('stdevs',combined_stdev)
+           ica_results=ica_results+hash('stdevs',ica_stdev)
+           pls_results=pls_results+hash('stdevs',pls_stdev)
+        endif
+        
 
+        
+        ;Write the appropriate output files, given the input options
+        if keyword_set(shots) then begin
+          if keyword_set(ica_output) then write_results,ica_results,file_data_shots,elems,searchdir,test_info['quartiles'],software_version,ica=1,pls=0,stdevs=0,shots=1
+          if keyword_set(pls_output) then write_results,pls_results,file_data_shots,elems,searchdir,test_info['quartiles'],software_version,ica=0,pls=1,stdevs=0,shots=1
+          write_results,combined_results,file_data_shots,elems,searchdir,test_info['quartiles'],software_version,ica=0,pls=0,stdevs=0,shots=1
+        endif
+        if not(keyword_set(shots)) or keyword_set(calcstdevs) then begin
+          if keyword_set(ica_output) then write_results,ica_results,file_data,elems,searchdir,test_info['quartiles'],software_version,ica=1,pls=0,stdevs=calcstdevs,shots=0
+          if keyword_set(pls_output) then write_results,pls_results,file_data,elems,searchdir,test_info['quartiles'],software_version,ica=0,pls=1,stdevs=calcstdevs,shots=0
+          write_results,combined_results,file_data,elems,searchdir,test_info['quartiles'],software_version,ica=0,pls=0,stdevs=calcstdevs,shots=0
+        endif
+        
 end
 
 
@@ -695,7 +720,7 @@ pro calc_comp,searchdir,shots,recursive,configfile,software_version,quiet=quiet,
     if not(keyword_set(quiet)) then quiet=0 ;default to allow progress bars and other pop-ups
     
     ;get config settings from file
-    configdata=rd_tfile(configfile,/autocol,delim=',')
+    configdata=rd_tfile(configfile,autocol=1,delim=',')
     configdata=repstr(repstr(configdata,'"',''),'\','/') ;strip out any quotes and make all slashes uniform
     
     ;put the masterlist files into an array to be passed to ccam_filelist_targets
@@ -713,13 +738,13 @@ pro calc_comp,searchdir,shots,recursive,configfile,software_version,quiet=quiet,
     searchstring=configdata[1,9]
     
     ;read the meancenter file and get data
-    meancenters=rd_tfile(meancenters_file,/autocol,delim=',')
+    meancenters=rd_tfile(meancenters_file,autocol=1,delim=',')
     meancenter_labels=meancenters[1:*,0]
     ymeancenters=double(meancenters[1:*,1])
     meancenters=double(meancenters[1:*,2:*])
     
     ;extract pls settings and coefficients from the file and define structure of info for PLS calculations
-    pls_settings=rd_tfile(settings_coeffs_file,/autocol,delim=',')
+    pls_settings=rd_tfile(settings_coeffs_file,autocol=1,delim=',')
     pls_settings=hash('labels',pls_settings[1:*,0],'norms',fix(pls_settings[1:*,1]),'ncs',fix(pls_settings[1:*,2]),$
       'coeffs',double(pls_settings[1:*,3:*]),'ymeancenters',ymeancenters,'meancenters',meancenters,$
       'maskfile',maskfile,'blend_array_dir',blend_array_dir)
@@ -735,13 +760,7 @@ pro calc_comp,searchdir,shots,recursive,configfile,software_version,quiet=quiet,
     ;Look up target info
     file_data=ccam_filelist_targets(masterlist,file_data,quiet=quiet)
     
-    ;If calcstdevs is set, first the single shot calculation must be run to calculate the stdevs, then the calculation for the means must be run, using those stdevs
-    if keyword_set(calcstdevs) then begin
-      pls_and_ica,file_data,pls_settings,elems,test_info,searchdir,software_version,shots=1,quiet=quiet,calcstdevs=calcstdevs,stdevs=stdevs,ica_output=ica_output,pls_output=pls_output
-      pls_and_ica,file_data,pls_settings,elems,test_info,searchdir,software_version,shots=0,quiet=quiet,calcstdevs=calcstdevs,stdevs=stdevs,ica_output=ica_output,pls_output=pls_output
-      
-    ;Otherwise, just run the calculation as specified by "shots"
-    endif else pls_and_ica,file_data,pls_settings,elems,test_info,searchdir,software_version,shots=shots,quiet=quiet,calcstdevs=calcstdevs,stdevs=stdevs,ica_output=ica_output,pls_output=pls_output
+    pls_and_ica,file_data,pls_settings,elems,test_info,searchdir,software_version,shots=shots,quiet=quiet,calcstdevs=calcstdevs,ica_output=ica_output,pls_output=pls_output
    
   
 end

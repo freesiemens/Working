@@ -51,25 +51,42 @@
 ; O. Forni: May 2015
 ; R. Anderson: May 26, 2015 - Added output of "good" file name index
 ; R. Anderson: July 7, 2015 - Added "quiet" option
-; R. Anderson: July 10, 2015 - Added status pop-up for calculations
+; R. Anderson: July 10, 2015 - Added status pop-up for calculations. 
+;                            - Modified so that both mean and single shot calculations
+;                              can be run in the same call to this function
 ;-
-FUNCTION ICR,fn,shot=shot,fn_good_index=fn_good_index,quiet=quiet
+FUNCTION ICR,fn,shot=shot,fn_good_index=fn_good_index,quiet=quiet,both=both
+if keyword_set(both) then shot=1
 
 restore,'cp_ica_new.sav'
 restore,'ica_rgr_new.sav'
 
-s=read_ccs(fn,shot=shot,fn_good_index=fn_good_index,quiet=quiet)
+s=read_ccs(fn,shot=shot,fn_good_index=fn_good_index,quiet=quiet,spout_means=spout_means)
+;s_old=read_ccs_old(fn,shot=shot,fn_good_index=fn_good_index)
+;s_old_mean=read_ccs_old(fn,shot=0,fn_good_index=fn_good_index)
+stop
+;stop
+comp_out=hash()
+if keyword_set(both) or not(keyword_set(shot)) then begin
+   if not(quiet) then xmess,"Running ICA calculations",/nowait,wid=wid
+   cf=ica_fixed_comp(spout_means,cp_ica_new,/norm,/std)
+   comp_means=regress_ica(cf,ica_rgr_new)
+   comp_out=comp_out+hash('means',comp_means)
+   if not(quiet) then widget_control,/dest,wid
+   
+endif
 
-shotstext=''
-if keyword_Set(shot) then shotstext='single-shot'
-if not(quiet) then xmess,"Running "+shotstext+" ICA calculations",/nowait,wid=wid
+if keyword_set(shot) then begin
+   if not(quiet) then xmess,"Running single-shot ICA calculations",/nowait,wid=wid    
+   cf=ica_fixed_comp(s,cp_ica_new,/norm,/std)
+   comp=regress_ica(cf,ica_rgr_new)
+   comp_out=comp_out+hash('shots',comp)
+   if not(quiet) then widget_control,/dest,wid
+   
+endif
     
-cf=ica_fixed_comp(s,cp_ica_new,/norm,/std)
-comp=regress_ica(cf,ica_rgr_new)
-
-if not(quiet) then widget_control,/dest,wid
-    
-return,comp
+   
+return,comp_out
 
 
 end

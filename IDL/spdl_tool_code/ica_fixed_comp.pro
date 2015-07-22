@@ -96,7 +96,8 @@ Function Ica_Fixed_Comp,sp_in,cp,norm=norm,std=std
      cf=ptrarr(nusp,/allocate_heap)
      
      for n=0,nusp-1 do begin
-      
+      print,n
+      if n eq 18 then stop
          if keyword_set(norm) then begin 
             spnm3=norm_cc(*sp_in[n],3)
             spnm1=norm_cc(*sp_in[n],1)

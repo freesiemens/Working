@@ -22,6 +22,11 @@
 ;       mean spectra composition is computed; Pointer array of Nb of
 ;       spectra with dimension [Nb of shots, 8] if shot to shot
 ;       composition is computed.
+;       fn_good_index = index of filenames considered "good"
+;       spout_means = This keyword contains the mean spectra if "shots" is set
+;                     This  allows the function to return single shot data as the
+;                     primary output and the mean data at the same time, avoiding 
+;                     the need to read the files twice if you want both.
 ;
 ;
 ; OPTIONAL OUTPUTS:
@@ -45,53 +50,50 @@
 ; O. Gasnault: June 27, 2015 - Add NBR0 and NBR1 to confirm that we have both
 ;    non-0 and 0 values in GAIN.
 ; R. Anderson: July 7, 2015 - Added 'quiet' option 
+; R. Anderson: July 10, 2015 - Modified so that this function only needs to be called once, even if you want to get both mean and single-shot data
 ;-
-FUNCTION read_ccs,fn,shot=shot,fn_good_index=fn_good_index,quiet=quiet
+FUNCTION read_ccs,fn,shot=shot,fn_good_index=fn_good_index,quiet=quiet,spout_means=spout_means
 
 nf=n_elements(fn)
 
 nft=0
 n0=5
 spp=ptrarr(nf,/allocate_heap)
+spp_means=ptrarr(nf,/allocate_heap)
 fn_good=fn
 if not(quiet) then progbar=Obj_New('cgProgressBar',/start,percent=0,title='Reading '+strtrim(nf,2)+' files for ICA')
 
-if keyword_set(shot) then begin
-    for i=0,nf-1 do begin
-      restore,fn[i]
-  
-      nf=n_elements(UV[*,0]);nshots
-      sp=transpose([[uv],[vis],[vnir]])
-       *spp[nft]=sp
+
+for i=0,nf-1 do begin
+   restore,fn[i]
+   suv=size(uv)
+   if(suv(1) gt 1) then begin
+      if n0 lt suv(1) then begin 
+         sp0=mean(uv(n0:*,*),dim=1) 
+         sp1=mean(vis(n0:*,*),dim=1)
+         sp2=mean(vnir(n0:*,*),dim=1)
+      end else begin
+         sp0=muv
+         sp1=mvis
+         sp2=mvnir
+      endelse
+         
+      *spp_means[nft]=[sp0,sp1,sp2]
+      
+      if keyword_set(shot) then begin
+         nf=n_elements(UV[*,0]);nshots
+         sp=transpose([[uv],[vis],[vnir]])
+         *spp[nft]=sp
+      endif 
       nft+=1
       if not(quiet) then progbar->Update,float(i+1)/nf*100
-    end
+   endif
+   if (suv(1) le 1) then fn_good[i]=''
+endfor
 
-end else begin
-   for i=0,nf-1 do begin
-      restore,fn[i]
-      suv=size(uv)
-      if(suv(1) gt 1) then begin
-         if n0 lt suv(1) then begin 
-            sp0=mean(uv(n0:*,*),dim=1) 
-            sp1=mean(vis(n0:*,*),dim=1)
-            sp2=mean(vnir(n0:*,*),dim=1)
-         end else begin
-            sp0=muv
-            sp1=mvis
-            sp2=mvnir
-         end
-         
-         *spp[nft]=[sp0,sp1,sp2]
-         nft+=1
-         if not(quiet) then progbar->Update,float(i+1)/nf*100
-      end
-      if (suv(1) le 1) then fn_good[i]=''
-      
-   end
-   
-   spp=spp(0:nft-1)
-end
+spp_means=spp_means(0:nft-1)
+spp=spp(0:nft-1)
+
 if not(quiet) then progbar->Destroy
 fn_good_index=where(fn_good ne '')
 
@@ -105,22 +107,29 @@ i0=where(gain ne 0, nbr0)
 if nbr0 eq 0 then message,'Unexpected gain values (1).'
 i1=where(gain eq 0, nbr1)
 if nbr1 eq 0 then message,'Unexpected gain values (2).'
-
+stop
 for i=0,nft-1 do begin 
-   sp=*spp[i]
-   ssp=size(sp)
-   if ssp(0) eq 1 then ns=1 else ns=ssp(2)
-   for n=0,ns-1 do sp(i0,n)=sp(i0,n)/gain(i0)
-   for n=0,ns-1 do sp(i1,n)=0.
-
-   *spp[i]=sp
+    if keyword_set(shot) then begin
+       sp=*spp[i]
+       ssp=size(sp) 
+       if ssp(0) eq 1 then ns=1 else ns=ssp(2)
+       for n=0,ns-1 do sp(i0,n)=sp(i0,n)/gain(i0)
+       for n=0,ns-1 do sp(i1,n)=0.
+       *spp[i]=sp
+    endif
+   
+   sp_mean=*spp_means[i]
+   ssp_mean=size(sp_mean)
+   if ssp_mean(0) eq 1 then ns=1 else ns=ssp_mean(2)
+   for n=0,ns-1 do sp_mean(i0,n)=sp_mean(i0,n)/gain(i0)
+   for n=0,ns-1 do sp_mean(i1,n)=0.
+   *spp_means[i]=sp_mean
 end
 
-if not keyword_set(shot) then begin
-   spout=fltarr(n_elements(gain),nft)
-   for n=0,nft-1 do spout(*,n)=*spp(n)
-end else spout=spp
-
+stop
+spout_means=fltarr(n_elements(gain),nft)
+for n=0,nft-1 do spout_means(*,n)=*spp_means(n)
+if not(keyword_set(shot)) then spout=spout_means else spout=spp[fn_good_index]
 
 
 return,spout
