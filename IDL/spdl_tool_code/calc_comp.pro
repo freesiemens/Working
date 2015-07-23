@@ -600,11 +600,15 @@ pro pls_and_ica,file_data,pls_settings,elems,test_info,searchdir,software_versio
         if keyword_Set(calcstdevs) then both=1
        ;Get the ICA results first
        ica_results = ICR(file_data['pathlist']+file_data['filelist'],shot=shots,fn_good_index=fn_good_index,quiet=quiet,both=both)
+       
+       ica_shots_ptr=ica_results['shots']
        if keyword_Set(shots) then begin
+        
            ica_comps=*(ica_results['shots'])[0]
-           for i=1,n_elements(file_data['filelist'])-1 do ica_comps=[ica_comps,*(ica_results['shots'])[i]]
+           for i=1,n_elements(ica_results['shots'])-1 do ica_comps=[ica_comps,*(ica_results['shots'])[i]]
            ica_results['shots']=transpose(ica_comps)
        endif
+       
        ica_results['means']=transpose(ica_results['means'])
        ;get RMSEPs and put them in the results hash
        if not(keyword_set(shots)) or keyword_set(calcstdevs) then ica_results=ica_results+hash('means_rmseps',dynamic_rmsep(ica_results['means'],test_info['ICA'],test_info['actuals'],elems))

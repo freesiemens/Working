@@ -64,8 +64,7 @@ restore,'ica_rgr_new.sav'
 s=read_ccs(fn,shot=shot,fn_good_index=fn_good_index,quiet=quiet,spout_means=spout_means)
 ;s_old=read_ccs_old(fn,shot=shot,fn_good_index=fn_good_index)
 ;s_old_mean=read_ccs_old(fn,shot=0,fn_good_index=fn_good_index)
-stop
-;stop
+
 comp_out=hash()
 if keyword_set(both) or not(keyword_set(shot)) then begin
    if not(quiet) then xmess,"Running ICA calculations",/nowait,wid=wid
