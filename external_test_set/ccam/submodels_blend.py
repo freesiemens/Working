@@ -35,6 +35,7 @@ def submodels_blend(predicts,ranges,inrange,refpredict,toblend,overwrite=False,n
                     
             if inrangecheck: 
                 if toblend[i][0]==toblend[i][1]: #if the results being blended are identical, no blending necessary!
+                  
                     blendval=predicts[toblend[i][0]][j]
                 else:
                     weight1=1-(predicts[refpredict[i]][j]-ranges[i][0])/(ranges[i][1]-ranges[i][0]) #define the weight applied to the lower model

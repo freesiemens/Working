@@ -177,6 +177,7 @@ if (result.status EQ 'OK') then begin
   calcstdevs=1
   shots=1
   recursive=1
+  stop
   calc_comp,result.searchdir,shots,recursive,configfile,software_version,$
     quiet=quiet,pls_output=pls_output,ica_output=ica_output,calcstdevs=calcstdevs
   

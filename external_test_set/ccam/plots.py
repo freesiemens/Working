@@ -5,8 +5,10 @@ Created on Mon Jan 26 16:14:20 2015
 @author: rbanderson
 """
 import matplotlib.pyplot as plot
+from matplotlib import rcParams
 import numpy
 import csv
+
 
 def RMSE(RMSECV,RMSEP,RMSEC,plot_title,outfile,RMSEP_cals=None,RMSEP_good=None):
 
@@ -56,7 +58,11 @@ def RMSE(RMSECV,RMSEP,RMSEC,plot_title,outfile,RMSEP_cals=None,RMSEP_good=None):
     fig.savefig(outfile)
     fig.clf()
 
-def Plot1to1(truecomps,predicts,plot_title,labels,colors,markers,outfile,xminmax=[0,100],yminmax=[0,100],ylabel='Prediction (wt.%)',xlabel='wt.%',one_to_one=True):
+def Plot1to1(truecomps,predicts,plot_title,labels,colors,markers,outfile,xminmax=[0,100],yminmax=[0,100],ylabel='Prediction (wt.%)',xlabel='Actual (wt.%)',one_to_one=True,dpi=300):
+    rcParams['mathtext.default'] = 'regular' 
+    rcParams['xtick.labelsize'] = 18
+    rcParams['ytick.labelsize'] = 18
+    
     if one_to_one:
         plot.plot([0,100],[0,100],color='k',linewidth=2.0,label='1:1 line')
     if isinstance(truecomps,list):
@@ -64,16 +70,16 @@ def Plot1to1(truecomps,predicts,plot_title,labels,colors,markers,outfile,xminmax
             plot.plot(truecomps[i],predicts[i],color=colors[i],label=labels[i],marker=markers[i],linewidth=0)
     else:
         plot.plot(truecomps,predicts,color=colors,label=labels,marker=markers,linewidth=0)
-    plot.xlabel(xlabel)
-    plot.ylabel(ylabel)
+    plot.xlabel(xlabel,fontsize=18)
+    plot.ylabel(ylabel,fontsize=18)
     plot.xlim(xminmax)
     plot.ylim(yminmax)
-    plot.legend(loc=2)
-    plot.title(plot_title)
+    plot.legend(loc=2,fontsize=16)
+    plot.title(plot_title,fontsize=24)
     fig=plot.gcf()
-    #fig.set_dpi(600)
     fig.set_size_inches(11,8.5)
-    fig.savefig(outfile)
+    
+    fig.savefig(outfile,dpi=dpi)
     plot.close()
 
     
@@ -87,7 +93,7 @@ def readpredicts(filename,nc):
     data=zip(*csv.reader(f))
     samples=numpy.array(data[0],dtype='string')
     spect_indexes=numpy.array(data[1],dtype='int')
-    folds=numpy.array(data[2],dtype='int')
+    folds=numpy.array(data[2])
     truecomps=numpy.array(data[3],dtype='float')
     colmatch=numpy.squeeze(numpy.array(numpy.where(cols==str(nc))))
     predicts=numpy.array(data[colmatch+1],dtype='float')

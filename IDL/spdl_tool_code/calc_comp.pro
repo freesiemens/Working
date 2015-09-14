@@ -250,7 +250,8 @@ for i=0,n_elements(elems)-1 do begin
   ;Re-interpolate (linear) to cover the gaps so that blending works ok
   ;Removing the duplicate values and then re-interpolating essentially turns some 
   ;"stair-steps" in the dummy RMSEPs into linear slopes
-  ; 
+  ;
+  stop
   dummy_rmseps=interpol(dummy_rmseps,dummypredicts,findgen(100)/100*max(dummypredicts))
   dummypredicts=findgen(100)/100*max(dummypredicts)
   ;smooth the RMSEPs
@@ -760,10 +761,10 @@ pro calc_comp,searchdir,shots,recursive,configfile,software_version,quiet=quiet,
     if not(quiet) then xmess,"Reading files matching "+searchstring+" in "+searchdir,/nowait,wid=wid
     file_data=ccam_filelist(searchdir,searchstring=searchstring,minsol=0,maxsol=999999,recursive=recursive)
     if not(quiet) then widget_control,/dest,wid
-     
+     stop
     ;Look up target info
     file_data=ccam_filelist_targets(masterlist,file_data,quiet=quiet)
-    
+    stop
     pls_and_ica,file_data,pls_settings,elems,test_info,searchdir,software_version,shots=shots,quiet=quiet,calcstdevs=calcstdevs,ica_output=ica_output,pls_output=pls_output
    
   

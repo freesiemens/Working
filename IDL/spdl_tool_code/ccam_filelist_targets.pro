@@ -44,7 +44,7 @@ nfiles=n_elements(file_data['filelist'])
 file_data=file_data+hash('targets',strarr(nfiles),'nshots',intarr(nfiles),'dists',fltarr(nfiles),'amps',strarr(nfiles))
 
 if not(quiet) then progbar=Obj_New('cgProgressBar',/start,percent=0,title='Looking up info for '+strtrim(nfiles,2)+' files...')
-
+stop
 for i=0,nfiles-1 do begin
   
    matchindex=(where(strupcase(master['sclock']) eq file_data['sclock',i]))(0) ;look up where the sclock in the master list matches the sclock for the file list
@@ -57,6 +57,7 @@ for i=0,nfiles-1 do begin
     
    endif else begin
     file_data['targets',i]=''
+    stop
     file_data['nshots',i]=0
     file_data['dists',i]=0
     file_data['amps',i]=''

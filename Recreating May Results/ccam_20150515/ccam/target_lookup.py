@@ -25,7 +25,8 @@ def target_lookup(filelist,masterlist_file,name_sub_file):
         filelist_ind=filelist==filelist_unique[i]
         filelist_ind_true=(filelist_ind==True)
         file_sclocks[filelist_ind]=filelist_unique[i][-36:-27]
-        if max(sclocks==file_sclocks[filelist_ind_true][0]) is True:
+       # print max(sclocks==file_sclocks[filelist_ind_true][0])
+        if max(sclocks==file_sclocks[filelist_ind_true][0]):
             
             file_targets[filelist_ind]=targets[(sclocks==file_sclocks[filelist_ind_true][0])][0]
             file_dists[filelist_ind]=dists[(sclocks==file_sclocks[filelist_ind_true][0])][0]
