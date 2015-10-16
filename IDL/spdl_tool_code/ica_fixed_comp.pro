@@ -94,7 +94,6 @@ Function Ica_Fixed_Comp,sp_in,cp,norm=norm,std=std
   if t eq 10 then begin
      nusp=n_elements(sp_in)
      cf=ptrarr(nusp,/allocate_heap)
-     
      for n=0,nusp-1 do begin
          if keyword_set(norm) then begin 
             spnm3=norm_cc(*sp_in[n],3)
@@ -114,6 +113,8 @@ Function Ica_Fixed_Comp,sp_in,cp,norm=norm,std=std
             if nm1 gt 0 then  cft(*,inm1)=ica_score(spnm1,cp[inm1].cp,/cov)
             if nm3 gt 0 then  cft(*,inm3)=ica_score(spnm3,cp[inm3].cp,/cov)
          end
+         isi= where(cft(*,0) lt 1e-2,nsi)
+         if nsi gt 0 then cft(isi,0)=0.
          *cf[n]=cft
      end
 
@@ -141,7 +142,9 @@ Function Ica_Fixed_Comp,sp_in,cp,norm=norm,std=std
         if nm1 gt 0 then  cf(*,inm1)=ica_score(spnm1,cp[inm1].cp,/cov)
         if nm3 gt 0 then  cf(*,inm3)=ica_score(spnm3,cp[inm3].cp,/cov)
      end
-
+     isi= where(cf(*,0) lt 1e-2,nsi)
+     if nsi gt 0 then cf(isi,0)=0.
+     
   end
 
   return,cf

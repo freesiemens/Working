@@ -11,6 +11,7 @@ import sys
 import scipy.stats as stats
 import scipy.optimize as opt
 import operator
+import os
 
 def generate_filenames(which_elem,outpath,plstype,maxnc,norms,ranges,xminmax,yminmax):#which_elem,outpath,plstype,maxnc,fullnorm,fullmin,fullmax,lownorm,lowmin,lowmax,midnorm,midmin,midmax,highnorm,highmin,highmax,xminmax,yminmax):
     prefix={'full':outpath+'\\'+which_elem+'_'+plstype+'_nc'+str(maxnc)+'_norm'+str(norms['full'])+'_'+str(ranges['full'][0])+'-'+str(ranges['full'][1]),
@@ -249,9 +250,9 @@ def final_model_results(y,spect_index,namelist,compos,blend_settings,xminmax,ymi
         
         
         S2_full=(RMSEP_full/numpy.sqrt(2*(n_full-1)))**2
-        S2_full_low=(RMSEP_full_low/numpy.sqrt(2*(n_full-1)))**2
-        S2_full_mid=(RMSEP_full_mid/numpy.sqrt(2*(n_full-1)))**2
-        S2_full_high=(RMSEP_full_high/numpy.sqrt(2*(n_full-1)))**2
+        S2_full_low=(RMSEP_full_low/numpy.sqrt(2*(n_low-1)))**2
+        S2_full_mid=(RMSEP_full_mid/numpy.sqrt(2*(n_mid-1)))**2
+        S2_full_high=(RMSEP_full_high/numpy.sqrt(2*(n_high-1)))**2
        
         RMSEP_low=(numpy.sqrt(numpy.mean((predicts[1][index_low]-compos[1][index_low])**2)))
         RMSEP_mid=(numpy.sqrt(numpy.mean((predicts[2][index_mid]-compos[2][index_mid])**2)))
@@ -288,8 +289,9 @@ def final_model_results(y,spect_index,namelist,compos,blend_settings,xminmax,ymi
         yminmax[0]=numpy.min(f(predicts))
     
         ccam.plots.Plot1to1(list(f(compos)),list(f(predicts)),plot_title,list(f(labels)),list(f(colors)),list(f(markers)),imgnames['blended_full'],xminmax=xminmax,yminmax=yminmax,dpi=dpi)
-            
-        with open('Testset_RMSEP_summary.csv','ab') as writefile:
+        
+        cwd=os.getcwd()
+        with open(cwd+'\\Testset_RMSEP_summary.csv','ab') as writefile:
             writer=csv.writer(writefile,delimiter=',')
             writer.writerow([which_elem])   
             row=['Ranges']
@@ -302,26 +304,22 @@ def final_model_results(y,spect_index,namelist,compos,blend_settings,xminmax,ymi
                 for j in i:
                     row.append(j)
             writer.writerow(row)
-            row=['Ref predict:']
-            for i in blend_settings['refpredict']:
-                row.append(i)
-            writer.writerow(row)
-            row=['In range:']
-            for i in blend_settings['inrange']:
-                row.append(i)
-            writer.writerow(row)
+            #row=['Ref predict:']
+            #for i in blend_settings['refpredict']:
+            #    row.append(i)
+            #writer.writerow(row)
+            #row=['In range:']
+            #for i in blend_settings['inrange']:
+            #    row.append(i)
+            #writer.writerow(row)
             
-            writer.writerow(['Full ('+str(ranges['full'][0])+'-'+str(ranges['full'][1])+') n=',str(n_full),'Low ('+str(ranges['low'][0])+'-'+str(ranges['low'][1])+') n=',str(n_low),'Mid ('+str(ranges['mid'][0])+'-'+str(ranges['mid'][1])+') n=',str(n_mid),'High ('+str(ranges['high'][0])+'-'+str(ranges['high'][1])+') n=',str(n_high)])
-            writer.writerow(['RMSEP full ('+str(ranges['full'][0])+'-'+str(ranges['full'][1])+'):',str(RMSEP_full),'RMSEP blend ('+str(ranges['full'][0])+'-'+str(ranges['full'][1])+'):',str(RMSEP_blend)])
-            writer.writerow(['RMSEP full ('+str(ranges['low'][0])+'-'+str(ranges['low'][1])+'):',str(RMSEP_full_low),'RMSEP blend ('+str(ranges['low'][0])+'-'+str(ranges['low'][1])+'):',str(RMSEP_blend_low),'RMSEP ('+str(ranges['low'][0])+'-'+str(ranges['low'][1])+'):',str(RMSEP_low)])
-            writer.writerow(['RMSEP full ('+str(ranges['mid'][0])+'-'+str(ranges['mid'][1])+'):',str(RMSEP_full_mid),'RMSEP blend ('+str(ranges['mid'][0])+'-'+str(ranges['mid'][1])+'):',str(RMSEP_blend_mid),'RMSEP ('+str(ranges['mid'][0])+'-'+str(ranges['mid'][1])+'):',str(RMSEP_mid)])
-            writer.writerow(['RMSEP full ('+str(ranges['high'][0])+'-'+str(ranges['high'][1])+'):',str(RMSEP_full_high),'RMSEP blend ('+str(ranges['high'][0])+'-'+str(ranges['high'][1])+'):',str(RMSEP_blend_high),'RMSEP ('+str(ranges['high'][0])+'-'+str(ranges['high'][1])+'):',str(RMSEP_high)])
-            writer.writerow(['p-value (Full vs Blended)',p_full_blend])
-            writer.writerow(['p-value (Full (low) vs Blended (low))',p_fulllow_blendlow])
-            writer.writerow(['p-value (Full (mid) vs Blended (mid))',p_fullmid_blendmid])
-            writer.writerow(['p-value (Full (high) vs Blended (high))',p_fullhigh_blendhigh])
-            writer.writerow('')
+            writer.writerow(['Composition Range','# of samples','RMSEP full','RMSEP Blended','p-value','RMSEP Sub-Model'])
+            writer.writerow([str(ranges['full'][0])+'-'+str(ranges['full'][1]),str(n_full),str(RMSEP_full),str(RMSEP_blend),str(p_full_blend)])
+            writer.writerow([str(ranges['low'][0])+'-'+str(ranges['low'][1]),str(n_low),str(RMSEP_full_low),str(RMSEP_blend_low),str(p_fulllow_blendlow),str(RMSEP_low)])
+            writer.writerow([str(ranges['mid'][0])+'-'+str(ranges['mid'][1]),str(n_mid),str(RMSEP_full_mid),str(RMSEP_blend_mid),str(p_fullmid_blendmid),str(RMSEP_mid)])
+            writer.writerow([str(ranges['high'][0])+'-'+str(ranges['high'][1]),str(n_high),str(RMSEP_full_high),str(RMSEP_blend_high),str(p_fullhigh_blendhigh),str(RMSEP_high)])
             
+           
         
         
         
@@ -405,13 +403,13 @@ def blend_optimize(y,blend_settings,refcomps):
 def predict_elem(which_elem,maxnc,ranges,norms,ncs,testsetfile,predict,blend_settings,searchdir='F:\\ChemCam\\ops_ccam_team\\',searchdir_cal=r'F:\ChemCam\ops_ccam_team\CalTarget 95A',
                  searchdir_apxs=r'F:\ChemCam\ops_ccam_team\Best APXS Comparisons',
                  searchdir_val=r'F:\ChemCam\ops_ccam_team\Validation Targets',
-                 maskfile=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Input\mask_minors_noise.csv',
+                 maskfile=r'C:\Users\rbanderson\Documents\Projects\MSL\ChemCam\DataProcessing\Working\Input\mask_minors_noise.csv',
                  masterlist=r'F:\ChemCam\ops_ccam_misc\MASTERLIST_SOL_0010_0801.csv',
-                 name_subs=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Input\target_name_subs.csv',
-                 dbfile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\full_db_mars_corrected.csv',
-                 removefile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist.csv',
+                 name_subs=r'C:\Users\rbanderson\Documents\Projects\MSL\ChemCam\DataProcessing\Working\Input\target_name_subs.csv',
+                 dbfile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\full_db_mars_corrected.csv',
+                 removefile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist.csv',
                  plstype='sklearn',xminmax=[0,100],yminmax=[0,100],blend_opt=True):
-    outpath='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\external_test_set\\Output\\'+which_elem+'\\'
+    outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\external_test_set\\Output\\'+which_elem+'\\'
     print '############  '+which_elem+' ##############'
     filenames=generate_filenames(which_elem,outpath,plstype,maxnc,norms,ranges,xminmax,yminmax)
 
@@ -505,9 +503,9 @@ maxnc=20
 ranges={'full':[0,100],'low':[0,50],'mid':[30,70],'high':[60,100]}
 norms={'full':1,'low':3,'mid':3,'high':1}
 ncs={'full':6,'low':9,'mid':6,'high':5}
-testsetfile="C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\SiO2_sortfold_testfold.csv"
+testsetfile="C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\SiO2_sortfold_testfold.csv"
 
-blendranges=[[-20,30],[30,40],[40,60],[60,70],[70,120]]
+blendranges=[[-20,30],[30,50],[50,60],[60,70],[70,120]]
 inrange=[0,0,0,0,0]
 refpredict=[0,0,0,0,0]
 toblend=[[1,1],[1,2],[2,2],[2,3],[3,3]]
@@ -523,8 +521,8 @@ maxnc=30
 ranges={'full':[0,100],'low':[0,2],'mid':[1,5],'high':[3,100]}
 norms={'full':3,'low':3,'mid':1,'high':3}
 ncs={'full':5,'low':7,'mid':5,'high':3}
-testsetfile="C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\TiO2_sortfold_testfold.csv"
-blendranges=[[-10,1],[1,2],[2,4],[4,100],[0,120]]
+testsetfile="C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\TiO2_sortfold_testfold.csv"
+blendranges=[[-20,1],[1,2],[2,3],[3,5],[5,120]]
 inrange=[0,0,0,0,0]
 refpredict=[0,0,0,0,0]
 toblend=[[1,1],[1,2],[2,2],[2,3],[3,3]]
@@ -539,8 +537,8 @@ maxnc=20
 ranges={'full':[0,100],'low':[0,12],'mid':[10,25],'high':[20,100]}
 norms={'full':3,'low':1,'mid':1,'high':1}
 ncs={'full':6,'low':6,'mid':8,'high':6}
-testsetfile="C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\Al2O3_sortfold_testfold.csv"
-blendranges=[[-10,12],[12,20],[20,25],[25,100],[0,120]]
+testsetfile="C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\Al2O3_sortfold_testfold.csv"
+blendranges=[[-20,10],[10,12],[12,20],[20,25],[25,120]]
 inrange=[0,0,0,0,0]
 refpredict=[0,0,0,0,0]
 toblend=[[1,1],[1,2],[2,2],[2,3],[3,3]]
@@ -555,8 +553,8 @@ maxnc=30
 ranges={'full':[0,100],'low':[0,15],'mid':[5,25],'high':[15,100]}
 norms={'full':3,'low':3,'mid':1,'high':3}
 ncs={'full':8,'low':3,'mid':8,'high':3}
-testsetfile="C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\FeOT_sortfold_testfold.csv"
-blendranges=[[-10,5],[5,10],[10,20],[20,25],[25,120]]
+testsetfile="C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\FeOT_sortfold_testfold.csv"
+blendranges=[[-20,5],[5,15],[15,15],[15,25],[25,120]]
 inrange=[0,0,0,0,0]
 refpredict=[0,0,0,0,0]
 toblend=[[1,1],[1,2],[2,2],[2,3],[3,3]]
@@ -570,8 +568,8 @@ maxnc=20
 ranges={'full':[0,100],'low':[0,3.5],'mid':[0,20],'high':[8,100]}
 norms={'full':3,'low':1,'mid':1,'high':1}
 ncs={'full':7,'low':6,'mid':9,'high':8}
-testsetfile="C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\MgO_sortfold_testfold.csv"
-blendranges=[[-10,1],[1,2],[2,6],[6,12],[12,100]]
+testsetfile="C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\MgO_sortfold_testfold.csv"
+blendranges=[[-20,1],[1,3.5],[3.5,8],[8,20],[20,100]]
 inrange=[0,0,0,0,0]
 refpredict=[0,0,0,0,0]
 toblend=[[1,1],[1,2],[2,2],[2,3],[3,3]]
@@ -585,8 +583,8 @@ maxnc=30
 ranges={'full':[0,42],'low':[0,7],'mid':[0,15],'high':[30,100]}
 norms={'full':3,'low':1,'mid':3,'high':3}
 ncs={'full':8,'low':9,'mid':9,'high':6}
-testsetfile="C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\CaO_sortfold_testfold.csv"
-blendranges=[[-10,2],[2,4],[4,15],[15,25],[25,120]]
+testsetfile="C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\CaO_sortfold_testfold.csv"
+blendranges=[[-20,2],[2,7],[7,15],[15,30],[30,120]]
 inrange=[0,0,0,0,0]
 refpredict=[0,0,0,0,0]
 toblend=[[1,1],[1,2],[2,2],[2,3],[3,3]]
@@ -601,8 +599,8 @@ maxnc=20
 ranges={'full':[0,100],'low':[0,4],'mid':[0,4],'high':[3.5,100]}
 norms={'full':1,'low':1,'mid':1,'high':1}
 ncs={'full':8,'low':7,'mid':7,'high':7}
-testsetfile="C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\Na2O_sortfold_testfold.csv"
-blendranges=[[-10,1],[1,2],[2,3],[3,4],[4,120]]
+testsetfile="C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\Na2O_sortfold_testfold.csv"
+blendranges=[[-20,1],[1,3.5],[3.5,3.5],[3.5,4],[4,120]]
 inrange=[0,0,0,0,0]
 refpredict=[0,0,0,0,0]
 toblend=[[1,1],[1,2],[2,2],[2,3],[3,3]]
@@ -615,8 +613,8 @@ maxnc=20
 ranges={'full':[0,100],'low':[0,2],'mid':[0,2],'high':[1.5,100]}
 norms={'full':3,'low':3,'mid':3,'high':1}
 ncs={'full':4,'low':6,'mid':6,'high':9}
-testsetfile="C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\K2O_sortfold_testfold.csv"
-blendranges=[[-10,1],[1,2],[2,3],[3,4],[4,120]]
+testsetfile="C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\K2O_sortfold_testfold.csv"
+blendranges=[[-10,1],[1,1.5],[1.5,1.5],[1.5,2],[2,120]]
 inrange=[0,0,0,0,0]
 refpredict=[0,0,0,0,0]
 toblend=[[1,1],[1,2],[2,2],[2,3],[3,3]]

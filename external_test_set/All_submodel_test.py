@@ -458,7 +458,7 @@ outpath='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working
 
 mincomp=0
 maxcomp=100
-nfolds=5
+nfolds=6
 testfold=2
 nc=20
 seed=101

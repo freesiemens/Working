@@ -1,13 +1,13 @@
 ;+
 ; NAME:
-;        SPDL_TOOL
+;        SPDL_TOOL_ADVANCED
 ;        Includes also:
 ;           SPDL_TOOL_EVENT
 ;           PDL_TOOL_CLEANUP
 ;
 ; PURPOSE:
 ; This program runs the GUI that calls calc_comp, the main program for calculating ChemCam major element compositions using a combination of ICA and PLS
-; 
+; This is the "advanced" version, which has more options.
 ;
 ; CALLING SEQUENCE:
 ;        spdl_tool
@@ -64,6 +64,46 @@ case widget of
     print, calcparam.searchdir
     widget_control,calcparam.text1,set_value=searchdir
    end
+   
+   'shots': begin
+    if (calcparam.shots EQ 1) then begin
+      calcparam.shots = 0
+    endif else if (calcparam.shots EQ 0) then begin
+      calcparam.shots = 1
+    endif 
+    
+    print, 'Single Shots = ', calcparam.shots
+  end 
+  
+  'PLS': begin
+    if (calcparam.pls EQ 1) then begin
+      calcparam.pls = 0
+    endif else if (calcparam.pls EQ 0) then begin
+      calcparam.pls = 1
+    endif 
+    
+    print, 'PLS', calcparam.pls
+  end 
+  
+  'ICA': begin
+    if (calcparam.ica EQ 1) then begin
+      calcparam.ica = 0
+    endif else if (calcparam.ica EQ 0) then begin
+      calcparam.ica = 1
+    endif 
+    
+    print, 'ICA', calcparam.ica
+  end 
+  
+  'Stdevs': begin
+    if (calcparam.calcstdevs EQ 1) then begin
+      calcparam.calcstdevs = 0
+    endif else if (calcparam.calcstdevs EQ 0) then begin
+      calcparam.calcstdevs = 1
+    endif 
+    
+    print, 'stdevs', calcparam.calcstdevs
+  end 
 
  
 
@@ -78,6 +118,8 @@ case widget of
        widget_control,event.top,/destroy
     endelse
    end
+   
+   
   
   
   'Cancel': begin
@@ -102,11 +144,12 @@ print, 'cleaning up'
 widget_control, id, get_uvalue=calcparamptr
 calcparam=*calcparamptr
 result = {workpath:calcparam.workpath, searchdir:calcparam.searchdir, $
-status:calcparam.status,configdata:calcparam.configdata}
+status:calcparam.status,configdata:calcparam.configdata,pls:calcparam.pls,$
+ica:calcparam.ica,calcstdevs:calcparam.calcstdevs,recursive:calcparam.recursive,shots:calcparam.shots}
 *calcparamptr = result
 end
 
-pro spdl_tool
+pro spdl_tool_advanced
 software_version="sPDL Tool v2.0 (Last edited 16 July 2015)"
 configfile='pdl_tool_config.csv'
 configdata=rd_tfile(configfile,autocol=1,delim=',')
@@ -132,6 +175,29 @@ widget_control,text1,set_value=searchdir
 
 labelbase=widget_base(main,row=1,/align_center)
 
+; create recursive button widget
+checkbase = widget_base(main, row=1, /align_center, /nonexclusive)
+recurbut = widget_button(checkbase, value='Recursive', uvalue='Recursive')
+widget_control,recurbut,set_button=1   ;set to recursive search by default
+
+; create pls button widget
+plsbut = widget_button(checkbase, value='Output PLS', uvalue='PLS')
+widget_control,plsbut,set_button=1   ;set to recursive search by default
+
+; create ica button widget
+icabut = widget_button(checkbase, value='Output ICA', uvalue='ICA')
+widget_control,icabut,set_button=1   ;set to recursive search by default
+
+; create calcstdev button widget
+shotsbut = widget_button(checkbase, value='Single Shots', uvalue='shots')
+widget_control,shotsbut,set_button=1   ;set to recursive search by default
+
+
+; create calcstdev button widget
+stdevbut = widget_button(checkbase, value='Calculate Stdevs', uvalue='Stdevs')
+widget_control,stdevbut,set_button=1   ;set to recursive search by default
+
+
 ; create OK and Cancel buttons
 butsize=75
 okbase=widget_base(tlb,row=1,/align_center)
@@ -148,8 +214,8 @@ cd,current=mepath
 
 ; create and store state information
 
-calcparam = {workpath:mepath, searchdir:searchdir, $
-status:'Cancel', text1:text1,configdata:configdata}
+calcparam = {workpath:mepath, searchdir:searchdir,pls:1,ica:1,calcstdevs:1,recursive:1, $
+status:'Cancel', text1:text1,configdata:configdata,shots:1}
 
 calcparamptr = ptr_new(calcparam)
 widget_control, tlb, set_uvalue=calcparamptr
@@ -172,14 +238,8 @@ if (result.status EQ 'OK') then begin
 
   widget_control,/hourglass
   quiet=0
-  ica_output=0
-  pls_output=0
-  calcstdevs=1
-  shots=1
-  recursive=1
-  ;stop
-  calc_comp,result.searchdir,shots,recursive,configfile,software_version,$
-    quiet=quiet,pls_output=pls_output,ica_output=ica_output,calcstdevs=calcstdevs
+  calc_comp,result.searchdir,result.shots,result.recursive,configfile,software_version,$
+    quiet=quiet,pls_output=result.pls,ica_output=result.ica,calcstdevs=result.calcstdevs
   
     
   xmess ,"Processing complete" 

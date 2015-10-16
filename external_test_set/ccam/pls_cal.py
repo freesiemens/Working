@@ -68,7 +68,7 @@ import copy
 import cPickle as pickle
 import matplotlib.pyplot as plot
 
-def pls_cal(dbfile,maskfile,outpath,which_elem,nc,normtype=1,mincomp=0,maxcomp=100,keepfile=None,removefile=None,cal_dir=None,masterlist_file=None,compfile=None,name_sub_file=None,testsetfile=None,nfolds=7,seed=None,skscale=False,max_samples=0.1,n_elems=9):
+def pls_cal(dbfile,maskfile,outpath,which_elem,nc,normtype=1,mincomp=0,maxcomp=100,keepfile=None,removefile=None,cal_dir=None,masterlist_file=None,compfile=None,name_sub_file=None,testsetfile=None,nfolds=5,seed=None,skscale=False,max_samples=0.1,n_elems=9):
     plstype_string='sklearn'
     plstype='sklearn'
     if skscale==True:
@@ -130,7 +130,7 @@ def pls_cal(dbfile,maskfile,outpath,which_elem,nc,normtype=1,mincomp=0,maxcomp=1
 
     names_unique,uniqueindex=numpy.unique(names_train,return_index=True)
     comps_unique_train=comps_train[uniqueindex]
-    nfolds=5
+
 
     names_unique_sorted=names_unique[comps_unique_train.argsort()]
     folds=range(1,nfolds+1)

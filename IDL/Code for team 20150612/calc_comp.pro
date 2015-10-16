@@ -596,10 +596,10 @@ function calc_comp,searchdir,shots,maskfile,masterfile,recursive,pls_settings_la
         rmseps=dynamic_rmsep(ica_pls_combined,combined_test,test_actuals,elems);,makeplot='combined')
 
         ;Output results
-       ; write_results,plsvals,targets_all,filelist_all,amps_all,dists_all,totals_all,elems,shots,shotnum_all,$
-       ; pls_rmseps,searchdir,testset_quartiles,ica=0,pls=1
-       ; write_results,icavals,targets_all,filelist_all,amps_all,dists_all,totals_all,elems,shots,shotnum_all,$
-       ; ica_rmseps,searchdir,testset_quartiles,ica=1,pls=0
+        write_results,plsvals,targets_all,filelist_all,amps_all,dists_all,totals_all,elems,shots,shotnum_all,$
+        pls_rmseps,searchdir,testset_quartiles,ica=0,pls=1
+        write_results,icavals,targets_all,filelist_all,amps_all,dists_all,totals_all,elems,shots,shotnum_all,$
+        ica_rmseps,searchdir,testset_quartiles,ica=1,pls=0
         write_results,ica_pls_combined,targets_all,filelist_all,amps_all,dists_all,totals_all,elems,shots,shotnum_all,$
         rmseps,searchdir,testset_quartiles,ica=0,pls=0
         
