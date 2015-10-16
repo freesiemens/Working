@@ -53,3 +53,6 @@ full_db_mars_corrected.csv
 *.xlsx
 *.pptx
 *.zip
+
+#IDL .sav files
+*.sav
