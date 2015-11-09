@@ -280,6 +280,7 @@ for i=0,n_elements(elems)-1 do begin
   dummy_rmseps_resamp=interpol(dummy_rmseps,dummypredicts,dummypredicts_resamp)
   
   ;optionally plot the results
+  makeplot=1
   if keyword_set(makeplot) then begin
     window,0
     wset,0
@@ -289,8 +290,9 @@ for i=0,n_elements(elems)-1 do begin
     loadct,13
     
     oplot,dummypredicts_resamp,dummy_rmseps_resamp,psym=3,color=250
-    write_tiff,elems[i]+'_RMSEP_vs_predict'+makeplot+'.tif',reverse(tvrd(true=1),3),planarconfig=1,orientation=1
-    
+    write_tiff,elems[i]+'_RMSEP_vs_predict.tif',reverse(tvrd(true=1),3),planarconfig=1,orientation=1
+    write_csv,elems[i]+'_RMSEP_vs_predict_resamp.csv',transpose([[strtrim(dummypredicts_resamp,2)],[strtrim(dummy_rmseps_resamp,2)]])
+    write_csv,elems[i]+'_RMSEP_vs_predict_orig.csv',transpose([[strtrim(dummypredicts_orig,2)],[strtrim(dummy_rmseps_orig,2)]])
   endif
   
   ;Look up the expected RMSEP for the actual predictions
@@ -300,7 +302,7 @@ for i=0,n_elements(elems)-1 do begin
    endfor
 
 endfor
-
+stop
 
 return,rmseps
 end   

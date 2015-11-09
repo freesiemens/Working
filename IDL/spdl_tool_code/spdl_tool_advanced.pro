@@ -106,7 +106,7 @@ status:calcparam.status,configdata:calcparam.configdata}
 *calcparamptr = result
 end
 
-pro spdl_tool_advanced_8_2
+pro spdl_tool_advanced
 software_version="sPDL Tool v2.0 (Last edited 16 July 2015)"
 configfile='pdl_tool_config.csv'
 configdata=rd_tfile(configfile,autocol=1,delim=',')
