@@ -138,7 +138,7 @@ def outlier_plots(full_Qres_file,low_Qres_file,mid_Qres_file,high_Qres_file,full
     ccam.plots.Plot1to1(T2_res_low[:,nc_low-1],Q_res_low[:,nc_low-1],plot_title,labels[1],colors[0],markers[0],outfile_Q_T2_low,xminmax=[0,1.1*numpy.max(T2_res_low[:,nc_low-1])],yminmax=[0,1.1*numpy.max(Q_res_low[:,nc_low-1])],ylabel='Q Residual',xlabel='Leverage',one_to_one=False)
     ccam.plots.Plot1to1(T2_res_mid[:,nc_mid-1],Q_res_mid[:,nc_mid-1],plot_title,labels[2],colors[0],markers[0],outfile_Q_T2_mid,xminmax=[0,1.1*numpy.max(T2_res_mid[:,nc_mid-1])],yminmax=[0,1.1*numpy.max(Q_res_mid[:,nc_mid-1])],ylabel='Q Residual',xlabel='Leverage',one_to_one=False)
     ccam.plots.Plot1to1(T2_res_high[:,nc_high-1],Q_res_high[:,nc_high-1],plot_title,labels[3],colors[0],markers[0],outfile_Q_T2_high,xminmax=[0,1.1*numpy.max(T2_res_high[:,nc_high-1])],yminmax=[0,1.1*numpy.max(Q_res_high[:,nc_high-1])],ylabel='Q Residual',xlabel='Leverage',one_to_one=False)
-        
+    
 def cv_plots(full_cv_file,nc_full,fullnorm,low_cv_file,nc_low,lownorm,mid_cv_file,nc_mid,midnorm,high_cv_file,nc_high,highnorm,xminmax,yminmax,which_elem):      
     #make 1 to 1 plots using CV results
     
@@ -229,8 +229,8 @@ removefile='C:\\Users\\rbanderson\\Documents\\Projects\MSL\\ChemCam\\DataProcess
 
 #Which element are you predicting?
 which_elem='SiO2'
-#outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Recreating May Results\\ccam_20150515\\Output\\'+which_elem+'\\Outlier_Example\\Only_Caltargets_Removed\\'#
-outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Recreating May Results\\ccam_20150515\\Output\\'+which_elem+'\\Outlier_Example\\Final\\'
+outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Recreating May Results\\ccam_20150515\\Output\\'+which_elem+'\\Outlier_Example\\Only_Caltargets_Removed\\'#
+#outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Recreating May Results\\ccam_20150515\\Output\\'+which_elem
 
 
 #Which algorithm to use? (mlpy or sklearn - they give the same results)
@@ -254,16 +254,16 @@ highmin=60
 highmax=100
 
 #sete submodel normalization settings (3 or 1)
-fullnorm=3
-lownorm=3
+fullnorm=1
+lownorm=1
 midnorm=3
 highnorm=1
 
 #specify the number of components to use for each submodel
-nc_full=9
-nc_low=13
-nc_mid=10
-nc_high=6
+nc_full=6
+nc_low=7
+nc_mid=6
+nc_high=4
 
 
 means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,full_cv_file,low_cv_file,mid_cv_file,high_cv_file,outfile1to1,outfile1to1_full,outfile1to1_low,outfile1to1_mid,outfile1to1_high,imgfile,imgfile_blended,imgfile_full,imgfile_low,imgfile_mid,imgfile_high,full_Qres_file,low_Qres_file,mid_Qres_file,high_Qres_file,full_T2_file,low_T2_file,mid_T2_file,high_T2_file,outfile_Q_T2,outfile_Q_T2_low,outfile_Q_T2_mid,outfile_Q_T2_high,outputfile,outputfile_apxs,outputfile_val,outputfile_cal,db_outputfile=generate_filenames(which_elem,outpath,plstype,maxnc,fullnorm,fullmin,fullmax,lownorm,lowmin,lowmax,midnorm,midmin,midmax,highnorm,highmin,highmax,xminmax,yminmax)
@@ -339,8 +339,8 @@ removefile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProces
 
 
 which_elem='TiO2'
-#outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Recreating May Results\\ccam_20150515\\Output\\'+which_elem+'\\Outlier_Example\\Only_Caltargets_Removed\\'#
-outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Recreating May Results\\ccam_20150515\\Output\\'+which_elem+'\\Outlier_Example\\Final\\'
+outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Recreating May Results\\ccam_20150515\\Output\\'+which_elem+'\\Outlier_Example\\Only_Caltargets_Removed\\'#
+#outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Recreating May Results\\ccam_20150515\\Output\\'+which_elem+'\\'
 
 plstype='sklearn'
 mincomp=0
@@ -361,15 +361,15 @@ highmin=3
 highmax=100
 
 fullnorm=3
-lownorm=1
-midnorm=1
-highnorm=1
+lownorm=3
+midnorm=3
+highnorm=3
 
 #specify the number of components to use for each submodel
-nc_full=6
-nc_low=5
-nc_mid=4
-nc_high=5
+nc_full=4
+nc_low=7
+nc_mid=5
+nc_high=8
 means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,full_cv_file,low_cv_file,mid_cv_file,high_cv_file,outfile1to1,outfile1to1_full,outfile1to1_low,outfile1to1_mid,outfile1to1_high,imgfile,imgfile_blended,imgfile_full,imgfile_low,imgfile_mid,imgfile_high,full_Qres_file,low_Qres_file,mid_Qres_file,high_Qres_file,full_T2_file,low_T2_file,mid_T2_file,high_T2_file,outfile_Q_T2,outfile_Q_T2_low,outfile_Q_T2_mid,outfile_Q_T2_high,outputfile,outputfile_apxs,outputfile_val,outputfile_cal,db_outputfile=generate_filenames(which_elem,outpath,plstype,maxnc,fullnorm,fullmin,fullmax,lownorm,lowmin,lowmax,midnorm,midmin,midmax,highnorm,highmin,highmax,xminmax,yminmax)
 
 print 'Making outlier check plots'
@@ -445,8 +445,8 @@ removefile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProces
 
 
 which_elem='Al2O3'
-#outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Recreating May Results\\ccam_20150515\\Output\\'+which_elem+'\\Outlier_Example\\Only_Caltargets_Removed\\'#
-outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Recreating May Results\\ccam_20150515\\Output\\'+which_elem+'\\Outlier_Example\\Final\\'
+outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Recreating May Results\\ccam_20150515\\Output\\'+which_elem+'\\Outlier_Example\\Only_Caltargets_Removed\\'#
+#outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Recreating May Results\\ccam_20150515\\Output\\'+which_elem+'\\'
 
 plstype='sklearn'
 mincomp=0
@@ -466,16 +466,16 @@ midmax=25
 highmin=20
 highmax=100
 
-fullnorm=1
+fullnorm=3#1
 lownorm=1
 midnorm=1
 highnorm=1
 
 #specify the number of components to use for each submodel
-nc_full=7
-nc_low=9
-nc_mid=8
-nc_high=4
+nc_full=6
+nc_low=5
+nc_mid=6
+nc_high=7
 means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,full_cv_file,low_cv_file,mid_cv_file,high_cv_file,outfile1to1,outfile1to1_full,outfile1to1_low,outfile1to1_mid,outfile1to1_high,imgfile,imgfile_blended,imgfile_full,imgfile_low,imgfile_mid,imgfile_high,full_Qres_file,low_Qres_file,mid_Qres_file,high_Qres_file,full_T2_file,low_T2_file,mid_T2_file,high_T2_file,outfile_Q_T2,outfile_Q_T2_low,outfile_Q_T2_mid,outfile_Q_T2_high,outputfile,outputfile_apxs,outputfile_val,outputfile_cal,db_outputfile=generate_filenames(which_elem,outpath,plstype,maxnc,fullnorm,fullmin,fullmax,lownorm,lowmin,lowmax,midnorm,midmin,midmax,highnorm,highmin,highmax,xminmax,yminmax)
 
 print 'Making outlier check plots'
@@ -552,8 +552,8 @@ removefile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProces
 
 
 which_elem='FeOT'
-#outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Recreating May Results\\ccam_20150515\\Output\\'+which_elem+'\\Outlier_Example\\Only_Caltargets_Removed\\'#
-outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Recreating May Results\\ccam_20150515\\Output\\'+which_elem+'\\Outlier_Example\\Final\\'
+outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Recreating May Results\\ccam_20150515\\Output\\'+which_elem+'\\Outlier_Example\\Only_Caltargets_Removed\\'#
+#outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Recreating May Results\\ccam_20150515\\Output\\'+which_elem+'\\'
 
 plstype='sklearn'
 mincomp=0
@@ -573,16 +573,16 @@ midmax=25
 highmin=15
 highmax=100
 
-fullnorm=1
+fullnorm=3
 lownorm=3
-midnorm=1
+midnorm=3
 highnorm=1
 
 #specify the number of components to use for each submodel
-nc_full=6
-nc_low=3
-nc_mid=10
-nc_high=5
+nc_full=12
+nc_low=7
+nc_mid=6
+nc_high=6
 means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,full_cv_file,low_cv_file,mid_cv_file,high_cv_file,outfile1to1,outfile1to1_full,outfile1to1_low,outfile1to1_mid,outfile1to1_high,imgfile,imgfile_blended,imgfile_full,imgfile_low,imgfile_mid,imgfile_high,full_Qres_file,low_Qres_file,mid_Qres_file,high_Qres_file,full_T2_file,low_T2_file,mid_T2_file,high_T2_file,outfile_Q_T2,outfile_Q_T2_low,outfile_Q_T2_mid,outfile_Q_T2_high,outputfile,outputfile_apxs,outputfile_val,outputfile_cal,db_outputfile=generate_filenames(which_elem,outpath,plstype,maxnc,fullnorm,fullmin,fullmax,lownorm,lowmin,lowmax,midnorm,midmin,midmax,highnorm,highmin,highmax,xminmax,yminmax)
 
 print 'Making outlier check plots'
@@ -655,8 +655,8 @@ removefile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProces
 
 
 which_elem='MgO'
-#outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Recreating May Results\\ccam_20150515\\Output\\'+which_elem+'\\Outlier_Example\\Only_Caltargets_Removed\\'#
-outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Recreating May Results\\ccam_20150515\\Output\\'+which_elem+'\\Outlier_Example\\Final\\'
+outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Recreating May Results\\ccam_20150515\\Output\\'+which_elem+'\\Outlier_Example\\Only_Caltargets_Removed\\'#
+#outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Recreating May Results\\ccam_20150515\\Output\\'+which_elem+'\\'
 
 plstype='sklearn'
 mincomp=0
@@ -682,10 +682,10 @@ midnorm=1
 highnorm=3
 
 #specify the number of components to use for each submodel
-nc_full=7
+nc_full=6
 nc_low=5
-nc_mid=7
-nc_high=7
+nc_mid=8
+nc_high=5
 means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,full_cv_file,low_cv_file,mid_cv_file,high_cv_file,outfile1to1,outfile1to1_full,outfile1to1_low,outfile1to1_mid,outfile1to1_high,imgfile,imgfile_blended,imgfile_full,imgfile_low,imgfile_mid,imgfile_high,full_Qres_file,low_Qres_file,mid_Qres_file,high_Qres_file,full_T2_file,low_T2_file,mid_T2_file,high_T2_file,outfile_Q_T2,outfile_Q_T2_low,outfile_Q_T2_mid,outfile_Q_T2_high,outputfile,outputfile_apxs,outputfile_val,outputfile_cal,db_outputfile=generate_filenames(which_elem,outpath,plstype,maxnc,fullnorm,fullmin,fullmax,lownorm,lowmin,lowmax,midnorm,midmin,midmax,highnorm,highmin,highmax,xminmax,yminmax)
 
 print 'Making outlier check plots'
@@ -760,8 +760,8 @@ keepfile=None
 removefile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist.csv'
 
 which_elem='CaO'
-#outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Recreating May Results\\ccam_20150515\\Output\\'+which_elem+'\\Outlier_Example\\Only_Caltargets_Removed\\'#
-outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Recreating May Results\\ccam_20150515\\Output\\'+which_elem+'\\Outlier_Example\\Final\\'
+outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Recreating May Results\\ccam_20150515\\Output\\'+which_elem+'\\Outlier_Example\\Only_Caltargets_Removed\\'#
+#outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Recreating May Results\\ccam_20150515\\Output\\'+which_elem+'\\'
 
 plstype='sklearn'
 mincomp=0
@@ -789,7 +789,7 @@ highnorm=1
 #specify the number of components to use for each submodel
 nc_full=8
 nc_low=13
-nc_mid=11
+nc_mid=9
 nc_high=7
 means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,full_cv_file,low_cv_file,mid_cv_file,high_cv_file,outfile1to1,outfile1to1_full,outfile1to1_low,outfile1to1_mid,outfile1to1_high,imgfile,imgfile_blended,imgfile_full,imgfile_low,imgfile_mid,imgfile_high,full_Qres_file,low_Qres_file,mid_Qres_file,high_Qres_file,full_T2_file,low_T2_file,mid_T2_file,high_T2_file,outfile_Q_T2,outfile_Q_T2_low,outfile_Q_T2_mid,outfile_Q_T2_high,outputfile,outputfile_apxs,outputfile_val,outputfile_cal,db_outputfile=generate_filenames(which_elem,outpath,plstype,maxnc,fullnorm,fullmin,fullmax,lownorm,lowmin,lowmax,midnorm,midmin,midmax,highnorm,highmin,highmax,xminmax,yminmax)
 
@@ -900,8 +900,8 @@ removefile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProces
 
 
 which_elem='Na2O'
-#outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Recreating May Results\\ccam_20150515\\Output\\'+which_elem+'\\Outlier_Example\\Only_Caltargets_Removed\\'#
-outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Recreating May Results\\ccam_20150515\\Output\\'+which_elem+'\\Outlier_Example\\Final\\'
+outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Recreating May Results\\ccam_20150515\\Output\\'+which_elem+'\\Outlier_Example\\Only_Caltargets_Removed\\'#
+#outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Recreating May Results\\ccam_20150515\\Output\\'+which_elem+'\\'
 
 plstype='sklearn'
 mincomp=0
@@ -1002,8 +1002,8 @@ removefile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProces
 
 
 which_elem='K2O'
-#outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Recreating May Results\\ccam_20150515\\Output\\'+which_elem+'\\Outlier_Example\\Only_Caltargets_Removed\\'#
-outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Recreating May Results\\ccam_20150515\\Output\\'+which_elem+'\\Outlier_Example\\Final\\'
+outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Recreating May Results\\ccam_20150515\\Output\\'+which_elem+'\\Outlier_Example\\Only_Caltargets_Removed\\'#
+#outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Recreating May Results\\ccam_20150515\\Output\\'+which_elem+'\\'
 
 plstype='sklearn'
 mincomp=0
@@ -1030,9 +1030,9 @@ highnorm=1
 
 #specify the number of components to use for each submodel
 nc_full=4
-nc_low=6
+nc_low=5
 nc_mid=6
-nc_high=9
+nc_high=3
 means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,full_cv_file,low_cv_file,mid_cv_file,high_cv_file,outfile1to1,outfile1to1_full,outfile1to1_low,outfile1to1_mid,outfile1to1_high,imgfile,imgfile_blended,imgfile_full,imgfile_low,imgfile_mid,imgfile_high,full_Qres_file,low_Qres_file,mid_Qres_file,high_Qres_file,full_T2_file,low_T2_file,mid_T2_file,high_T2_file,outfile_Q_T2,outfile_Q_T2_low,outfile_Q_T2_mid,outfile_Q_T2_high,outputfile,outputfile_apxs,outputfile_val,outputfile_cal,db_outputfile=generate_filenames(which_elem,outpath,plstype,maxnc,fullnorm,fullmin,fullmax,lownorm,lowmin,lowmax,midnorm,midmin,midmax,highnorm,highmin,highmax,xminmax,yminmax)
 
 print 'Making outlier check plots'

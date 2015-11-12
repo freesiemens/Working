@@ -134,10 +134,10 @@ def outlier_plots(full_Qres_file,low_Qres_file,mid_Qres_file,high_Qres_file,full
     markers=['o']
     labels=['Full Norm='+str(fullnorm)+' NC='+str(nc_full),'Low Norm='+str(lownorm)+' NC='+str(nc_low),'Mid Norm='+str(midnorm)+' NC='+str(nc_mid),'High Norm='+str(highnorm)+' NC='+str(nc_high),'Blended']
     plot_title=['Outlier check for '+which_elem]
-    ccam.plots.Plot1to1(T2_res_full[nc_full-1],Q_res_full[nc_full-1],plot_title,labels[0],colors[0],markers[0],outfile_Q_T2,xminmax=[0,1.1*numpy.max(T2_res_full[nc_full-1])],yminmax=[0,1.1*numpy.max(Q_res_full[nc_full-1])],ylabel='Q Residual',xlabel='Leverage',one_to_one=False)
-    ccam.plots.Plot1to1(T2_res_low[nc_low-1],Q_res_low[nc_low-1],plot_title,labels[1],colors[0],markers[0],outfile_Q_T2_low,xminmax=[0,1.1*numpy.max(T2_res_low[nc_low-1])],yminmax=[0,1.1*numpy.max(Q_res_low[nc_low-1])],ylabel='Q Residual',xlabel='Leverage',one_to_one=False)
-    ccam.plots.Plot1to1(T2_res_mid[nc_mid-1],Q_res_mid[nc_mid-1],plot_title,labels[2],colors[0],markers[0],outfile_Q_T2_mid,xminmax=[0,1.1*numpy.max(T2_res_mid[nc_mid-1])],yminmax=[0,1.1*numpy.max(Q_res_mid[nc_mid-1])],ylabel='Q Residual',xlabel='Leverage',one_to_one=False)
-    ccam.plots.Plot1to1(T2_res_high[nc_high-1],Q_res_high[nc_high-1],plot_title,labels[3],colors[0],markers[0],outfile_Q_T2_high,xminmax=[0,1.1*numpy.max(T2_res_high[nc_high-1])],yminmax=[0,1.1*numpy.max(Q_res_high[nc_high-1])],ylabel='Q Residual',xlabel='Leverage',one_to_one=False)
+    ccam.plots.Plot1to1(T2_res_full[nc_full-1],Q_res_full[nc_full-1],plot_title,labels[0],colors[0],markers[0],outfile_Q_T2,xminmax=[0,1.1*numpy.max(T2_res_full[nc_full-1])],yminmax=[0,1.1*numpy.max(Q_res_full[nc_full-1])],ylabel='Q Residual',xlabel='Hotelling T2',one_to_one=False)
+    ccam.plots.Plot1to1(T2_res_low[nc_low-1],Q_res_low[nc_low-1],plot_title,labels[1],colors[0],markers[0],outfile_Q_T2_low,xminmax=[0,1.1*numpy.max(T2_res_low[nc_low-1])],yminmax=[0,1.1*numpy.max(Q_res_low[nc_low-1])],ylabel='Q Residual',xlabel='Hotelling T2',one_to_one=False)
+    ccam.plots.Plot1to1(T2_res_mid[nc_mid-1],Q_res_mid[nc_mid-1],plot_title,labels[2],colors[0],markers[0],outfile_Q_T2_mid,xminmax=[0,1.1*numpy.max(T2_res_mid[nc_mid-1])],yminmax=[0,1.1*numpy.max(Q_res_mid[nc_mid-1])],ylabel='Q Residual',xlabel='Hotelling T2',one_to_one=False)
+    ccam.plots.Plot1to1(T2_res_high[nc_high-1],Q_res_high[nc_high-1],plot_title,labels[3],colors[0],markers[0],outfile_Q_T2_high,xminmax=[0,1.1*numpy.max(T2_res_high[nc_high-1])],yminmax=[0,1.1*numpy.max(Q_res_high[nc_high-1])],ylabel='Q Residual',xlabel='Hotelling T2',one_to_one=False)
     
 def cv_plots(full_cv_file,nc_full,fullnorm,low_cv_file,nc_low,lownorm,mid_cv_file,nc_mid,midnorm,high_cv_file,nc_high,highnorm,xminmax,yminmax,which_elem):      
     #make 1 to 1 plots using CV results
@@ -206,26 +206,26 @@ def final_model_results(y_db_full,y_db_low,y_db_mid,y_db_high,ranges,inrange,ref
 
 
 #The directory to search (recursively) for all chemcam CCS files
-searchdir=r'E:\ChemCam\ops_ccam_team\CalTarget 95A'
+searchdir=r'F:\ChemCam\ops_ccam_team\CalTarget 95A'
 #The directory to search (recursively) for all chemcam cal target CCS files that you want to use
-searchdir_cal=r'E:\ChemCam\ops_ccam_team\CalTarget 95A'
+searchdir_cal=r'F:\ChemCam\ops_ccam_team\CalTarget 95A'
 #The directory to search (recursively) for all chemcam "good APXS" CCS files that you want to use
-searchdir_apxs=r'E:\ChemCam\ops_ccam_team\Best APXS Comparisons'
+searchdir_apxs=r'F:\ChemCam\ops_ccam_team\Best APXS Comparisons'
 #The directory to search (recursively) for a list of CCS files for our list of well-known Mars targets
-searchdir_val=r'E:\ChemCam\ops_ccam_team\Validation Targets'
+searchdir_val=r'F:\ChemCam\ops_ccam_team\Validation Targets'
 
 #File specifying what part(s) of the spectrum to mask
-maskfile=r'C:\Users\rbanderson\Documents\Projects\MSL\ChemCam\DataProcessing\Working\Input\mask_minors_noise.csv'
+maskfile=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Input\mask_minors_noise.csv'
 #Where to write all results
-outpath=r'C:\Users\rbanderson\Documents\Projects\MSL\ChemCam\DataProcessing\Working\Recreating May Results\ccam_20150515\Output\SiO2\Outlier_Example\None_Removed'
+outpath=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Recreating May Results\ccam_20150515\Output\SiO2'
 #Location of the master list file (used to look up target names and other info)
-masterlist=r'E:\ChemCam\ops_ccam_misc\MASTERLIST_combined_20150811.csv'
+masterlist=r'F:\ChemCam\ops_ccam_misc\MASTERLIST_combined_20150811.csv'
 #Location of a file with target name substitutions (this is used primarily to substitute cal target names: Cal Target 1 --> Macusanite)
-name_subs=r'C:\Users\rbanderson\Documents\Projects\MSL\ChemCam\DataProcessing\Working\Input\target_name_subs.csv'
+name_subs=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Input\target_name_subs.csv'
 #location of the database file containing compositions and spectra
-dbfile='C:\\Users\\rbanderson\\Documents\\Projects\MSL\\ChemCam\\DataProcessing\\Working\\Input\\full_db_mars_corrected.csv'
+dbfile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\full_db_mars_corrected.csv'
 #Location of a file listing spectra to be removed from the model
-removefile='C:\\Users\\rbanderson\\Documents\\Projects\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist.csv'
+removefile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist.csv'
 
 #Which element are you predicting?
 which_elem='SiO2'
@@ -253,16 +253,16 @@ highmin=60
 highmax=100
 
 #sete submodel normalization settings (3 or 1)
-fullnorm=1#3
-lownorm=1#3
+fullnorm=3
+lownorm=3
 midnorm=3
 highnorm=1
 
 #specify the number of components to use for each submodel
-nc_full=6#9
-nc_low=7#13
-nc_mid=6#10
-nc_high=4#6
+nc_full=9
+nc_low=13
+nc_mid=10
+nc_high=6
 
 
 means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,full_cv_file,low_cv_file,mid_cv_file,high_cv_file,outfile1to1,outfile1to1_full,outfile1to1_low,outfile1to1_mid,outfile1to1_high,imgfile,imgfile_blended,imgfile_full,imgfile_low,imgfile_mid,imgfile_high,full_Qres_file,low_Qres_file,mid_Qres_file,high_Qres_file,full_T2_file,low_T2_file,mid_T2_file,high_T2_file,outfile_Q_T2,outfile_Q_T2_low,outfile_Q_T2_mid,outfile_Q_T2_high,outputfile,outputfile_apxs,outputfile_val,outputfile_cal,db_outputfile=generate_filenames(which_elem,outpath,plstype,maxnc,fullnorm,fullmin,fullmax,lownorm,lowmin,lowmax,midnorm,midmin,midmax,highnorm,highmin,highmax,xminmax,yminmax)
@@ -272,55 +272,55 @@ outlier_plots(full_Qres_file,low_Qres_file,mid_Qres_file,high_Qres_file,full_T2_
 print "Making 1 to 1 plots using CV results"
 cv_plots(full_cv_file,nc_full,fullnorm,low_cv_file,nc_low,lownorm,mid_cv_file,nc_mid,midnorm,high_cv_file,nc_high,highnorm,xminmax,yminmax,which_elem)
 
-#print 'Reading database'
-#sys.stdout.flush()
-#spectra,comps,spect_index,names,labels,wvl=ccam.read_db(dbfile,compcheck=True)
-#oxides=labels[2:]
-#compindex=numpy.where(oxides==which_elem)[0]
-#
-#print 'Choosing spectra'
-#
-#
-#spectra,names,spect_index,comps=ccam.choose_spectra(spectra,spect_index,names,comps,compindex,mincomp=0,maxcomp=100,keepfile=None,removefile=removefile,which_removed=None)
-#y_db_full,fullnorm=ccam.pls_predict(spectra,nc_full,wvl,maskfile,loadfile=loadfile_full,mean_file=means_file_full)
-#y_db_low,lownorm=ccam.pls_predict(spectra,nc_low,wvl,maskfile,loadfile=loadfile_low,mean_file=means_file_low)
-#y_db_mid,midnorm=ccam.pls_predict(spectra,nc_mid,wvl,maskfile,loadfile=loadfile_mid,mean_file=means_file_mid)
-#y_db_high,highnorm=ccam.pls_predict(spectra,nc_high,wvl,maskfile,loadfile=loadfile_high,mean_file=means_file_high)
-#
-#
-#"""
-#Define blending settings:
-#"""
-#
-#ranges=[[-10,30],[30,40],[40,60],[60,70],[70,100]]
-#inrange=[0,0,0,0,0]
-#refpredict=[0,0,0,0,0]
-#toblend=[[1,1],[1,2],[2,2],[2,3],[3,3]]
-#
-#truecomps=[comps[:,compindex],comps[:,compindex],comps[:,compindex],comps[:,compindex],comps[:,compindex]]
-#
-#final_model_results(y_db_full,y_db_low,y_db_mid,y_db_high,ranges,inrange,refpredict,toblend,truecomps,xminmax,yminmax,fullmin,fullmax,fullnorm,nc_full,lowmin,lowmax,lownorm,nc_low,midmin,midmax,midnorm,nc_mid,highmin,highmax,highnorm,nc_high,which_elem)
-#
-##Read CCS data
-##apxs_data,apxs_wvl,apxs_filelist,shotnums=ccam.read_ccs(searchdir_apxs,shots=True,masterlist=masterlist,name_sub_file=name_subs)
-#apxs_data,apxs_wvl,apxs_filelist,=ccam.read_ccs(searchdir_apxs)
-#val_data,val_wvl,val_filelist=ccam.read_ccs(searchdir_val)
-#cal_data,cal_wvl,cal_filelist=ccam.read_ccs(searchdir_cal)
-#all_data,all_wvl,all_filelist=ccam.read_ccs(searchdir)
-#
-#
-##get apxs CCS results
-#blend_predict(apxs_data,apxs_wvl,apxs_filelist,ranges,inrange,refpredict,toblend,masterlist,name_subs,fullmin,fullmax,lowmin,lowmax,midmin,midmax,highmin,highmax,outputfile_apxs,means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,nc_full,nc_low,nc_mid,nc_high,maskfile)
-#
-##get validation CCS results
-#blend_predict(val_data,val_wvl,val_filelist,ranges,inrange,refpredict,toblend,masterlist,name_subs,fullmin,fullmax,lowmin,lowmax,midmin,midmax,highmin,highmax,outputfile_val,means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,nc_full,nc_low,nc_mid,nc_high,maskfile)
-#
-##get cal target CCS results
-#blend_predict(cal_data,cal_wvl,cal_filelist,ranges,inrange,refpredict,toblend,masterlist,name_subs,fullmin,fullmax,lowmin,lowmax,midmin,midmax,highmin,highmax,outputfile_cal,means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,nc_full,nc_low,nc_mid,nc_high,maskfile)
-#
-##get CCS results (this step takes a while because it needs to read all the CCS files)
-#blend_predict(all_data,all_wvl,all_filelist,ranges,inrange,refpredict,toblend,masterlist,name_subs,fullmin,fullmax,lowmin,lowmax,midmin,midmax,highmin,highmax,outputfile,means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,nc_full,nc_low,nc_mid,nc_high,maskfile)
-#
+print 'Reading database'
+sys.stdout.flush()
+spectra,comps,spect_index,names,labels,wvl=ccam.read_db(dbfile,compcheck=True)
+oxides=labels[2:]
+compindex=numpy.where(oxides==which_elem)[0]
+
+print 'Choosing spectra'
+
+
+spectra,names,spect_index,comps=ccam.choose_spectra(spectra,spect_index,names,comps,compindex,mincomp=0,maxcomp=100,keepfile=None,removefile=removefile,which_removed=None)
+y_db_full,fullnorm=ccam.pls_predict(spectra,nc_full,wvl,maskfile,loadfile=loadfile_full,mean_file=means_file_full)
+y_db_low,lownorm=ccam.pls_predict(spectra,nc_low,wvl,maskfile,loadfile=loadfile_low,mean_file=means_file_low)
+y_db_mid,midnorm=ccam.pls_predict(spectra,nc_mid,wvl,maskfile,loadfile=loadfile_mid,mean_file=means_file_mid)
+y_db_high,highnorm=ccam.pls_predict(spectra,nc_high,wvl,maskfile,loadfile=loadfile_high,mean_file=means_file_high)
+
+
+"""
+Define blending settings:
+"""
+
+ranges=[[-10,30],[30,40],[40,60],[60,70],[70,100]]
+inrange=[0,0,0,0,0]
+refpredict=[0,0,0,0,0]
+toblend=[[1,1],[1,2],[2,2],[2,3],[3,3]]
+
+truecomps=[comps[:,compindex],comps[:,compindex],comps[:,compindex],comps[:,compindex],comps[:,compindex]]
+
+final_model_results(y_db_full,y_db_low,y_db_mid,y_db_high,ranges,inrange,refpredict,toblend,truecomps,xminmax,yminmax,fullmin,fullmax,fullnorm,nc_full,lowmin,lowmax,lownorm,nc_low,midmin,midmax,midnorm,nc_mid,highmin,highmax,highnorm,nc_high,which_elem)
+
+#Read CCS data
+#apxs_data,apxs_wvl,apxs_filelist,shotnums=ccam.read_ccs(searchdir_apxs,shots=True,masterlist=masterlist,name_sub_file=name_subs)
+apxs_data,apxs_wvl,apxs_filelist,=ccam.read_ccs(searchdir_apxs)
+val_data,val_wvl,val_filelist=ccam.read_ccs(searchdir_val)
+cal_data,cal_wvl,cal_filelist=ccam.read_ccs(searchdir_cal)
+all_data,all_wvl,all_filelist=ccam.read_ccs(searchdir)
+
+
+#get apxs CCS results
+blend_predict(apxs_data,apxs_wvl,apxs_filelist,ranges,inrange,refpredict,toblend,masterlist,name_subs,fullmin,fullmax,lowmin,lowmax,midmin,midmax,highmin,highmax,outputfile_apxs,means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,nc_full,nc_low,nc_mid,nc_high,maskfile)
+
+#get validation CCS results
+blend_predict(val_data,val_wvl,val_filelist,ranges,inrange,refpredict,toblend,masterlist,name_subs,fullmin,fullmax,lowmin,lowmax,midmin,midmax,highmin,highmax,outputfile_val,means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,nc_full,nc_low,nc_mid,nc_high,maskfile)
+
+#get cal target CCS results
+blend_predict(cal_data,cal_wvl,cal_filelist,ranges,inrange,refpredict,toblend,masterlist,name_subs,fullmin,fullmax,lowmin,lowmax,midmin,midmax,highmin,highmax,outputfile_cal,means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,nc_full,nc_low,nc_mid,nc_high,maskfile)
+
+#get CCS results (this step takes a while because it needs to read all the CCS files)
+blend_predict(all_data,all_wvl,all_filelist,ranges,inrange,refpredict,toblend,masterlist,name_subs,fullmin,fullmax,lowmin,lowmax,midmin,midmax,highmin,highmax,outputfile,means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,nc_full,nc_low,nc_mid,nc_high,maskfile)
+
 
 ##############################  TiO2 #####################################
 
@@ -328,13 +328,13 @@ searchdir=r'F:\ChemCam\ops_ccam_team\CalTarget 95A'
 searchdir_cal=r'F:\ChemCam\ops_ccam_team\CalTarget 95A'
 searchdir_apxs=r'F:\ChemCam\ops_ccam_team\Best APXS Comparisons'
 searchdir_val=r'F:\ChemCam\ops_ccam_team\Validation Targets'
-maskfile=r'C:\Users\rbanderson\Documents\Projects\MSL\ChemCam\DataProcessing\Working\Input\mask_minors_noise.csv'
-outpath=r'C:\Users\rbanderson\Documents\Projects\MSL\ChemCam\DataProcessing\Working\Recreating May Results\ccam_20150515\Output\TiO2\Outlier_Example\None_Removed'
+maskfile=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Input\mask_minors_noise.csv'
+outpath=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Recreating May Results\ccam_20150515\Output\TiO2'
 masterlist=r'F:\ChemCam\ops_ccam_misc\MASTERLIST_combined_20150811.csv'
-name_subs=r'C:\Users\rbanderson\Documents\Projects\MSL\ChemCam\DataProcessing\Working\Input\target_name_subs.csv'
-dbfile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\full_db_mars_corrected_dopedTiO2.csv'
+name_subs=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Input\target_name_subs.csv'
+dbfile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\full_db_mars_corrected_dopedTiO2.csv'
 keepfile=None
-removefile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist.csv'
+removefile=None#'C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist.csv'
 
 
 which_elem='TiO2'
@@ -360,15 +360,15 @@ highmin=3
 highmax=100
 
 fullnorm=3
-lownorm=3#1
-midnorm=3#1
-highnorm=3#1
+lownorm=1
+midnorm=1
+highnorm=1
 
 #specify the number of components to use for each submodel
-nc_full=4#6
-nc_low=7#5
-nc_mid=5#4
-nc_high=8#5
+nc_full=6
+nc_low=5
+nc_mid=4
+nc_high=5
 means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,full_cv_file,low_cv_file,mid_cv_file,high_cv_file,outfile1to1,outfile1to1_full,outfile1to1_low,outfile1to1_mid,outfile1to1_high,imgfile,imgfile_blended,imgfile_full,imgfile_low,imgfile_mid,imgfile_high,full_Qres_file,low_Qres_file,mid_Qres_file,high_Qres_file,full_T2_file,low_T2_file,mid_T2_file,high_T2_file,outfile_Q_T2,outfile_Q_T2_low,outfile_Q_T2_mid,outfile_Q_T2_high,outputfile,outputfile_apxs,outputfile_val,outputfile_cal,db_outputfile=generate_filenames(which_elem,outpath,plstype,maxnc,fullnorm,fullmin,fullmax,lownorm,lowmin,lowmax,midnorm,midmin,midmax,highnorm,highmin,highmax,xminmax,yminmax)
 
 print 'Making outlier check plots'
@@ -376,55 +376,55 @@ outlier_plots(full_Qres_file,low_Qres_file,mid_Qres_file,high_Qres_file,full_T2_
 print "Making 1 to 1 plots using CV results"
 cv_plots(full_cv_file,nc_full,fullnorm,low_cv_file,nc_low,lownorm,mid_cv_file,nc_mid,midnorm,high_cv_file,nc_high,highnorm,xminmax,yminmax,which_elem)
 
-#
-#print 'Reading database'
-#sys.stdout.flush()
-#spectra,comps,spect_index,names,labels,wvl=ccam.read_db(dbfile,compcheck=True)
-#oxides=labels[2:]
-#compindex=numpy.where(oxides==which_elem)[0]
-#
-#print 'Choosing spectra'
-#
-#
-#spectra,names,spect_index,comps=ccam.choose_spectra(spectra,spect_index,names,comps,compindex,mincomp=0,maxcomp=100,keepfile=keepfile,removefile=removefile,which_removed=None)
-#y_db_full,fullnorm=ccam.pls_predict(spectra,nc_full,wvl,maskfile,loadfile=loadfile_full,mean_file=means_file_full)
-#y_db_low,lownorm=ccam.pls_predict(spectra,nc_low,wvl,maskfile,loadfile=loadfile_low,mean_file=means_file_low)
-#y_db_mid,midnorm=ccam.pls_predict(spectra,nc_mid,wvl,maskfile,loadfile=loadfile_mid,mean_file=means_file_mid)
-#y_db_high,highnorm=ccam.pls_predict(spectra,nc_high,wvl,maskfile,loadfile=loadfile_high,mean_file=means_file_high)
-#
-#
-#"""
-#If full model 0 to 1, use the low model
-#if full model is 1 to 2, blend the low and high model using full as reference
-#if full model is 2 to 100 use high
-#Use full for all others
-#Do not overwrite predictions that have already been set in a previous round of logic.
-#"""
-#
-#predicts=[y_db_full,y_db_low,y_db_mid,y_db_high]
-#ranges=[[0,1],[1,2],[2,4],[4,100],[0,100]]
-#inrange=[0,0,0,0,0]
-#refpredict=[0,0,0,0,0]
-#toblend=[[1,1],[1,2],[2,3],[3,3],[0,0]]
-#
-#
-#truecomps=[comps[:,compindex],comps[:,compindex],comps[:,compindex],comps[:,compindex],comps[:,compindex]]
-#final_model_results(y_db_full,y_db_low,y_db_mid,y_db_high,ranges,inrange,refpredict,toblend,truecomps,xminmax,yminmax,fullmin,fullmax,fullnorm,nc_full,lowmin,lowmax,lownorm,nc_low,midmin,midmax,midnorm,nc_mid,highmin,highmax,highnorm,nc_high,which_elem)
-#
-#
-#
-##get apxs CCS results
-#blend_predict(apxs_data,apxs_wvl,apxs_filelist,ranges,inrange,refpredict,toblend,masterlist,name_subs,fullmin,fullmax,lowmin,lowmax,midmin,midmax,highmin,highmax,outputfile_apxs,means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,nc_full,nc_low,nc_mid,nc_high,maskfile)
-#
-##get validation CCS results
-#blend_predict(val_data,val_wvl,val_filelist,ranges,inrange,refpredict,toblend,masterlist,name_subs,fullmin,fullmax,lowmin,lowmax,midmin,midmax,highmin,highmax,outputfile_val,means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,nc_full,nc_low,nc_mid,nc_high,maskfile)
-#
-##get cal target CCS results
-#blend_predict(cal_data,cal_wvl,cal_filelist,ranges,inrange,refpredict,toblend,masterlist,name_subs,fullmin,fullmax,lowmin,lowmax,midmin,midmax,highmin,highmax,outputfile_cal,means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,nc_full,nc_low,nc_mid,nc_high,maskfile)
-#
-##get CCS results (this step takes a while because it needs to read all the CCS files)
-#blend_predict(all_data,all_wvl,all_filelist,ranges,inrange,refpredict,toblend,masterlist,name_subs,fullmin,fullmax,lowmin,lowmax,midmin,midmax,highmin,highmax,outputfile,means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,nc_full,nc_low,nc_mid,nc_high,maskfile)
-#
+
+print 'Reading database'
+sys.stdout.flush()
+spectra,comps,spect_index,names,labels,wvl=ccam.read_db(dbfile,compcheck=True)
+oxides=labels[2:]
+compindex=numpy.where(oxides==which_elem)[0]
+
+print 'Choosing spectra'
+
+
+spectra,names,spect_index,comps=ccam.choose_spectra(spectra,spect_index,names,comps,compindex,mincomp=0,maxcomp=100,keepfile=keepfile,removefile=removefile,which_removed=None)
+y_db_full,fullnorm=ccam.pls_predict(spectra,nc_full,wvl,maskfile,loadfile=loadfile_full,mean_file=means_file_full)
+y_db_low,lownorm=ccam.pls_predict(spectra,nc_low,wvl,maskfile,loadfile=loadfile_low,mean_file=means_file_low)
+y_db_mid,midnorm=ccam.pls_predict(spectra,nc_mid,wvl,maskfile,loadfile=loadfile_mid,mean_file=means_file_mid)
+y_db_high,highnorm=ccam.pls_predict(spectra,nc_high,wvl,maskfile,loadfile=loadfile_high,mean_file=means_file_high)
+
+
+"""
+If full model 0 to 1, use the low model
+if full model is 1 to 2, blend the low and high model using full as reference
+if full model is 2 to 100 use high
+Use full for all others
+Do not overwrite predictions that have already been set in a previous round of logic.
+"""
+
+predicts=[y_db_full,y_db_low,y_db_mid,y_db_high]
+ranges=[[0,1],[1,2],[2,4],[4,100],[0,100]]
+inrange=[0,0,0,0,0]
+refpredict=[0,0,0,0,0]
+toblend=[[1,1],[1,2],[2,3],[3,3],[0,0]]
+
+
+truecomps=[comps[:,compindex],comps[:,compindex],comps[:,compindex],comps[:,compindex],comps[:,compindex]]
+final_model_results(y_db_full,y_db_low,y_db_mid,y_db_high,ranges,inrange,refpredict,toblend,truecomps,xminmax,yminmax,fullmin,fullmax,fullnorm,nc_full,lowmin,lowmax,lownorm,nc_low,midmin,midmax,midnorm,nc_mid,highmin,highmax,highnorm,nc_high,which_elem)
+
+
+
+#get apxs CCS results
+blend_predict(apxs_data,apxs_wvl,apxs_filelist,ranges,inrange,refpredict,toblend,masterlist,name_subs,fullmin,fullmax,lowmin,lowmax,midmin,midmax,highmin,highmax,outputfile_apxs,means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,nc_full,nc_low,nc_mid,nc_high,maskfile)
+
+#get validation CCS results
+blend_predict(val_data,val_wvl,val_filelist,ranges,inrange,refpredict,toblend,masterlist,name_subs,fullmin,fullmax,lowmin,lowmax,midmin,midmax,highmin,highmax,outputfile_val,means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,nc_full,nc_low,nc_mid,nc_high,maskfile)
+
+#get cal target CCS results
+blend_predict(cal_data,cal_wvl,cal_filelist,ranges,inrange,refpredict,toblend,masterlist,name_subs,fullmin,fullmax,lowmin,lowmax,midmin,midmax,highmin,highmax,outputfile_cal,means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,nc_full,nc_low,nc_mid,nc_high,maskfile)
+
+#get CCS results (this step takes a while because it needs to read all the CCS files)
+blend_predict(all_data,all_wvl,all_filelist,ranges,inrange,refpredict,toblend,masterlist,name_subs,fullmin,fullmax,lowmin,lowmax,midmin,midmax,highmin,highmax,outputfile,means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,nc_full,nc_low,nc_mid,nc_high,maskfile)
+
 
 
 ##############################  Al2O3 #####################################
@@ -433,13 +433,13 @@ searchdir=r'F:\ChemCam\ops_ccam_team\CalTarget 95A'
 searchdir_cal=r'F:\ChemCam\ops_ccam_team\CalTarget 95A'
 searchdir_apxs=r'F:\ChemCam\ops_ccam_team\Best APXS Comparisons'
 searchdir_val=r'F:\ChemCam\ops_ccam_team\Validation Targets'
-maskfile=r'C:\Users\rbanderson\Documents\Projects\MSL\ChemCam\DataProcessing\Working\Input\mask_minors_noise.csv'
-outpath=r'C:\Users\rbanderson\Documents\Projects\MSL\ChemCam\DataProcessing\Working\Recreating May Results\ccam_20150515\Output\Al2O3\Outlier_Example\None_Removed'
+maskfile=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Input\mask_minors_noise.csv'
+outpath=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Recreating May Results\ccam_20150515\Output\Al2O3'
 masterlist=r'F:\ChemCam\ops_ccam_misc\MASTERLIST_combined_20150811.csv'
-name_subs=r'C:\Users\rbanderson\Documents\Projects\MSL\ChemCam\DataProcessing\Working\Input\target_name_subs.csv'
-dbfile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\full_db_mars_corrected.csv'
+name_subs=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Input\target_name_subs.csv'
+dbfile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\full_db_mars_corrected.csv'
 keepfile=None
-removefile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist.csv'
+removefile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist.csv'
 
 
 
@@ -465,16 +465,16 @@ midmax=25
 highmin=20
 highmax=100
 
-fullnorm=3#1
+fullnorm=1
 lownorm=1
 midnorm=1
 highnorm=1
 
 #specify the number of components to use for each submodel
-nc_full=6#7
-nc_low=5#9
-nc_mid=6#8
-nc_high=7#4
+nc_full=7
+nc_low=9
+nc_mid=8
+nc_high=4
 means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,full_cv_file,low_cv_file,mid_cv_file,high_cv_file,outfile1to1,outfile1to1_full,outfile1to1_low,outfile1to1_mid,outfile1to1_high,imgfile,imgfile_blended,imgfile_full,imgfile_low,imgfile_mid,imgfile_high,full_Qres_file,low_Qres_file,mid_Qres_file,high_Qres_file,full_T2_file,low_T2_file,mid_T2_file,high_T2_file,outfile_Q_T2,outfile_Q_T2_low,outfile_Q_T2_mid,outfile_Q_T2_high,outputfile,outputfile_apxs,outputfile_val,outputfile_cal,db_outputfile=generate_filenames(which_elem,outpath,plstype,maxnc,fullnorm,fullmin,fullmax,lownorm,lowmin,lowmax,midnorm,midmin,midmax,highnorm,highmin,highmax,xminmax,yminmax)
 
 print 'Making outlier check plots'
@@ -482,71 +482,71 @@ outlier_plots(full_Qres_file,low_Qres_file,mid_Qres_file,high_Qres_file,full_T2_
 print "Making 1 to 1 plots using CV results"
 cv_plots(full_cv_file,nc_full,fullnorm,low_cv_file,nc_low,lownorm,mid_cv_file,nc_mid,midnorm,high_cv_file,nc_high,highnorm,xminmax,yminmax,which_elem)
 
-#print 'Reading database'
-#sys.stdout.flush()
-#spectra,comps,spect_index,names,labels,wvl=ccam.read_db(dbfile,compcheck=True)
-#oxides=labels[2:]
-#compindex=numpy.where(oxides==which_elem)[0]
-#
-#print 'Choosing spectra'
-#
-#
-#spectra,names,spect_index,comps=ccam.choose_spectra(spectra,spect_index,names,comps,compindex,mincomp=0,maxcomp=100,keepfile=keepfile,removefile=removefile,which_removed=None)
-#y_db_full,fullnorm=ccam.pls_predict(spectra,nc_full,wvl,maskfile,loadfile=loadfile_full,mean_file=means_file_full)
-#y_db_low,lownorm=ccam.pls_predict(spectra,nc_low,wvl,maskfile,loadfile=loadfile_low,mean_file=means_file_low)
-#y_db_mid,midnorm=ccam.pls_predict(spectra,nc_mid,wvl,maskfile,loadfile=loadfile_mid,mean_file=means_file_mid)
-#y_db_high,highnorm=ccam.pls_predict(spectra,nc_high,wvl,maskfile,loadfile=loadfile_high,mean_file=means_file_high)
-#
-#
-#"""
-#If full model <12, use the low model
-#if full is 12 to 20, blend the low and mid model using full as reference
-#If full model is 20 to 25 blend mid and high using full as reference
-#if full model is >25 use high
-#Use full for all others
-#Do not overwrite predictions that have already been set in a previous round of logic.
-#"""
-#
-#predicts=[y_db_full,y_db_low,y_db_mid,y_db_high]
-#ranges=[[-10,12],[12,20],[20,25],[25,100],[0,100]]
-#inrange=[0,0,0,0,0]
-#refpredict=[0,0,0,0,0]
-#toblend=[[1,1],[1,2],[2,3],[3,3],[0,0]]
-#
-#
-#truecomps=[comps[:,compindex],comps[:,compindex],comps[:,compindex],comps[:,compindex],comps[:,compindex]]
-#final_model_results(y_db_full,y_db_low,y_db_mid,y_db_high,ranges,inrange,refpredict,toblend,truecomps,xminmax,yminmax,fullmin,fullmax,fullnorm,nc_full,lowmin,lowmax,lownorm,nc_low,midmin,midmax,midnorm,nc_mid,highmin,highmax,highnorm,nc_high,which_elem)
-#
-#
-#
-#
-##get apxs CCS results
-#blend_predict(apxs_data,apxs_wvl,apxs_filelist,ranges,inrange,refpredict,toblend,masterlist,name_subs,fullmin,fullmax,lowmin,lowmax,midmin,midmax,highmin,highmax,outputfile_apxs,means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,nc_full,nc_low,nc_mid,nc_high,maskfile)
-#
-##get validation CCS results
-#blend_predict(val_data,val_wvl,val_filelist,ranges,inrange,refpredict,toblend,masterlist,name_subs,fullmin,fullmax,lowmin,lowmax,midmin,midmax,highmin,highmax,outputfile_val,means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,nc_full,nc_low,nc_mid,nc_high,maskfile)
-#
-##get cal target CCS results
-#blend_predict(cal_data,cal_wvl,cal_filelist,ranges,inrange,refpredict,toblend,masterlist,name_subs,fullmin,fullmax,lowmin,lowmax,midmin,midmax,highmin,highmax,outputfile_cal,means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,nc_full,nc_low,nc_mid,nc_high,maskfile)
-#
-##get CCS results (this step takes a while because it needs to read all the CCS files)
-#blend_predict(all_data,all_wvl,all_filelist,ranges,inrange,refpredict,toblend,masterlist,name_subs,fullmin,fullmax,lowmin,lowmax,midmin,midmax,highmin,highmax,outputfile,means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,nc_full,nc_low,nc_mid,nc_high,maskfile)
-#
+print 'Reading database'
+sys.stdout.flush()
+spectra,comps,spect_index,names,labels,wvl=ccam.read_db(dbfile,compcheck=True)
+oxides=labels[2:]
+compindex=numpy.where(oxides==which_elem)[0]
+
+print 'Choosing spectra'
+
+
+spectra,names,spect_index,comps=ccam.choose_spectra(spectra,spect_index,names,comps,compindex,mincomp=0,maxcomp=100,keepfile=keepfile,removefile=removefile,which_removed=None)
+y_db_full,fullnorm=ccam.pls_predict(spectra,nc_full,wvl,maskfile,loadfile=loadfile_full,mean_file=means_file_full)
+y_db_low,lownorm=ccam.pls_predict(spectra,nc_low,wvl,maskfile,loadfile=loadfile_low,mean_file=means_file_low)
+y_db_mid,midnorm=ccam.pls_predict(spectra,nc_mid,wvl,maskfile,loadfile=loadfile_mid,mean_file=means_file_mid)
+y_db_high,highnorm=ccam.pls_predict(spectra,nc_high,wvl,maskfile,loadfile=loadfile_high,mean_file=means_file_high)
+
+
+"""
+If full model <12, use the low model
+if full is 12 to 20, blend the low and mid model using full as reference
+If full model is 20 to 25 blend mid and high using full as reference
+if full model is >25 use high
+Use full for all others
+Do not overwrite predictions that have already been set in a previous round of logic.
+"""
+
+predicts=[y_db_full,y_db_low,y_db_mid,y_db_high]
+ranges=[[-10,12],[12,20],[20,25],[25,100],[0,100]]
+inrange=[0,0,0,0,0]
+refpredict=[0,0,0,0,0]
+toblend=[[1,1],[1,2],[2,3],[3,3],[0,0]]
+
+
+truecomps=[comps[:,compindex],comps[:,compindex],comps[:,compindex],comps[:,compindex],comps[:,compindex]]
+final_model_results(y_db_full,y_db_low,y_db_mid,y_db_high,ranges,inrange,refpredict,toblend,truecomps,xminmax,yminmax,fullmin,fullmax,fullnorm,nc_full,lowmin,lowmax,lownorm,nc_low,midmin,midmax,midnorm,nc_mid,highmin,highmax,highnorm,nc_high,which_elem)
+
+
+
+
+#get apxs CCS results
+blend_predict(apxs_data,apxs_wvl,apxs_filelist,ranges,inrange,refpredict,toblend,masterlist,name_subs,fullmin,fullmax,lowmin,lowmax,midmin,midmax,highmin,highmax,outputfile_apxs,means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,nc_full,nc_low,nc_mid,nc_high,maskfile)
+
+#get validation CCS results
+blend_predict(val_data,val_wvl,val_filelist,ranges,inrange,refpredict,toblend,masterlist,name_subs,fullmin,fullmax,lowmin,lowmax,midmin,midmax,highmin,highmax,outputfile_val,means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,nc_full,nc_low,nc_mid,nc_high,maskfile)
+
+#get cal target CCS results
+blend_predict(cal_data,cal_wvl,cal_filelist,ranges,inrange,refpredict,toblend,masterlist,name_subs,fullmin,fullmax,lowmin,lowmax,midmin,midmax,highmin,highmax,outputfile_cal,means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,nc_full,nc_low,nc_mid,nc_high,maskfile)
+
+#get CCS results (this step takes a while because it needs to read all the CCS files)
+blend_predict(all_data,all_wvl,all_filelist,ranges,inrange,refpredict,toblend,masterlist,name_subs,fullmin,fullmax,lowmin,lowmax,midmin,midmax,highmin,highmax,outputfile,means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,nc_full,nc_low,nc_mid,nc_high,maskfile)
+
 
   
 ##############################  FeOT #####################################
 
-searchdir=r'E:\ChemCam\ops_ccam_teamCalTarget 95A'
-searchdir_cal=r'E:\ChemCam\ops_ccam_team\CalTarget 95A'
-searchdir_apxs=r'E:\ChemCam\ops_ccam_team\Best APXS Comparisons'
-searchdir_val=r'E:\ChemCam\ops_ccam_team\Validation Targets'
-maskfile=r'C:\Users\rbanderson\Documents\Projects\MSL\ChemCam\DataProcessing\Working\Input\mask_minors_noise.csv'
-outpath=r'C:\Users\rbanderson\Documents\Projects\MSL\ChemCam\DataProcessing\Working\Recreating May Results\ccam_20150515\Output\FeOT\Outlier_Example\None_Removed'
-masterlist=r'E:\ChemCam\ops_ccam_misc\MASTERLIST_combined_20150811.csv'
-name_subs=r'C:\Users\rbanderson\Documents\Projects\MSL\ChemCam\DataProcessing\Working\Input\target_name_subs.csv'
-dbfile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\full_db_mars_corrected.csv'
+searchdir=r'F:\ChemCam\ops_ccam_teamCalTarget 95A'
+searchdir_cal=r'F:\ChemCam\ops_ccam_team\CalTarget 95A'
+searchdir_apxs=r'F:\ChemCam\ops_ccam_team\Best APXS Comparisons'
+searchdir_val=r'F:\ChemCam\ops_ccam_team\Validation Targets'
+maskfile=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Input\mask_minors_noise.csv'
+outpath=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Recreating May Results\ccam_20150515\Output\FeOT'
+masterlist=r'F:\ChemCam\ops_ccam_misc\MASTERLIST_combined_20150811.csv'
+name_subs=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Input\target_name_subs.csv'
+dbfile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\full_db_mars_corrected.csv'
 keepfile=None
-removefile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist.csv'
+removefile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist.csv'
 
 
 
@@ -572,16 +572,16 @@ midmax=25
 highmin=15
 highmax=100
 
-fullnorm=3#1
+fullnorm=1
 lownorm=3
-midnorm=3#1
+midnorm=1
 highnorm=1
 
 #specify the number of components to use for each submodel
-nc_full=12#6
-nc_low=7#3
-nc_mid=6#10
-nc_high=6#5
+nc_full=6
+nc_low=3
+nc_mid=10
+nc_high=5
 means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,full_cv_file,low_cv_file,mid_cv_file,high_cv_file,outfile1to1,outfile1to1_full,outfile1to1_low,outfile1to1_mid,outfile1to1_high,imgfile,imgfile_blended,imgfile_full,imgfile_low,imgfile_mid,imgfile_high,full_Qres_file,low_Qres_file,mid_Qres_file,high_Qres_file,full_T2_file,low_T2_file,mid_T2_file,high_T2_file,outfile_Q_T2,outfile_Q_T2_low,outfile_Q_T2_mid,outfile_Q_T2_high,outputfile,outputfile_apxs,outputfile_val,outputfile_cal,db_outputfile=generate_filenames(which_elem,outpath,plstype,maxnc,fullnorm,fullmin,fullmax,lownorm,lowmin,lowmax,midnorm,midmin,midmax,highnorm,highmin,highmax,xminmax,yminmax)
 
 print 'Making outlier check plots'
@@ -589,54 +589,54 @@ outlier_plots(full_Qres_file,low_Qres_file,mid_Qres_file,high_Qres_file,full_T2_
 print "Making 1 to 1 plots using CV results"
 cv_plots(full_cv_file,nc_full,fullnorm,low_cv_file,nc_low,lownorm,mid_cv_file,nc_mid,midnorm,high_cv_file,nc_high,highnorm,xminmax,yminmax,which_elem)
 
-#
-#print 'Reading database'
-#sys.stdout.flush()
-#spectra,comps,spect_index,names,labels,wvl=ccam.read_db(dbfile,compcheck=True)
-#oxides=labels[2:]
-#compindex=numpy.where(oxides==which_elem)[0]
-#
-#print 'Choosing spectra'
-#
-#
-#spectra,names,spect_index,comps=ccam.choose_spectra(spectra,spect_index,names,comps,compindex,mincomp=0,maxcomp=100,keepfile=keepfile,removefile=removefile,which_removed=None)
-#y_db_full,fullnorm=ccam.pls_predict(spectra,nc_full,wvl,maskfile,loadfile=loadfile_full,mean_file=means_file_full)
-#y_db_low,lownorm=ccam.pls_predict(spectra,nc_low,wvl,maskfile,loadfile=loadfile_low,mean_file=means_file_low)
-#y_db_mid,midnorm=ccam.pls_predict(spectra,nc_mid,wvl,maskfile,loadfile=loadfile_mid,mean_file=means_file_mid)
-#y_db_high,highnorm=ccam.pls_predict(spectra,nc_high,wvl,maskfile,loadfile=loadfile_high,mean_file=means_file_high)
-#
-#
-#"""
-#If full model <5, use the low model
-#if full is 5 to 10, blend the low and mid model using full as reference
-#If full model is 10 to 20 use mid
-#if full is 20 to 25, blend mid and high using full as reference
-#if full model is >25 use high
-#Use full for all others
-#Do not overwrite predictions that have already been set in a previous round of logic.
-#"""
-#
-#predicts=[y_db_full,y_db_low,y_db_mid,y_db_high]
-#ranges=[[-10,5],[5,10],[10,20],[20,25],[25,100]]
-#inrange=[0,0,0,0,0]
-#refpredict=[0,0,0,0,0]
-#toblend=[[1,1],[1,2],[2,2],[2,3],[3,3]]
-#
-#truecomps=[comps[:,compindex],comps[:,compindex],comps[:,compindex],comps[:,compindex],comps[:,compindex]]
-#final_model_results(y_db_full,y_db_low,y_db_mid,y_db_high,ranges,inrange,refpredict,toblend,truecomps,xminmax,yminmax,fullmin,fullmax,fullnorm,nc_full,lowmin,lowmax,lownorm,nc_low,midmin,midmax,midnorm,nc_mid,highmin,highmax,highnorm,nc_high,which_elem)
-#
-##get apxs CCS results
-#blend_predict(apxs_data,apxs_wvl,apxs_filelist,ranges,inrange,refpredict,toblend,masterlist,name_subs,fullmin,fullmax,lowmin,lowmax,midmin,midmax,highmin,highmax,outputfile_apxs,means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,nc_full,nc_low,nc_mid,nc_high,maskfile)
-#
-##get validation CCS results
-#blend_predict(val_data,val_wvl,val_filelist,ranges,inrange,refpredict,toblend,masterlist,name_subs,fullmin,fullmax,lowmin,lowmax,midmin,midmax,highmin,highmax,outputfile_val,means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,nc_full,nc_low,nc_mid,nc_high,maskfile)
-#
-##get cal target CCS results
-#blend_predict(cal_data,cal_wvl,cal_filelist,ranges,inrange,refpredict,toblend,masterlist,name_subs,fullmin,fullmax,lowmin,lowmax,midmin,midmax,highmin,highmax,outputfile_cal,means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,nc_full,nc_low,nc_mid,nc_high,maskfile)
-#
-##get CCS results (this step takes a while because it needs to read all the CCS files)
-#blend_predict(all_data,all_wvl,all_filelist,ranges,inrange,refpredict,toblend,masterlist,name_subs,fullmin,fullmax,lowmin,lowmax,midmin,midmax,highmin,highmax,outputfile,means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,nc_full,nc_low,nc_mid,nc_high,maskfile)
-#
+
+print 'Reading database'
+sys.stdout.flush()
+spectra,comps,spect_index,names,labels,wvl=ccam.read_db(dbfile,compcheck=True)
+oxides=labels[2:]
+compindex=numpy.where(oxides==which_elem)[0]
+
+print 'Choosing spectra'
+
+
+spectra,names,spect_index,comps=ccam.choose_spectra(spectra,spect_index,names,comps,compindex,mincomp=0,maxcomp=100,keepfile=keepfile,removefile=removefile,which_removed=None)
+y_db_full,fullnorm=ccam.pls_predict(spectra,nc_full,wvl,maskfile,loadfile=loadfile_full,mean_file=means_file_full)
+y_db_low,lownorm=ccam.pls_predict(spectra,nc_low,wvl,maskfile,loadfile=loadfile_low,mean_file=means_file_low)
+y_db_mid,midnorm=ccam.pls_predict(spectra,nc_mid,wvl,maskfile,loadfile=loadfile_mid,mean_file=means_file_mid)
+y_db_high,highnorm=ccam.pls_predict(spectra,nc_high,wvl,maskfile,loadfile=loadfile_high,mean_file=means_file_high)
+
+
+"""
+If full model <5, use the low model
+if full is 5 to 10, blend the low and mid model using full as reference
+If full model is 10 to 20 use mid
+if full is 20 to 25, blend mid and high using full as reference
+if full model is >25 use high
+Use full for all others
+Do not overwrite predictions that have already been set in a previous round of logic.
+"""
+
+predicts=[y_db_full,y_db_low,y_db_mid,y_db_high]
+ranges=[[-10,5],[5,10],[10,20],[20,25],[25,100]]
+inrange=[0,0,0,0,0]
+refpredict=[0,0,0,0,0]
+toblend=[[1,1],[1,2],[2,2],[2,3],[3,3]]
+
+truecomps=[comps[:,compindex],comps[:,compindex],comps[:,compindex],comps[:,compindex],comps[:,compindex]]
+final_model_results(y_db_full,y_db_low,y_db_mid,y_db_high,ranges,inrange,refpredict,toblend,truecomps,xminmax,yminmax,fullmin,fullmax,fullnorm,nc_full,lowmin,lowmax,lownorm,nc_low,midmin,midmax,midnorm,nc_mid,highmin,highmax,highnorm,nc_high,which_elem)
+
+#get apxs CCS results
+blend_predict(apxs_data,apxs_wvl,apxs_filelist,ranges,inrange,refpredict,toblend,masterlist,name_subs,fullmin,fullmax,lowmin,lowmax,midmin,midmax,highmin,highmax,outputfile_apxs,means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,nc_full,nc_low,nc_mid,nc_high,maskfile)
+
+#get validation CCS results
+blend_predict(val_data,val_wvl,val_filelist,ranges,inrange,refpredict,toblend,masterlist,name_subs,fullmin,fullmax,lowmin,lowmax,midmin,midmax,highmin,highmax,outputfile_val,means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,nc_full,nc_low,nc_mid,nc_high,maskfile)
+
+#get cal target CCS results
+blend_predict(cal_data,cal_wvl,cal_filelist,ranges,inrange,refpredict,toblend,masterlist,name_subs,fullmin,fullmax,lowmin,lowmax,midmin,midmax,highmin,highmax,outputfile_cal,means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,nc_full,nc_low,nc_mid,nc_high,maskfile)
+
+#get CCS results (this step takes a while because it needs to read all the CCS files)
+blend_predict(all_data,all_wvl,all_filelist,ranges,inrange,refpredict,toblend,masterlist,name_subs,fullmin,fullmax,lowmin,lowmax,midmin,midmax,highmin,highmax,outputfile,means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,nc_full,nc_low,nc_mid,nc_high,maskfile)
+
 
 ##############################  MgO #####################################
 
@@ -644,13 +644,13 @@ searchdir=r'F:\ChemCam\ops_ccam_team\CalTarget 95A'
 searchdir_cal=r'F:\ChemCam\ops_ccam_team\CalTarget 95A'
 searchdir_apxs=r'F:\ChemCam\ops_ccam_team\Best APXS Comparisons'
 searchdir_val=r'F:\ChemCam\ops_ccam_team\Validation Targets'
-maskfile=r'C:\Users\rbanderson\Documents\Projects\MSL\ChemCam\DataProcessing\Working\Input\mask_minors_noise.csv'
-outpath=r'C:\Users\rbanderson\Documents\Projects\MSL\ChemCam\DataProcessing\Working\Recreating May Results\ccam_20150515\Output\MgO\Outlier_Example\None_Removed'
+maskfile=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Input\mask_minors_noise.csv'
+outpath=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Recreating May Results\ccam_20150515\Output\MgO'
 masterlist=r'F:\ChemCam\ops_ccam_misc\MASTERLIST_combined_20150811.csv'
-name_subs=r'C:\Users\rbanderson\Documents\Projects\MSL\ChemCam\DataProcessing\Working\Input\target_name_subs.csv'
-dbfile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\full_db_mars_corrected.csv'
+name_subs=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Input\target_name_subs.csv'
+dbfile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\full_db_mars_corrected.csv'
 keepfile=None
-removefile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist.csv'
+removefile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist.csv'
 
 
 which_elem='MgO'
@@ -681,67 +681,67 @@ midnorm=1
 highnorm=3
 
 #specify the number of components to use for each submodel
-nc_full=6#7
+nc_full=7
 nc_low=5
-nc_mid=8#7
-nc_high=5#7
+nc_mid=7
+nc_high=7
 means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,full_cv_file,low_cv_file,mid_cv_file,high_cv_file,outfile1to1,outfile1to1_full,outfile1to1_low,outfile1to1_mid,outfile1to1_high,imgfile,imgfile_blended,imgfile_full,imgfile_low,imgfile_mid,imgfile_high,full_Qres_file,low_Qres_file,mid_Qres_file,high_Qres_file,full_T2_file,low_T2_file,mid_T2_file,high_T2_file,outfile_Q_T2,outfile_Q_T2_low,outfile_Q_T2_mid,outfile_Q_T2_high,outputfile,outputfile_apxs,outputfile_val,outputfile_cal,db_outputfile=generate_filenames(which_elem,outpath,plstype,maxnc,fullnorm,fullmin,fullmax,lownorm,lowmin,lowmax,midnorm,midmin,midmax,highnorm,highmin,highmax,xminmax,yminmax)
 
 print 'Making outlier check plots'
 outlier_plots(full_Qres_file,low_Qres_file,mid_Qres_file,high_Qres_file,full_T2_file,low_T2_file,mid_T2_file,high_T2_file,fullnorm,nc_full,lownorm,nc_low,midnorm,nc_mid,highnorm,nc_high,which_elem)
 print "Making 1 to 1 plots using CV results"
 cv_plots(full_cv_file,nc_full,fullnorm,low_cv_file,nc_low,lownorm,mid_cv_file,nc_mid,midnorm,high_cv_file,nc_high,highnorm,xminmax,yminmax,which_elem)
-#
-#print 'Reading database'
-#sys.stdout.flush()
-#spectra,comps,spect_index,names,labels,wvl=ccam.read_db(dbfile,compcheck=True)
-#oxides=labels[2:]
-#compindex=numpy.where(oxides==which_elem)[0]
-#
-#print 'Choosing spectra'
-#
-#
-#spectra,names,spect_index,comps=ccam.choose_spectra(spectra,spect_index,names,comps,compindex,mincomp=0,maxcomp=100,keepfile=keepfile,removefile=removefile,which_removed=None)
-#y_db_full,fullnorm=ccam.pls_predict(spectra,nc_full,wvl,maskfile,loadfile=loadfile_full,mean_file=means_file_full)
-#y_db_low,lownorm=ccam.pls_predict(spectra,nc_low,wvl,maskfile,loadfile=loadfile_low,mean_file=means_file_low)
-#y_db_mid,midnorm=ccam.pls_predict(spectra,nc_mid,wvl,maskfile,loadfile=loadfile_mid,mean_file=means_file_mid)
-#y_db_high,highnorm=ccam.pls_predict(spectra,nc_high,wvl,maskfile,loadfile=loadfile_high,mean_file=means_file_high)
-#
-#
-#"""
-#If full model <10, use the low model
-#if full is 10 to 20, blend the low and mid model using full as reference
-#If full model is 20 to 25 blend mid and high using full as reference
-#if full model is >25 use high
-#Use full for all others
-#Do not overwrite predictions that have already been set in a previous round of logic.
-#"""
-#
-#predicts=[y_db_full,y_db_low,y_db_mid,y_db_high]
-#ranges=[[-10,1],[1,2],[2,6],[6,12],[12,100],[0,100]]
-#inrange=[0,0,0,0,0,0]
-#refpredict=[0,0,0,0,0,0]
-#toblend=[[1,1],[1,2],[2,2],[2,3],[3,0],[0,0]]
-#
-#
-#truecomps=[comps[:,compindex],comps[:,compindex],comps[:,compindex],comps[:,compindex],comps[:,compindex]]
-#
-#final_model_results(y_db_full,y_db_low,y_db_mid,y_db_high,ranges,inrange,refpredict,toblend,truecomps,xminmax,yminmax,fullmin,fullmax,fullnorm,nc_full,lowmin,lowmax,lownorm,nc_low,midmin,midmax,midnorm,nc_mid,highmin,highmax,highnorm,nc_high,which_elem)
-#
-#
-#
-##get apxs CCS results
-#blend_predict(apxs_data,apxs_wvl,apxs_filelist,ranges,inrange,refpredict,toblend,masterlist,name_subs,fullmin,fullmax,lowmin,lowmax,midmin,midmax,highmin,highmax,outputfile_apxs,means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,nc_full,nc_low,nc_mid,nc_high,maskfile)
-#
-##get validation CCS results
-#blend_predict(val_data,val_wvl,val_filelist,ranges,inrange,refpredict,toblend,masterlist,name_subs,fullmin,fullmax,lowmin,lowmax,midmin,midmax,highmin,highmax,outputfile_val,means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,nc_full,nc_low,nc_mid,nc_high,maskfile)
-#
-##get cal target CCS results
-#blend_predict(cal_data,cal_wvl,cal_filelist,ranges,inrange,refpredict,toblend,masterlist,name_subs,fullmin,fullmax,lowmin,lowmax,midmin,midmax,highmin,highmax,outputfile_cal,means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,nc_full,nc_low,nc_mid,nc_high,maskfile)
-#
-##get CCS results (this step takes a while because it needs to read all the CCS files)
-#blend_predict(all_data,all_wvl,all_filelist,ranges,inrange,refpredict,toblend,masterlist,name_subs,fullmin,fullmax,lowmin,lowmax,midmin,midmax,highmin,highmax,outputfile,means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,nc_full,nc_low,nc_mid,nc_high,maskfile)
-#
+
+print 'Reading database'
+sys.stdout.flush()
+spectra,comps,spect_index,names,labels,wvl=ccam.read_db(dbfile,compcheck=True)
+oxides=labels[2:]
+compindex=numpy.where(oxides==which_elem)[0]
+
+print 'Choosing spectra'
+
+
+spectra,names,spect_index,comps=ccam.choose_spectra(spectra,spect_index,names,comps,compindex,mincomp=0,maxcomp=100,keepfile=keepfile,removefile=removefile,which_removed=None)
+y_db_full,fullnorm=ccam.pls_predict(spectra,nc_full,wvl,maskfile,loadfile=loadfile_full,mean_file=means_file_full)
+y_db_low,lownorm=ccam.pls_predict(spectra,nc_low,wvl,maskfile,loadfile=loadfile_low,mean_file=means_file_low)
+y_db_mid,midnorm=ccam.pls_predict(spectra,nc_mid,wvl,maskfile,loadfile=loadfile_mid,mean_file=means_file_mid)
+y_db_high,highnorm=ccam.pls_predict(spectra,nc_high,wvl,maskfile,loadfile=loadfile_high,mean_file=means_file_high)
+
+
+"""
+If full model <10, use the low model
+if full is 10 to 20, blend the low and mid model using full as reference
+If full model is 20 to 25 blend mid and high using full as reference
+if full model is >25 use high
+Use full for all others
+Do not overwrite predictions that have already been set in a previous round of logic.
+"""
+
+predicts=[y_db_full,y_db_low,y_db_mid,y_db_high]
+ranges=[[-10,1],[1,2],[2,6],[6,12],[12,100],[0,100]]
+inrange=[0,0,0,0,0,0]
+refpredict=[0,0,0,0,0,0]
+toblend=[[1,1],[1,2],[2,2],[2,3],[3,0],[0,0]]
+
+
+truecomps=[comps[:,compindex],comps[:,compindex],comps[:,compindex],comps[:,compindex],comps[:,compindex]]
+
+final_model_results(y_db_full,y_db_low,y_db_mid,y_db_high,ranges,inrange,refpredict,toblend,truecomps,xminmax,yminmax,fullmin,fullmax,fullnorm,nc_full,lowmin,lowmax,lownorm,nc_low,midmin,midmax,midnorm,nc_mid,highmin,highmax,highnorm,nc_high,which_elem)
+
+
+
+#get apxs CCS results
+blend_predict(apxs_data,apxs_wvl,apxs_filelist,ranges,inrange,refpredict,toblend,masterlist,name_subs,fullmin,fullmax,lowmin,lowmax,midmin,midmax,highmin,highmax,outputfile_apxs,means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,nc_full,nc_low,nc_mid,nc_high,maskfile)
+
+#get validation CCS results
+blend_predict(val_data,val_wvl,val_filelist,ranges,inrange,refpredict,toblend,masterlist,name_subs,fullmin,fullmax,lowmin,lowmax,midmin,midmax,highmin,highmax,outputfile_val,means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,nc_full,nc_low,nc_mid,nc_high,maskfile)
+
+#get cal target CCS results
+blend_predict(cal_data,cal_wvl,cal_filelist,ranges,inrange,refpredict,toblend,masterlist,name_subs,fullmin,fullmax,lowmin,lowmax,midmin,midmax,highmin,highmax,outputfile_cal,means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,nc_full,nc_low,nc_mid,nc_high,maskfile)
+
+#get CCS results (this step takes a while because it needs to read all the CCS files)
+blend_predict(all_data,all_wvl,all_filelist,ranges,inrange,refpredict,toblend,masterlist,name_subs,fullmin,fullmax,lowmin,lowmax,midmin,midmax,highmin,highmax,outputfile,means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,nc_full,nc_low,nc_mid,nc_high,maskfile)
+
 
 
 ##############################  CaO #####################################
@@ -750,13 +750,13 @@ searchdir=r'F:\ChemCam\ops_ccam_team\CalTarget 95A'
 searchdir_cal=r'F:\ChemCam\ops_ccam_team\CalTarget 95A'
 searchdir_apxs=r'F:\ChemCam\ops_ccam_team\Best APXS Comparisons'
 searchdir_val=r'F:\ChemCam\ops_ccam_team\Validation Targets'
-maskfile=r'C:\Users\rbanderson\Documents\Projects\MSL\ChemCam\DataProcessing\Working\Input\mask_minors_noise.csv'
-outpath=r'C:\Users\rbanderson\Documents\Projects\MSL\ChemCam\DataProcessing\Working\Recreating May Results\ccam_20150515\Output\CaO\Outlier_Example\None_Removed'
+maskfile=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Input\mask_minors_noise.csv'
+outpath=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Recreating May Results\ccam_20150515\Output\CaO'
 masterlist=r'F:\ChemCam\ops_ccam_misc\MASTERLIST_combined_20150811.csv'
-name_subs=r'C:\Users\rbanderson\Documents\Projects\MSL\ChemCam\DataProcessing\Working\Input\target_name_subs.csv'
-dbfile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\full_db_mars_corrected.csv'
+name_subs=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Input\target_name_subs.csv'
+dbfile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\full_db_mars_corrected.csv'
 keepfile=None
-removefile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist.csv'
+removefile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist.csv'
 
 which_elem='CaO'
 #outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Recreating May Results\\ccam_20150515\\Output\\'+which_elem+'\\Outlier_Example\\Only_Caltargets_Removed\\'#
@@ -788,7 +788,7 @@ highnorm=1
 #specify the number of components to use for each submodel
 nc_full=8
 nc_low=13
-nc_mid=9#11
+nc_mid=11
 nc_high=7
 means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,full_cv_file,low_cv_file,mid_cv_file,high_cv_file,outfile1to1,outfile1to1_full,outfile1to1_low,outfile1to1_mid,outfile1to1_high,imgfile,imgfile_blended,imgfile_full,imgfile_low,imgfile_mid,imgfile_high,full_Qres_file,low_Qres_file,mid_Qres_file,high_Qres_file,full_T2_file,low_T2_file,mid_T2_file,high_T2_file,outfile_Q_T2,outfile_Q_T2_low,outfile_Q_T2_mid,outfile_Q_T2_high,outputfile,outputfile_apxs,outputfile_val,outputfile_cal,db_outputfile=generate_filenames(which_elem,outpath,plstype,maxnc,fullnorm,fullmin,fullmax,lownorm,lowmin,lowmax,midnorm,midmin,midmax,highnorm,highmin,highmax,xminmax,yminmax)
 
@@ -798,89 +798,89 @@ outlier_plots(full_Qres_file,low_Qres_file,mid_Qres_file,high_Qres_file,full_T2_
 print "Making 1 to 1 plots using CV results"
 cv_plots(full_cv_file,nc_full,fullnorm,low_cv_file,nc_low,lownorm,mid_cv_file,nc_mid,midnorm,high_cv_file,nc_high,highnorm,xminmax,yminmax,which_elem)
 
-#
-#print 'Reading database'
-#sys.stdout.flush()
-#spectra,comps,spect_index,names,labels,wvl=ccam.read_db(dbfile,compcheck=True)
-#oxides=labels[2:]
-#compindex=numpy.where(oxides==which_elem)[0]
-#
-#print 'Choosing spectra'
-#
-#
-#spectra,names,spect_index,comps=ccam.choose_spectra(spectra,spect_index,names,comps,compindex,mincomp=0,maxcomp=100,keepfile=keepfile,removefile=removefile,which_removed=None)
-#y_db_full,fullnorm=ccam.pls_predict(spectra,nc_full,wvl,maskfile,loadfile=loadfile_full,mean_file=means_file_full)
-#y_db_low,lownorm=ccam.pls_predict(spectra,nc_low,wvl,maskfile,loadfile=loadfile_low,mean_file=means_file_low)
-#y_db_mid,midnorm=ccam.pls_predict(spectra,nc_mid,wvl,maskfile,loadfile=loadfile_mid,mean_file=means_file_mid)
-#y_db_high,highnorm=ccam.pls_predict(spectra,nc_high,wvl,maskfile,loadfile=loadfile_high,mean_file=means_file_high)
-#
-#
-#"""
-#If full model <2, use the low model
-#if full 2 to 4, blend the low and mid model using full as reference
-#if full 4 to 12, use the mid model
-#if full model 12 to 15, blend mid and full using full as reference
-#if full model >15 use the full model
-#otherwise use full
-#
-#Do not overwrite predictions that have already been set in a previous round of logic.
-#"""
-#
-#predicts=[y_db_full,y_db_low,y_db_mid,y_db_high]
-#ranges=[[-10,2],[2,4],[4,15],[15,25],[25,100],[0,100]]
-#inrange=[0,0,0,0,0,0]
-#refpredict=[0,0,0,0,0,0]
-#toblend=[[1,1],[1,2],[2,2],[2,0],[3,0],[0,0]]
-#
-#truecomps=[comps[:,compindex],comps[:,compindex],comps[:,compindex],comps[:,compindex],comps[:,compindex]]
-#final_model_results(y_db_full,y_db_low,y_db_mid,y_db_high,ranges,inrange,refpredict,toblend,truecomps,xminmax,yminmax,fullmin,fullmax,fullnorm,nc_full,lowmin,lowmax,lownorm,nc_low,midmin,midmax,midnorm,nc_mid,highmin,highmax,highnorm,nc_high,which_elem)
-#
-##make 1 to 1 plots using CV results
-#
-#full_cv_predict,full_cv_samples,full_cv_truecomps,full_cv_folds,full_cv_spect=ccam.plots.readpredicts(full_cv_file,nc_full)
-#low_cv_predict,low_cv_samples,low_cv_truecomps,low_cv_folds,low_cv_spect=ccam.plots.readpredicts(low_cv_file,nc_low)
-#high_cv_predict,high_cv_samples,high_cv_truecomps,high_cv_folds,high_cv_spect=ccam.plots.readpredicts(high_cv_file,nc_high)
-#mid_cv_predict,mid_cv_samples,mid_cv_truecomps,mid_cv_folds,mid_cv_spect=ccam.plots.readpredicts(mid_cv_file,nc_mid)
-#
-#
-#      
-#RMSECV_full=numpy.sqrt(numpy.mean((full_cv_predict-full_cv_truecomps)**2))
-#RMSECV_low=numpy.sqrt(numpy.mean((low_cv_predict-low_cv_truecomps)**2))
-#RMSECV_mid=numpy.sqrt(numpy.mean((mid_cv_predict-mid_cv_truecomps)**2))
-#RMSECV_high=numpy.sqrt(numpy.mean((high_cv_predict-high_cv_truecomps)**2))
-#
-##mid_should_low=sum(numpy.all(numpy.vstack([(full_cv_predict>2.5),(full_cv_predict<11),(full_cv_truecomps<2.5)]),axis=0))
-##low_should_mid=sum(numpy.all(numpy.vstack([(full_cv_predict<2.5),(full_cv_truecomps>2.5),(full_cv_truecomps<11)]),axis=0))
-##mid_should_high=sum(numpy.all(numpy.vstack([(full_cv_predict>2.5),(full_cv_predict<11),(full_cv_truecomps>11)]),axis=0))
-##high_should_mid=sum(numpy.all(numpy.vstack([(full_cv_predict>11),(full_cv_truecomps<11),(full_cv_truecomps>2.5)]),axis=0))
-#
-#
-##RMSECV_combined=numpy.sqrt(numpy.mean((combined_cv_predict[(combined_cv_predict!=9999)]-full_cv_truecomps[(combined_cv_predict!=9999)])**2))
-#
-#truecomps=[full_cv_truecomps,low_cv_truecomps,mid_cv_truecomps,high_cv_truecomps]
-#predicts=[full_cv_predict,low_cv_predict,mid_cv_predict,high_cv_predict]
-#labels=['Full (nc='+str(nc_full)+', norm='+str(fullnorm)+', RMSECV='+str(RMSECV_full)+')','Low (nc='+str(nc_low)+',norm='+str(lownorm)+', RMSECV='+str(RMSECV_low)+')','Mid (nc='+str(nc_mid)+',norm='+str(midnorm)+', RMSECV='+str(RMSECV_mid)+')','High (nc='+str(nc_high)+',norm='+str(highnorm)+', RMSECV='+str(RMSECV_high)+')']
-#colors=['c','r','g','b']
-#markers=['o','<','>','^']
-#plot_title=which_elem+' Cross Validation'
-#ccam.Plot1to1(truecomps,predicts,plot_title,labels,colors,markers,outfile1to1,xminmax=xminmax,yminmax=yminmax)
-#ccam.Plot1to1(truecomps[0],predicts[0],plot_title,labels[0],colors[0],markers[0],outfile1to1_full,xminmax=xminmax,yminmax=yminmax)
-#ccam.Plot1to1(truecomps[1],predicts[1],plot_title,labels[1],colors[1],markers[1],outfile1to1_low,xminmax=xminmax,yminmax=yminmax)
-#ccam.Plot1to1(truecomps[2],predicts[2],plot_title,labels[2],colors[2],markers[2],outfile1to1_mid,xminmax=xminmax,yminmax=yminmax)
-#ccam.Plot1to1(truecomps[3],predicts[3],plot_title,labels[3],colors[3],markers[3],outfile1to1_high,xminmax=xminmax,yminmax=yminmax)
-#
-##get apxs CCS results
-#blend_predict(apxs_data,apxs_wvl,apxs_filelist,ranges,inrange,refpredict,toblend,masterlist,name_subs,fullmin,fullmax,lowmin,lowmax,midmin,midmax,highmin,highmax,outputfile_apxs,means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,nc_full,nc_low,nc_mid,nc_high,maskfile)
-#
-##get validation CCS results
-#blend_predict(val_data,val_wvl,val_filelist,ranges,inrange,refpredict,toblend,masterlist,name_subs,fullmin,fullmax,lowmin,lowmax,midmin,midmax,highmin,highmax,outputfile_val,means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,nc_full,nc_low,nc_mid,nc_high,maskfile)
-#
-##get cal target CCS results
-#blend_predict(cal_data,cal_wvl,cal_filelist,ranges,inrange,refpredict,toblend,masterlist,name_subs,fullmin,fullmax,lowmin,lowmax,midmin,midmax,highmin,highmax,outputfile_cal,means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,nc_full,nc_low,nc_mid,nc_high,maskfile)
-#
-##get CCS results (this step takes a while because it needs to read all the CCS files)
-#blend_predict(all_data,all_wvl,all_filelist,ranges,inrange,refpredict,toblend,masterlist,name_subs,fullmin,fullmax,lowmin,lowmax,midmin,midmax,highmin,highmax,outputfile,means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,nc_full,nc_low,nc_mid,nc_high,maskfile)
-#
+
+print 'Reading database'
+sys.stdout.flush()
+spectra,comps,spect_index,names,labels,wvl=ccam.read_db(dbfile,compcheck=True)
+oxides=labels[2:]
+compindex=numpy.where(oxides==which_elem)[0]
+
+print 'Choosing spectra'
+
+
+spectra,names,spect_index,comps=ccam.choose_spectra(spectra,spect_index,names,comps,compindex,mincomp=0,maxcomp=100,keepfile=keepfile,removefile=removefile,which_removed=None)
+y_db_full,fullnorm=ccam.pls_predict(spectra,nc_full,wvl,maskfile,loadfile=loadfile_full,mean_file=means_file_full)
+y_db_low,lownorm=ccam.pls_predict(spectra,nc_low,wvl,maskfile,loadfile=loadfile_low,mean_file=means_file_low)
+y_db_mid,midnorm=ccam.pls_predict(spectra,nc_mid,wvl,maskfile,loadfile=loadfile_mid,mean_file=means_file_mid)
+y_db_high,highnorm=ccam.pls_predict(spectra,nc_high,wvl,maskfile,loadfile=loadfile_high,mean_file=means_file_high)
+
+
+"""
+If full model <2, use the low model
+if full 2 to 4, blend the low and mid model using full as reference
+if full 4 to 12, use the mid model
+if full model 12 to 15, blend mid and full using full as reference
+if full model >15 use the full model
+otherwise use full
+
+Do not overwrite predictions that have already been set in a previous round of logic.
+"""
+
+predicts=[y_db_full,y_db_low,y_db_mid,y_db_high]
+ranges=[[-10,2],[2,4],[4,15],[15,25],[25,100],[0,100]]
+inrange=[0,0,0,0,0,0]
+refpredict=[0,0,0,0,0,0]
+toblend=[[1,1],[1,2],[2,2],[2,0],[3,0],[0,0]]
+
+truecomps=[comps[:,compindex],comps[:,compindex],comps[:,compindex],comps[:,compindex],comps[:,compindex]]
+final_model_results(y_db_full,y_db_low,y_db_mid,y_db_high,ranges,inrange,refpredict,toblend,truecomps,xminmax,yminmax,fullmin,fullmax,fullnorm,nc_full,lowmin,lowmax,lownorm,nc_low,midmin,midmax,midnorm,nc_mid,highmin,highmax,highnorm,nc_high,which_elem)
+
+#make 1 to 1 plots using CV results
+
+full_cv_predict,full_cv_samples,full_cv_truecomps,full_cv_folds,full_cv_spect=ccam.plots.readpredicts(full_cv_file,nc_full)
+low_cv_predict,low_cv_samples,low_cv_truecomps,low_cv_folds,low_cv_spect=ccam.plots.readpredicts(low_cv_file,nc_low)
+high_cv_predict,high_cv_samples,high_cv_truecomps,high_cv_folds,high_cv_spect=ccam.plots.readpredicts(high_cv_file,nc_high)
+mid_cv_predict,mid_cv_samples,mid_cv_truecomps,mid_cv_folds,mid_cv_spect=ccam.plots.readpredicts(mid_cv_file,nc_mid)
+
+
+      
+RMSECV_full=numpy.sqrt(numpy.mean((full_cv_predict-full_cv_truecomps)**2))
+RMSECV_low=numpy.sqrt(numpy.mean((low_cv_predict-low_cv_truecomps)**2))
+RMSECV_mid=numpy.sqrt(numpy.mean((mid_cv_predict-mid_cv_truecomps)**2))
+RMSECV_high=numpy.sqrt(numpy.mean((high_cv_predict-high_cv_truecomps)**2))
+
+#mid_should_low=sum(numpy.all(numpy.vstack([(full_cv_predict>2.5),(full_cv_predict<11),(full_cv_truecomps<2.5)]),axis=0))
+#low_should_mid=sum(numpy.all(numpy.vstack([(full_cv_predict<2.5),(full_cv_truecomps>2.5),(full_cv_truecomps<11)]),axis=0))
+#mid_should_high=sum(numpy.all(numpy.vstack([(full_cv_predict>2.5),(full_cv_predict<11),(full_cv_truecomps>11)]),axis=0))
+#high_should_mid=sum(numpy.all(numpy.vstack([(full_cv_predict>11),(full_cv_truecomps<11),(full_cv_truecomps>2.5)]),axis=0))
+
+
+#RMSECV_combined=numpy.sqrt(numpy.mean((combined_cv_predict[(combined_cv_predict!=9999)]-full_cv_truecomps[(combined_cv_predict!=9999)])**2))
+
+truecomps=[full_cv_truecomps,low_cv_truecomps,mid_cv_truecomps,high_cv_truecomps]
+predicts=[full_cv_predict,low_cv_predict,mid_cv_predict,high_cv_predict]
+labels=['Full (nc='+str(nc_full)+', norm='+str(fullnorm)+', RMSECV='+str(RMSECV_full)+')','Low (nc='+str(nc_low)+',norm='+str(lownorm)+', RMSECV='+str(RMSECV_low)+')','Mid (nc='+str(nc_mid)+',norm='+str(midnorm)+', RMSECV='+str(RMSECV_mid)+')','High (nc='+str(nc_high)+',norm='+str(highnorm)+', RMSECV='+str(RMSECV_high)+')']
+colors=['c','r','g','b']
+markers=['o','<','>','^']
+plot_title=which_elem+' Cross Validation'
+ccam.Plot1to1(truecomps,predicts,plot_title,labels,colors,markers,outfile1to1,xminmax=xminmax,yminmax=yminmax)
+ccam.Plot1to1(truecomps[0],predicts[0],plot_title,labels[0],colors[0],markers[0],outfile1to1_full,xminmax=xminmax,yminmax=yminmax)
+ccam.Plot1to1(truecomps[1],predicts[1],plot_title,labels[1],colors[1],markers[1],outfile1to1_low,xminmax=xminmax,yminmax=yminmax)
+ccam.Plot1to1(truecomps[2],predicts[2],plot_title,labels[2],colors[2],markers[2],outfile1to1_mid,xminmax=xminmax,yminmax=yminmax)
+ccam.Plot1to1(truecomps[3],predicts[3],plot_title,labels[3],colors[3],markers[3],outfile1to1_high,xminmax=xminmax,yminmax=yminmax)
+
+#get apxs CCS results
+blend_predict(apxs_data,apxs_wvl,apxs_filelist,ranges,inrange,refpredict,toblend,masterlist,name_subs,fullmin,fullmax,lowmin,lowmax,midmin,midmax,highmin,highmax,outputfile_apxs,means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,nc_full,nc_low,nc_mid,nc_high,maskfile)
+
+#get validation CCS results
+blend_predict(val_data,val_wvl,val_filelist,ranges,inrange,refpredict,toblend,masterlist,name_subs,fullmin,fullmax,lowmin,lowmax,midmin,midmax,highmin,highmax,outputfile_val,means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,nc_full,nc_low,nc_mid,nc_high,maskfile)
+
+#get cal target CCS results
+blend_predict(cal_data,cal_wvl,cal_filelist,ranges,inrange,refpredict,toblend,masterlist,name_subs,fullmin,fullmax,lowmin,lowmax,midmin,midmax,highmin,highmax,outputfile_cal,means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,nc_full,nc_low,nc_mid,nc_high,maskfile)
+
+#get CCS results (this step takes a while because it needs to read all the CCS files)
+blend_predict(all_data,all_wvl,all_filelist,ranges,inrange,refpredict,toblend,masterlist,name_subs,fullmin,fullmax,lowmin,lowmax,midmin,midmax,highmin,highmax,outputfile,means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,nc_full,nc_low,nc_mid,nc_high,maskfile)
+
 
   
 ##############################  Na2O #####################################
@@ -889,13 +889,13 @@ searchdir=r'F:\ChemCam\ops_ccam_team\CalTarget 95A'
 searchdir_cal=r'F:\ChemCam\ops_ccam_team\CalTarget 95A'
 searchdir_apxs=r'F:\ChemCam\ops_ccam_team\Best APXS Comparisons'
 searchdir_val=r'F:\ChemCam\ops_ccam_team\Validation Targets'
-maskfile=r'C:\Users\rbanderson\Documents\Projects\MSL\ChemCam\DataProcessing\Working\Input\mask_minors_noise.csv'
-outpath=r'C:\Users\rbanderson\Documents\Projects\MSL\ChemCam\DataProcessing\Working\Recreating May Results\ccam_20150515\Output\Na2O\Outlier_Example\None_Removed'
+maskfile=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Input\mask_minors_noise.csv'
+outpath=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Recreating May Results\ccam_20150515\Output\Na2O'
 masterlist=r'F:\ChemCam\ops_ccam_misc\MASTERLIST_combined_20150811.csv'
-name_subs=r'C:\Users\rbanderson\Documents\Projects\MSL\ChemCam\DataProcessing\Working\Input\target_name_subs.csv'
-dbfile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\full_db_mars_corrected.csv'
+name_subs=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Input\target_name_subs.csv'
+dbfile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\full_db_mars_corrected.csv'
 keepfile=None
-removefile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist.csv'
+removefile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist.csv'
 
 
 which_elem='Na2O'
@@ -937,52 +937,52 @@ outlier_plots(full_Qres_file,low_Qres_file,mid_Qres_file,high_Qres_file,full_T2_
 print "Making 1 to 1 plots using CV results"
 cv_plots(full_cv_file,nc_full,fullnorm,low_cv_file,nc_low,lownorm,mid_cv_file,nc_mid,midnorm,high_cv_file,nc_high,highnorm,xminmax,yminmax,which_elem)
 
-#
-#
-#print 'Reading database'
-#sys.stdout.flush()
-#spectra,comps,spect_index,names,labels,wvl=ccam.read_db(dbfile,compcheck=True)
-#oxides=labels[2:]
-#compindex=numpy.where(oxides==which_elem)[0]
-#
-#print 'Choosing spectra'
-#
-#
-#spectra,names,spect_index,comps=ccam.choose_spectra(spectra,spect_index,names,comps,compindex,mincomp=0,maxcomp=100,keepfile=keepfile,removefile=removefile,which_removed=None)
-#y_db_full,fullnorm=ccam.pls_predict(spectra,nc_full,wvl,maskfile,loadfile=loadfile_full,mean_file=means_file_full)
-#y_db_low,lownorm=ccam.pls_predict(spectra,nc_low,wvl,maskfile,loadfile=loadfile_low,mean_file=means_file_low)
-#y_db_mid,midnorm=ccam.pls_predict(spectra,nc_mid,wvl,maskfile,loadfile=loadfile_mid,mean_file=means_file_mid)
-#y_db_high,highnorm=ccam.pls_predict(spectra,nc_high,wvl,maskfile,loadfile=loadfile_high,mean_file=means_file_high)
-#
-#
-#"""
-#Just use the full model!
-#Do not overwrite predictions that have already been set in a previous round of logic.
-#"""
-#
-#predicts=[y_db_full,y_db_low,y_db_mid,y_db_high]
-#ranges=[[0,100]]
-#inrange=[0]
-#refpredict=[0]
-#toblend=[[0,0]]
-#
-#
-#truecomps=[comps[:,compindex],comps[:,compindex],comps[:,compindex],comps[:,compindex],comps[:,compindex]]
-#final_model_results(y_db_full,y_db_low,y_db_mid,y_db_high,ranges,inrange,refpredict,toblend,truecomps,xminmax,yminmax,fullmin,fullmax,fullnorm,nc_full,lowmin,lowmax,lownorm,nc_low,midmin,midmax,midnorm,nc_mid,highmin,highmax,highnorm,nc_high,which_elem)
-#
-#
-#
-##get apxs CCS results
-#blend_predict(apxs_data,apxs_wvl,apxs_filelist,ranges,inrange,refpredict,toblend,masterlist,name_subs,fullmin,fullmax,lowmin,lowmax,midmin,midmax,highmin,highmax,outputfile_apxs,means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,nc_full,nc_low,nc_mid,nc_high,maskfile)
-#
-##get validation CCS results
-#blend_predict(val_data,val_wvl,val_filelist,ranges,inrange,refpredict,toblend,masterlist,name_subs,fullmin,fullmax,lowmin,lowmax,midmin,midmax,highmin,highmax,outputfile_val,means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,nc_full,nc_low,nc_mid,nc_high,maskfile)
-#
-##get cal target CCS results
-#blend_predict(cal_data,cal_wvl,cal_filelist,ranges,inrange,refpredict,toblend,masterlist,name_subs,fullmin,fullmax,lowmin,lowmax,midmin,midmax,highmin,highmax,outputfile_cal,means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,nc_full,nc_low,nc_mid,nc_high,maskfile)
-#
-##get CCS results (this step takes a while because it needs to read all the CCS files)
-#blend_predict(all_data,all_wvl,all_filelist,ranges,inrange,refpredict,toblend,masterlist,name_subs,fullmin,fullmax,lowmin,lowmax,midmin,midmax,highmin,highmax,outputfile,means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,nc_full,nc_low,nc_mid,nc_high,maskfile)
+
+
+print 'Reading database'
+sys.stdout.flush()
+spectra,comps,spect_index,names,labels,wvl=ccam.read_db(dbfile,compcheck=True)
+oxides=labels[2:]
+compindex=numpy.where(oxides==which_elem)[0]
+
+print 'Choosing spectra'
+
+
+spectra,names,spect_index,comps=ccam.choose_spectra(spectra,spect_index,names,comps,compindex,mincomp=0,maxcomp=100,keepfile=keepfile,removefile=removefile,which_removed=None)
+y_db_full,fullnorm=ccam.pls_predict(spectra,nc_full,wvl,maskfile,loadfile=loadfile_full,mean_file=means_file_full)
+y_db_low,lownorm=ccam.pls_predict(spectra,nc_low,wvl,maskfile,loadfile=loadfile_low,mean_file=means_file_low)
+y_db_mid,midnorm=ccam.pls_predict(spectra,nc_mid,wvl,maskfile,loadfile=loadfile_mid,mean_file=means_file_mid)
+y_db_high,highnorm=ccam.pls_predict(spectra,nc_high,wvl,maskfile,loadfile=loadfile_high,mean_file=means_file_high)
+
+
+"""
+Just use the full model!
+Do not overwrite predictions that have already been set in a previous round of logic.
+"""
+
+predicts=[y_db_full,y_db_low,y_db_mid,y_db_high]
+ranges=[[0,100]]
+inrange=[0]
+refpredict=[0]
+toblend=[[0,0]]
+
+
+truecomps=[comps[:,compindex],comps[:,compindex],comps[:,compindex],comps[:,compindex],comps[:,compindex]]
+final_model_results(y_db_full,y_db_low,y_db_mid,y_db_high,ranges,inrange,refpredict,toblend,truecomps,xminmax,yminmax,fullmin,fullmax,fullnorm,nc_full,lowmin,lowmax,lownorm,nc_low,midmin,midmax,midnorm,nc_mid,highmin,highmax,highnorm,nc_high,which_elem)
+
+
+
+#get apxs CCS results
+blend_predict(apxs_data,apxs_wvl,apxs_filelist,ranges,inrange,refpredict,toblend,masterlist,name_subs,fullmin,fullmax,lowmin,lowmax,midmin,midmax,highmin,highmax,outputfile_apxs,means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,nc_full,nc_low,nc_mid,nc_high,maskfile)
+
+#get validation CCS results
+blend_predict(val_data,val_wvl,val_filelist,ranges,inrange,refpredict,toblend,masterlist,name_subs,fullmin,fullmax,lowmin,lowmax,midmin,midmax,highmin,highmax,outputfile_val,means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,nc_full,nc_low,nc_mid,nc_high,maskfile)
+
+#get cal target CCS results
+blend_predict(cal_data,cal_wvl,cal_filelist,ranges,inrange,refpredict,toblend,masterlist,name_subs,fullmin,fullmax,lowmin,lowmax,midmin,midmax,highmin,highmax,outputfile_cal,means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,nc_full,nc_low,nc_mid,nc_high,maskfile)
+
+#get CCS results (this step takes a while because it needs to read all the CCS files)
+blend_predict(all_data,all_wvl,all_filelist,ranges,inrange,refpredict,toblend,masterlist,name_subs,fullmin,fullmax,lowmin,lowmax,midmin,midmax,highmin,highmax,outputfile,means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,nc_full,nc_low,nc_mid,nc_high,maskfile)
 
 
 ##############################  K2O #####################################
@@ -991,13 +991,13 @@ searchdir=r'F:\ChemCam\ops_ccam_team\CalTarget 95A'
 searchdir_cal=r'F:\ChemCam\ops_ccam_team\CalTarget 95A'
 searchdir_apxs=r'F:\ChemCam\ops_ccam_team\Best APXS Comparisons'
 searchdir_val=r'F:\ChemCam\ops_ccam_team\Validation Targets'
-maskfile=r'C:\Users\rbanderson\Documents\Projects\MSL\ChemCam\DataProcessing\Working\Input\mask_minors_noise.csv'
-outpath=r'C:\Users\rbanderson\Documents\Projects\MSL\ChemCam\DataProcessing\Working\Recreating May Results\ccam_20150515\Output\K2O\Outlier_Example\None_Removed'
+maskfile=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Input\mask_minors_noise.csv'
+outpath=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Recreating May Results\ccam_20150515\Output\K2O'
 masterlist=r'F:\ChemCam\ops_ccam_misc\MASTERLIST_combined_20150811.csv'
-name_subs=r'C:\Users\rbanderson\Documents\Projects\MSL\ChemCam\DataProcessing\Working\Input\target_name_subs.csv'
-dbfile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\full_db_mars_corrected.csv'
+name_subs=r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\Working\Input\target_name_subs.csv'
+dbfile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\full_db_mars_corrected.csv'
 keepfile=None
-removefile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist.csv'
+removefile='C:\\Users\\rbanderson\\Documents\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist.csv'
 
 
 which_elem='K2O'
@@ -1025,13 +1025,13 @@ highmax=100
 fullnorm=3
 lownorm=3
 midnorm=3
-highnorm=3#1
+highnorm=1
 
 #specify the number of components to use for each submodel
 nc_full=4
-nc_low=5#6
-nc_mid=5#6
-nc_high=3#9
+nc_low=6
+nc_mid=6
+nc_high=9
 means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,full_cv_file,low_cv_file,mid_cv_file,high_cv_file,outfile1to1,outfile1to1_full,outfile1to1_low,outfile1to1_mid,outfile1to1_high,imgfile,imgfile_blended,imgfile_full,imgfile_low,imgfile_mid,imgfile_high,full_Qres_file,low_Qres_file,mid_Qres_file,high_Qres_file,full_T2_file,low_T2_file,mid_T2_file,high_T2_file,outfile_Q_T2,outfile_Q_T2_low,outfile_Q_T2_mid,outfile_Q_T2_high,outputfile,outputfile_apxs,outputfile_val,outputfile_cal,db_outputfile=generate_filenames(which_elem,outpath,plstype,maxnc,fullnorm,fullmin,fullmax,lownorm,lowmin,lowmax,midnorm,midmin,midmax,highnorm,highmin,highmax,xminmax,yminmax)
 
 print 'Making outlier check plots'
@@ -1039,43 +1039,43 @@ outlier_plots(full_Qres_file,low_Qres_file,mid_Qres_file,high_Qres_file,full_T2_
 print "Making 1 to 1 plots using CV results"
 cv_plots(full_cv_file,nc_full,fullnorm,low_cv_file,nc_low,lownorm,mid_cv_file,nc_mid,midnorm,high_cv_file,nc_high,highnorm,xminmax,yminmax,which_elem)
 
-#
-#print 'Reading database'
-#sys.stdout.flush()
-#spectra,comps,spect_index,names,labels,wvl=ccam.read_db(dbfile,compcheck=True)
-#oxides=labels[2:]
-#compindex=numpy.where(oxides==which_elem)[0]
-#
-#print 'Choosing spectra'
-#
-#
-#spectra,names,spect_index,comps=ccam.choose_spectra(spectra,spect_index,names,comps,compindex,mincomp=0,maxcomp=100,keepfile=keepfile,removefile=removefile,which_removed=None)
-#y_db_full,fullnorm=ccam.pls_predict(spectra,nc_full,wvl,maskfile,loadfile=loadfile_full,mean_file=means_file_full)
-#y_db_low,lownorm=ccam.pls_predict(spectra,nc_low,wvl,maskfile,loadfile=loadfile_low,mean_file=means_file_low)
-#y_db_mid,midnorm=ccam.pls_predict(spectra,nc_mid,wvl,maskfile,loadfile=loadfile_mid,mean_file=means_file_mid)
-#y_db_high,highnorm=ccam.pls_predict(spectra,nc_high,wvl,maskfile,loadfile=loadfile_high,mean_file=means_file_high)
-#
-#
-#
-#
-#predicts=[y_db_full,y_db_low,y_db_mid,y_db_high]
-#ranges=[[-10,1],[1,2],[2,4],[4,100]]
-#inrange=[0,0,0,0]
-#refpredict=[0,0,0,0]
-#toblend=[[1,1],[1,0],[0,3],[3,3]]
-#
-#
-#truecomps=[comps[:,compindex],comps[:,compindex],comps[:,compindex],comps[:,compindex],comps[:,compindex]]
-#final_model_results(y_db_full,y_db_low,y_db_mid,y_db_high,ranges,inrange,refpredict,toblend,truecomps,xminmax,yminmax,fullmin,fullmax,fullnorm,nc_full,lowmin,lowmax,lownorm,nc_low,midmin,midmax,midnorm,nc_mid,highmin,highmax,highnorm,nc_high,which_elem)
-#
-##get apxs CCS results
-#blend_predict(apxs_data,apxs_wvl,apxs_filelist,ranges,inrange,refpredict,toblend,masterlist,name_subs,fullmin,fullmax,lowmin,lowmax,midmin,midmax,highmin,highmax,outputfile_apxs,means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,nc_full,nc_low,nc_mid,nc_high,maskfile)
-#
-##get validation CCS results
-#blend_predict(val_data,val_wvl,val_filelist,ranges,inrange,refpredict,toblend,masterlist,name_subs,fullmin,fullmax,lowmin,lowmax,midmin,midmax,highmin,highmax,outputfile_val,means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,nc_full,nc_low,nc_mid,nc_high,maskfile)
-#
-##get cal target CCS results
-#blend_predict(cal_data,cal_wvl,cal_filelist,ranges,inrange,refpredict,toblend,masterlist,name_subs,fullmin,fullmax,lowmin,lowmax,midmin,midmax,highmin,highmax,outputfile_cal,means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,nc_full,nc_low,nc_mid,nc_high,maskfile)
-#
-##get CCS results (this step takes a while because it needs to read all the CCS files)
-#blend_predict(all_data,all_wvl,all_filelist,ranges,inrange,refpredict,toblend,masterlist,name_subs,fullmin,fullmax,lowmin,lowmax,midmin,midmax,highmin,highmax,outputfile,means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,nc_full,nc_low,nc_mid,nc_high,maskfile)
+
+print 'Reading database'
+sys.stdout.flush()
+spectra,comps,spect_index,names,labels,wvl=ccam.read_db(dbfile,compcheck=True)
+oxides=labels[2:]
+compindex=numpy.where(oxides==which_elem)[0]
+
+print 'Choosing spectra'
+
+
+spectra,names,spect_index,comps=ccam.choose_spectra(spectra,spect_index,names,comps,compindex,mincomp=0,maxcomp=100,keepfile=keepfile,removefile=removefile,which_removed=None)
+y_db_full,fullnorm=ccam.pls_predict(spectra,nc_full,wvl,maskfile,loadfile=loadfile_full,mean_file=means_file_full)
+y_db_low,lownorm=ccam.pls_predict(spectra,nc_low,wvl,maskfile,loadfile=loadfile_low,mean_file=means_file_low)
+y_db_mid,midnorm=ccam.pls_predict(spectra,nc_mid,wvl,maskfile,loadfile=loadfile_mid,mean_file=means_file_mid)
+y_db_high,highnorm=ccam.pls_predict(spectra,nc_high,wvl,maskfile,loadfile=loadfile_high,mean_file=means_file_high)
+
+
+
+
+predicts=[y_db_full,y_db_low,y_db_mid,y_db_high]
+ranges=[[-10,1],[1,2],[2,4],[4,100]]
+inrange=[0,0,0,0]
+refpredict=[0,0,0,0]
+toblend=[[1,1],[1,0],[0,3],[3,3]]
+
+
+truecomps=[comps[:,compindex],comps[:,compindex],comps[:,compindex],comps[:,compindex],comps[:,compindex]]
+final_model_results(y_db_full,y_db_low,y_db_mid,y_db_high,ranges,inrange,refpredict,toblend,truecomps,xminmax,yminmax,fullmin,fullmax,fullnorm,nc_full,lowmin,lowmax,lownorm,nc_low,midmin,midmax,midnorm,nc_mid,highmin,highmax,highnorm,nc_high,which_elem)
+
+#get apxs CCS results
+blend_predict(apxs_data,apxs_wvl,apxs_filelist,ranges,inrange,refpredict,toblend,masterlist,name_subs,fullmin,fullmax,lowmin,lowmax,midmin,midmax,highmin,highmax,outputfile_apxs,means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,nc_full,nc_low,nc_mid,nc_high,maskfile)
+
+#get validation CCS results
+blend_predict(val_data,val_wvl,val_filelist,ranges,inrange,refpredict,toblend,masterlist,name_subs,fullmin,fullmax,lowmin,lowmax,midmin,midmax,highmin,highmax,outputfile_val,means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,nc_full,nc_low,nc_mid,nc_high,maskfile)
+
+#get cal target CCS results
+blend_predict(cal_data,cal_wvl,cal_filelist,ranges,inrange,refpredict,toblend,masterlist,name_subs,fullmin,fullmax,lowmin,lowmax,midmin,midmax,highmin,highmax,outputfile_cal,means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,nc_full,nc_low,nc_mid,nc_high,maskfile)
+
+#get CCS results (this step takes a while because it needs to read all the CCS files)
+blend_predict(all_data,all_wvl,all_filelist,ranges,inrange,refpredict,toblend,masterlist,name_subs,fullmin,fullmax,lowmin,lowmax,midmin,midmax,highmin,highmax,outputfile,means_file_full,means_file_low,means_file_mid,means_file_high,loadfile_full,loadfile_low,loadfile_mid,loadfile_high,nc_full,nc_low,nc_mid,nc_high,maskfile)

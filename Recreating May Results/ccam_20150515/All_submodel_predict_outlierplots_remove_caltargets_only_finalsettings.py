@@ -138,7 +138,7 @@ def outlier_plots(full_Qres_file,low_Qres_file,mid_Qres_file,high_Qres_file,full
     ccam.plots.Plot1to1(T2_res_low[:,nc_low-1],Q_res_low[:,nc_low-1],plot_title,labels[1],colors[0],markers[0],outfile_Q_T2_low,xminmax=[0,1.1*numpy.max(T2_res_low[:,nc_low-1])],yminmax=[0,1.1*numpy.max(Q_res_low[:,nc_low-1])],ylabel='Q Residual',xlabel='Leverage',one_to_one=False)
     ccam.plots.Plot1to1(T2_res_mid[:,nc_mid-1],Q_res_mid[:,nc_mid-1],plot_title,labels[2],colors[0],markers[0],outfile_Q_T2_mid,xminmax=[0,1.1*numpy.max(T2_res_mid[:,nc_mid-1])],yminmax=[0,1.1*numpy.max(Q_res_mid[:,nc_mid-1])],ylabel='Q Residual',xlabel='Leverage',one_to_one=False)
     ccam.plots.Plot1to1(T2_res_high[:,nc_high-1],Q_res_high[:,nc_high-1],plot_title,labels[3],colors[0],markers[0],outfile_Q_T2_high,xminmax=[0,1.1*numpy.max(T2_res_high[:,nc_high-1])],yminmax=[0,1.1*numpy.max(Q_res_high[:,nc_high-1])],ylabel='Q Residual',xlabel='Leverage',one_to_one=False)
-        
+    
 def cv_plots(full_cv_file,nc_full,fullnorm,low_cv_file,nc_low,lownorm,mid_cv_file,nc_mid,midnorm,high_cv_file,nc_high,highnorm,xminmax,yminmax,which_elem):      
     #make 1 to 1 plots using CV results
     
@@ -229,8 +229,8 @@ removefile='C:\\Users\\rbanderson\\Documents\\Projects\MSL\\ChemCam\\DataProcess
 
 #Which element are you predicting?
 which_elem='SiO2'
-#outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Recreating May Results\\ccam_20150515\\Output\\'+which_elem+'\\Outlier_Example\\Only_Caltargets_Removed\\'#
-outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Recreating May Results\\ccam_20150515\\Output\\'+which_elem+'\\Outlier_Example\\Final\\'
+outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Recreating May Results\\ccam_20150515\\Output\\'+which_elem+'\\Outlier_Example\\Only_Caltargets_Removed\\'#
+#outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Recreating May Results\\ccam_20150515\\Output\\'+which_elem
 
 
 #Which algorithm to use? (mlpy or sklearn - they give the same results)
@@ -339,8 +339,8 @@ removefile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProces
 
 
 which_elem='TiO2'
-#outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Recreating May Results\\ccam_20150515\\Output\\'+which_elem+'\\Outlier_Example\\Only_Caltargets_Removed\\'#
-outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Recreating May Results\\ccam_20150515\\Output\\'+which_elem+'\\Outlier_Example\\Final\\'
+outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Recreating May Results\\ccam_20150515\\Output\\'+which_elem+'\\Outlier_Example\\Only_Caltargets_Removed\\'#
+#outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Recreating May Results\\ccam_20150515\\Output\\'+which_elem+'\\'
 
 plstype='sklearn'
 mincomp=0
@@ -445,8 +445,8 @@ removefile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProces
 
 
 which_elem='Al2O3'
-#outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Recreating May Results\\ccam_20150515\\Output\\'+which_elem+'\\Outlier_Example\\Only_Caltargets_Removed\\'#
-outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Recreating May Results\\ccam_20150515\\Output\\'+which_elem+'\\Outlier_Example\\Final\\'
+outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Recreating May Results\\ccam_20150515\\Output\\'+which_elem+'\\Outlier_Example\\Only_Caltargets_Removed\\'#
+#outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Recreating May Results\\ccam_20150515\\Output\\'+which_elem+'\\'
 
 plstype='sklearn'
 mincomp=0
@@ -466,7 +466,7 @@ midmax=25
 highmin=20
 highmax=100
 
-fullnorm=1
+fullnorm=3#1
 lownorm=1
 midnorm=1
 highnorm=1
@@ -552,8 +552,8 @@ removefile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProces
 
 
 which_elem='FeOT'
-#outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Recreating May Results\\ccam_20150515\\Output\\'+which_elem+'\\Outlier_Example\\Only_Caltargets_Removed\\'#
-outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Recreating May Results\\ccam_20150515\\Output\\'+which_elem+'\\Outlier_Example\\Final\\'
+outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Recreating May Results\\ccam_20150515\\Output\\'+which_elem+'\\Outlier_Example\\Only_Caltargets_Removed\\'#
+#outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Recreating May Results\\ccam_20150515\\Output\\'+which_elem+'\\'
 
 plstype='sklearn'
 mincomp=0
@@ -655,8 +655,8 @@ removefile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProces
 
 
 which_elem='MgO'
-#outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Recreating May Results\\ccam_20150515\\Output\\'+which_elem+'\\Outlier_Example\\Only_Caltargets_Removed\\'#
-outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Recreating May Results\\ccam_20150515\\Output\\'+which_elem+'\\Outlier_Example\\Final\\'
+outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Recreating May Results\\ccam_20150515\\Output\\'+which_elem+'\\Outlier_Example\\Only_Caltargets_Removed\\'#
+#outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Recreating May Results\\ccam_20150515\\Output\\'+which_elem+'\\'
 
 plstype='sklearn'
 mincomp=0
@@ -760,8 +760,8 @@ keepfile=None
 removefile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist.csv'
 
 which_elem='CaO'
-#outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Recreating May Results\\ccam_20150515\\Output\\'+which_elem+'\\Outlier_Example\\Only_Caltargets_Removed\\'#
-outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Recreating May Results\\ccam_20150515\\Output\\'+which_elem+'\\Outlier_Example\\Final\\'
+outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Recreating May Results\\ccam_20150515\\Output\\'+which_elem+'\\Outlier_Example\\Only_Caltargets_Removed\\'#
+#outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Recreating May Results\\ccam_20150515\\Output\\'+which_elem+'\\'
 
 plstype='sklearn'
 mincomp=0
@@ -900,8 +900,8 @@ removefile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProces
 
 
 which_elem='Na2O'
-#outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Recreating May Results\\ccam_20150515\\Output\\'+which_elem+'\\Outlier_Example\\Only_Caltargets_Removed\\'#
-outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Recreating May Results\\ccam_20150515\\Output\\'+which_elem+'\\Outlier_Example\\Final\\'
+outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Recreating May Results\\ccam_20150515\\Output\\'+which_elem+'\\Outlier_Example\\Only_Caltargets_Removed\\'#
+#outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Recreating May Results\\ccam_20150515\\Output\\'+which_elem+'\\'
 
 plstype='sklearn'
 mincomp=0
@@ -1002,8 +1002,8 @@ removefile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProces
 
 
 which_elem='K2O'
-#outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Recreating May Results\\ccam_20150515\\Output\\'+which_elem+'\\Outlier_Example\\Only_Caltargets_Removed\\'#
-outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Recreating May Results\\ccam_20150515\\Output\\'+which_elem+'\\Outlier_Example\\Final\\'
+outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Recreating May Results\\ccam_20150515\\Output\\'+which_elem+'\\Outlier_Example\\Only_Caltargets_Removed\\'#
+#outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Recreating May Results\\ccam_20150515\\Output\\'+which_elem+'\\'
 
 plstype='sklearn'
 mincomp=0

@@ -65,7 +65,15 @@ case widget of
     widget_control,calcparam.text1,set_value=searchdir
    end
 
- 
+   'db_override': begin
+     if (calcparam.db_override EQ 1) then begin
+       calcparam.db_override = 0
+     endif else if (calcparam.db_override EQ 0) then begin
+       calcparam.db_override = 1
+     endif
+
+     print, 'db_override = ', calcparam.db_override
+   end
 
   'OK': begin
     ; check that data has been defined, if not error message
@@ -102,7 +110,7 @@ print, 'cleaning up'
 widget_control, id, get_uvalue=calcparamptr
 calcparam=*calcparamptr
 result = {workpath:calcparam.workpath, searchdir:calcparam.searchdir, $
-status:calcparam.status,configdata:calcparam.configdata}
+status:calcparam.status,configdata:calcparam.configdata,db_override:calcparam.db_override}
 *calcparamptr = result
 end
 
@@ -131,7 +139,10 @@ butt = widget_button(fbase, value = 'Browse...', uvalue='Choose')
 widget_control,text1,set_value=searchdir
 
 labelbase=widget_base(main,row=1,/align_center)
-
+; create db override button widget
+dbbase = widget_base(main, row=1, /align_center, /nonexclusive)
+dbbut = widget_button(dbbase, value='Predict training database instead of Mars?', uvalue='db_override')
+widget_control,dbbut,set_button=0   
 ; create OK and Cancel buttons
 butsize=75
 okbase=widget_base(tlb,row=1,/align_center)
@@ -149,7 +160,7 @@ cd,current=mepath
 ; create and store state information
 
 calcparam = {workpath:mepath, searchdir:searchdir, $
-status:'Cancel', text1:text1,configdata:configdata}
+status:'Cancel', text1:text1,configdata:configdata,db_override:0}
 
 calcparamptr = ptr_new(calcparam)
 widget_control, tlb, set_uvalue=calcparamptr
@@ -177,9 +188,10 @@ if (result.status EQ 'OK') then begin
   calcstdevs=1
   shots=1
   recursive=1
-  ;stop
+  
+  stop
   calc_comp,result.searchdir,shots,recursive,configfile,software_version,$
-    quiet=quiet,pls_output=pls_output,ica_output=ica_output,calcstdevs=calcstdevs
+    quiet=quiet,pls_output=pls_output,ica_output=ica_output,calcstdevs=calcstdevs,db_override=result.db_override
   
     
   xmess ,"Processing complete" 
