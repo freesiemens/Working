@@ -46,7 +46,7 @@ def read_ccs(searchdir,skiprows=0,shots=False,masterlist=None,name_sub_file=None
         file_targets,file_dists,file_amps,nshots=ccam.target_lookup(filelist,masterlist,name_sub_file)
         nshots=numpy.array(nshots,dtype='int')
         sum_shots=numpy.sum(nshots)
-    print 'Reading '+str(len(filelist))+' files...'
+    print('Reading '+str(len(filelist))+' files...')
     if shots is not True:
         means=numpy.zeros([len(filelist),6144],dtype='float64')
     if shots is True:
@@ -57,7 +57,7 @@ def read_ccs(searchdir,skiprows=0,shots=False,masterlist=None,name_sub_file=None
     for i in range(len(filelist)):
 
         if numpy.mod(i+1,100)==0:
-            print 'Reading file #'+str(i+1)
+            print('Reading file #'+str(i+1))
         
         tempdata=ccam.read_csv(filelist[i],skiprows,labelrow=False)
         

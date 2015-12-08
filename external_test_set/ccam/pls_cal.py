@@ -65,7 +65,7 @@ import csv
 import numpy
 from sklearn.cross_decomposition import PLSRegression
 import copy
-import cPickle as pickle
+import pickle
 import matplotlib.pyplot as plot
 
 def pls_cal(dbfile,maskfile,outpath,which_elem,nc,normtype=1,mincomp=0,maxcomp=100,keepfile=None,removefile=None,cal_dir=None,masterlist_file=None,compfile=None,name_sub_file=None,testsetfile=None,nfolds=5,seed=None,skscale=False,max_samples=0.1,n_elems=9):
@@ -73,25 +73,25 @@ def pls_cal(dbfile,maskfile,outpath,which_elem,nc,normtype=1,mincomp=0,maxcomp=1
     plstype='sklearn'
     if skscale==True:
         plstype_string=plstype+'_scale'
-    print 'Reading database'
+    print('Reading database')
     sys.stdout.flush()
     spectra,comps,spect_index,names,labels,wvl=ccam.read_db(dbfile,compcheck=True,n_elems=n_elems)
     oxides=labels[2:]
     compindex=numpy.where(oxides==which_elem)[0]
     
-    print 'Choosing spectra'
+    print('Choosing spectra')
     
     which_removed=outpath+which_elem+'_'+plstype_string+'_nc'+str(nc)+'_norm'+str(normtype)+'_'+str(mincomp)+'-'+str(maxcomp)+'_removed.csv'
     spectra,names,spect_index,comps=ccam.choose_spectra(spectra,spect_index,names,comps,compindex,mincomp=mincomp,maxcomp=maxcomp,keepfile=keepfile,removefile=removefile,which_removed=which_removed)
         
     
-    print 'Masking spectra'
+    print('Masking spectra')
     spectra,wvl=ccam.mask(spectra,wvl,maskfile)
     
-    print 'Normalizing spectra'
+    print('Normalizing spectra')
     spectra=ccam.normalize(spectra,wvl,normtype=normtype)
     
-    print 'Removing Test Set'
+    print('Removing Test Set')
     if testsetfile!=None:
          f=open(testsetfile,'rb')
          data=zip(*csv.reader(f))
@@ -120,7 +120,7 @@ def pls_cal(dbfile,maskfile,outpath,which_elem,nc,normtype=1,mincomp=0,maxcomp=1
          comps_train=comps[trainind,compindex]
          
          
-    print 'Assigning Folds'
+    print('Assigning Folds')
     
         #if a fold file is specified, use it
     #    folds=ccam.folds(foldfile,names)
@@ -138,8 +138,8 @@ def pls_cal(dbfile,maskfile,outpath,which_elem,nc,normtype=1,mincomp=0,maxcomp=1
         folds.extend(range(1,nfolds+1))
     folds_train=numpy.zeros(len(names_train))
     for i in range(len(names_unique_sorted)):
-        print names_unique_sorted[i]
-        print folds[i]
+        print(names_unique_sorted[i])
+        print(folds[i])
         folds_train[numpy.in1d(names_train,names_unique_sorted[i])]=int(folds[i])
 
     names_nofold=names[(folds_train==0)]
@@ -162,7 +162,7 @@ def pls_cal(dbfile,maskfile,outpath,which_elem,nc,normtype=1,mincomp=0,maxcomp=1
     
 
     
-    print 'Do Leave One Label Out (LOLO) cross validation with all folds but the test set'
+    print('Do Leave One Label Out (LOLO) cross validation with all folds but the test set')
     #define array to hold cross validation predictions and RMSEs
     train_predict_cv=numpy.zeros((len(names_train),nc))
     RMSECV=numpy.zeros(nc)
@@ -174,7 +174,7 @@ def pls_cal(dbfile,maskfile,outpath,which_elem,nc,normtype=1,mincomp=0,maxcomp=1
         plot.xlabel(which_elem+' wt.%')
         plot.ylabel('# of samples')
         plot.title('Fold '+str(i))
-        print 'Holding out fold #'+str(i)
+        print('Holding out fold #'+str(i))
         
         if skscale==False:
         #mean center those spectra left in
@@ -194,7 +194,7 @@ def pls_cal(dbfile,maskfile,outpath,which_elem,nc,normtype=1,mincomp=0,maxcomp=1
        
         #step through each number of components
         for j in range(1,nc+1):
-            print 'Training Model for '+str(j)+' components'
+            print('Training Model for '+str(j)+' components')
             #train the model
             PLS1model=PLSRegression(n_components=j,scale=skscale)
             PLS1model.fit(X_cv_in,Y_cv_in)
@@ -239,7 +239,7 @@ def pls_cal(dbfile,maskfile,outpath,which_elem,nc,normtype=1,mincomp=0,maxcomp=1
     evals=numpy.diag(evals**2)
     #set up variables for cal target calculation    
     if cal_dir!=None:
-        print 'Reading cal target data'
+        print('Reading cal target data')
         cal_data,cal_wvl,cal_filelist=ccam.read_ccs(cal_dir)
         cal_data,cal_wvl=ccam.mask(cal_data,cal_wvl,maskfile)
         cal_data=ccam.normalize(cal_data,cal_wvl,normtype=normtype)
@@ -267,7 +267,7 @@ def pls_cal(dbfile,maskfile,outpath,which_elem,nc,normtype=1,mincomp=0,maxcomp=1
     model_list=[]
     #Now step through each # of components with the full model
     for j in range(1,nc+1):
-        print 'Training full model for '+str(j)+' components'
+        print('Training full model for '+str(j)+' components')
         
         
         PLS1model=PLSRegression(n_components=j,scale=skscale)
@@ -305,7 +305,7 @@ def pls_cal(dbfile,maskfile,outpath,which_elem,nc,normtype=1,mincomp=0,maxcomp=1
    
     if cal_dir!=None:
         n_good_cal=numpy.sum(numpy.array([RMSEP_KGAMEDS,RMSEP_MACUSANITE,RMSEP_NAU2HIS,RMSEP_NAU2LOS,RMSEP_NAU2MEDS,RMSEP_NORITE,RMSEP_PICRITE,RMSEP_SHERGOTTITE])[:,0]!=0)
-        print n_good_cal
+        print(n_good_cal)
         RMSEP_cal=(RMSEP_KGAMEDS+RMSEP_MACUSANITE+RMSEP_NAU2HIS+RMSEP_NAU2LOS+RMSEP_NAU2MEDS+RMSEP_NORITE+RMSEP_PICRITE+RMSEP_SHERGOTTITE)/n_good_cal
         RMSEP_single_cals=[RMSEP_KGAMEDS,RMSEP_MACUSANITE,RMSEP_NAU2HIS,RMSEP_NAU2LOS,RMSEP_NAU2MEDS,RMSEP_NORITE,RMSEP_PICRITE,RMSEP_SHERGOTTITE,RMSEP_cal]            
                        
@@ -481,7 +481,7 @@ def cal_rmses(targets,nc,target_comps,j,cal_data_centered,Y_mean,mincomp,maxcomp
     if numpy.all([numpy.any(targets=='NAU2HIS'),numpy.any(targets=='NAU2LOS'),numpy.any(targets=='NAU2MEDS'),numpy.any(targets=='NORITE'),numpy.any(targets=='PICRITE'),numpy.any(targets=='SHERGOTTITE')]): 
         RMSEP_cal_good_temp=(RMSEP_NAU2HIS_temp+RMSEP_NAU2LOS_temp+RMSEP_NAU2MEDS_temp+RMSEP_NORITE_temp+RMSEP_PICRITE_temp+RMSEP_SHERGOTTITE_temp)/6.
     else:
-        print "Not all 'good' cal targets are present!!! Can't calculate RMSEP_cal_good"
+        print("Not all 'good' cal targets are present!!! Can't calculate RMSEP_cal_good")
         
     cal_results[(comps_copy<mincomp),j-1]=0
     cal_results[(comps_copy>maxcomp),j-1]=0

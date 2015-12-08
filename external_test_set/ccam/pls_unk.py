@@ -6,7 +6,7 @@ Created on Mon Jan 26 18:43:18 2015
 """
 import numpy
 import ccam
-import cPickle as pickle
+import pickle
 
 
 def pls_unk(unk_spectra,nc,coeff_file=None,means_file=None,beta=None,X_mean=None,Y_mean=None):
@@ -44,7 +44,7 @@ def pls_unk_load(unk_spectra,nc,modelfile,means_file=None):
         
     #load the model from the appropriate pkl file
     with open(modelfile,'rb') as picklefile:
-        model=pickle.load(picklefile)[nc-1][0]
+        model=pickle.load(picklefile,encoding='latin1')[nc-1][0]
     if X_mean is not None:
         unk_spectra_centered=ccam.meancenter(unk_spectra,X_mean=X_mean)[0]
     else:

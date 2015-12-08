@@ -18,7 +18,7 @@ def generate_filenames(which_elem,outpath,plstype,maxnc,norms,ranges,xminmax,ymi
             'low':outpath+'\\'+which_elem+'_'+plstype+'_nc'+str(maxnc)+'_norm'+str(norms['low'])+'_'+str(ranges['low'][0])+'-'+str(ranges['low'][1]),
             'mid':outpath+'\\'+which_elem+'_'+plstype+'_nc'+str(maxnc)+'_norm'+str(norms['mid'])+'_'+str(ranges['mid'][0])+'-'+str(ranges['mid'][1]),
             'high':outpath+'\\'+which_elem+'_'+plstype+'_nc'+str(maxnc)+'_norm'+str(norms['high'])+'_'+str(ranges['high'][0])+'-'+str(ranges['high'][1])}    
-    print prefix
+    print(prefix)
     
     #specify the files that hold the mean centering info
     means_file_full=prefix['full']+'_meancenters.csv'
@@ -118,7 +118,7 @@ def blend_predict(data,wvl,filelist,blendranges,inrange,refpredict,toblend,maste
     targetlist,targetdists,targetamps,nshots=ccam.target_lookup(filelist,masterlist,name_subs)
     
     y_combined=numpy.zeros_like(y_high)
-    print 'Writing results to'+filenames['pred_csv_out'][outputstr]
+    print('Writing results to'+filenames['pred_csv_out'][outputstr])
     with open(filenames['pred_csv_out'][outputstr],'wb') as writefile:
             writer=csv.writer(writefile,delimiter=',')
             row=['','','','','Full ('+str(ranges['full'][0])+'-'+str(ranges['full'][1])+')','Low ('+str(ranges['low'][0])+'-'+str(ranges['low'][1])+')','Mid ('+str(ranges['mid'][0])+'-'+str(ranges['mid'][1])+')','High ('+str(ranges['high'][0])+'-'+str(ranges['high'][1])+')','Blended']
@@ -196,7 +196,7 @@ def cv_plots(filenames,ncs,norms,xminmax,yminmax,which_elem):
 def final_model_results(y,spect_index,namelist,compos,blend_settings,xminmax,yminmax,ranges,ncs,norms,which_elem,filenames,outfilestr):
     imgnames=filenames['imgfiles']    
     predicts=[y['full'],y['low'],y['mid'],y['high']]  
-    print blend_settings
+    print(blend_settings)
     blended2=ccam.submodels_blend(predicts,blend_settings['blendranges'],blend_settings['inrange'],blend_settings['refpredict'],blend_settings['toblend'],overwrite=False,noneg=False)
     #Create plots of the full model results (NOTE: these plots will show artificially "optimistic" results
     # within the range where the model was trained. These are meant to be used primarily to visualize how the models will do when extrapolating,
@@ -362,14 +362,14 @@ def RMSE_blend(inputvals,inrange,refpredict,predicts,actual):
     try:
         toblend=numpy.array(toblend,dtype='int')
     except:
-        print 'something is wrong'
+        print('something is wrong')
     toblend=toblend.tolist()
     #print toblend
     blendranges=[[-20,ranges[0]],[ranges[0],ranges[1]],[ranges[1],ranges[2]],[ranges[2],ranges[3]],[ranges[3],120]]     
     blended=ccam.submodels_blend(predicts,blendranges,inrange,refpredict,toblend,overwrite=False,noneg=False)
     RMSE=numpy.sqrt(numpy.mean((blended-actual)**2))
-    print blendranges    
-    print RMSE
+    print(blendranges)
+    print(RMSE)
     return RMSE
     
     
@@ -394,7 +394,7 @@ def blend_optimize(y,blend_settings,refcomps):
         
     opt_ranges=sorted(result.x[0:4])
     blendranges=[[-20,opt_ranges[0]],[opt_ranges[0],opt_ranges[1]],[opt_ranges[1],opt_ranges[2]],[opt_ranges[2],opt_ranges[3]],[opt_ranges[3],110]]
-    print blendranges 
+    print(blendranges )
     
     blend_settings={'blendranges':blendranges,'inrange':inrange,'refpredict':refpredict,'toblend':toblend}
     return blend_settings    
@@ -410,21 +410,21 @@ def predict_elem(which_elem,maxnc,ranges,norms,ncs,testsetfile,predict,blend_set
                  removefile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist.csv',
                  plstype='sklearn',xminmax=[0,100],yminmax=[0,100],blend_opt=True):
     outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\external_test_set\\Output\\'+which_elem+'\\'
-    print '############  '+which_elem+' ##############'
+    print('############  '+which_elem+' ##############')
     filenames=generate_filenames(which_elem,outpath,plstype,maxnc,norms,ranges,xminmax,yminmax)
 
-    print 'Making outlier check plots'
+    print('Making outlier check plots')
     outlier_plots(filenames,norms,ncs,which_elem)
-    print "Making 1 to 1 plots using CV results"
+    print("Making 1 to 1 plots using CV results")
     cv_plots(filenames,ncs,norms,xminmax,yminmax,which_elem)
     
-    print 'Reading database'
+    print('Reading database')
     sys.stdout.flush()
     spectra,comps,spect_index,names,labels,wvl=ccam.read_db(dbfile,compcheck=True)
     oxides=labels[2:]
     compindex=numpy.where(oxides==which_elem)[0]
 
-    print 'Choosing spectra'
+    print('Choosing spectra')
 
     spectra,names,spect_index,comps=ccam.choose_spectra(spectra,spect_index,names,comps,compindex,mincomp=0,maxcomp=100,keepfile=None,removefile=removefile,which_removed=None)
     y_db_full,norms['full']=ccam.pls_predict(spectra,ncs['full'],wvl,maskfile,loadfile=filenames['loadfile']['full'],mean_file=filenames['means_file']['full'])

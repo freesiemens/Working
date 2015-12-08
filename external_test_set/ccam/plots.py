@@ -8,7 +8,7 @@ import matplotlib.pyplot as plot
 from matplotlib import rcParams
 import numpy
 import csv
-
+import pandas
 
 def RMSE(RMSECV,RMSEP,RMSEC,plot_title,outfile,RMSEP_cals=None,RMSEP_good=None):
 
@@ -84,18 +84,12 @@ def Plot1to1(truecomps,predicts,plot_title,labels,colors,markers,outfile,xminmax
 
     
 def readpredicts(filename,nc):
-    f=open(filename,'rb')  #open the file
-    cols=f.readline() #read the first line
-    cols=numpy.array(cols.split(',')[1:]) 
-    cols[-1]=cols[-1].replace('\r','')
-    cols[-1]=cols[-1].replace('\n','')
+    data=pandas.read_csv(filename)
     
-    data=zip(*csv.reader(f))
-    samples=numpy.array(data[0],dtype='string')
-    spect_indexes=numpy.array(data[1],dtype='int')
-    folds=numpy.array(data[2])
-    truecomps=numpy.array(data[3],dtype='float')
-    colmatch=numpy.squeeze(numpy.array(numpy.where(cols==str(nc))))
-    predicts=numpy.array(data[colmatch+1],dtype='float')
+    samples=data.Sample
+    spect_indexes=data.Spectrum
+    folds=data.Fold
+    truecomps=data.True_Comp
+    predicts=data[str(nc)]
     
     return predicts,samples,truecomps,folds,spect_indexes
