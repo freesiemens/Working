@@ -12,6 +12,7 @@ import scipy.stats as stats
 import scipy.optimize as opt
 import operator
 import os
+import pandas
 
 def generate_filenames(which_elem,outpath,plstype,maxnc,norms,ranges,xminmax,yminmax):#which_elem,outpath,plstype,maxnc,fullnorm,fullmin,fullmax,lownorm,lowmin,lowmax,midnorm,midmin,midmax,highnorm,highmin,highmax,xminmax,yminmax):
     prefix={'full':outpath+'\\'+which_elem+'_'+plstype+'_nc'+str(maxnc)+'_norm'+str(norms['full'])+'_'+str(ranges['full'][0])+'-'+str(ranges['full'][1]),
@@ -225,7 +226,7 @@ def final_model_results(y,spect_index,namelist,compos,blend_settings,xminmax,ymi
     markers=['o','<','v','^','o']
     dpi=300
     if outfilestr=='test':
-        dpi=1000
+        #dpi=1000
         
         plot_title=which_elem_temp
         imgnames=filenames['imgfiles_test']
@@ -291,7 +292,7 @@ def final_model_results(y,spect_index,namelist,compos,blend_settings,xminmax,ymi
         ccam.plots.Plot1to1(list(f(compos)),list(f(predicts)),plot_title,list(f(labels)),list(f(colors)),list(f(markers)),imgnames['blended_full'],xminmax=xminmax,yminmax=yminmax,dpi=dpi)
         
         cwd=os.getcwd()
-        with open(cwd+'\\Testset_RMSEP_summary.csv','ab') as writefile:
+        with open(cwd+'\\Testset_RMSEP_summary.csv','a') as writefile:
             writer=csv.writer(writefile,delimiter=',')
             writer.writerow([which_elem])   
             row=['Ranges']
@@ -341,7 +342,7 @@ def final_model_results(y,spect_index,namelist,compos,blend_settings,xminmax,ymi
     yminmax[0]=numpy.min(predicts[3])
     ccam.plots.Plot1to1([compos[3]],[predicts[3]],plot_title,[labels[3]],[colors[3]],[markers[3]],imgnames['high'],xminmax=xminmax,yminmax=yminmax,dpi=dpi)
     
-    with open(filenames['pred_csv_out'][outfilestr],'wb') as writefile:
+    with open(filenames['pred_csv_out'][outfilestr],'w') as writefile:
             writer=csv.writer(writefile,delimiter=',')
             row=['','','','Full ('+str(ranges['full'][0])+'-'+str(ranges['full'][1])+')','Low ('+str(ranges['low'][0])+'-'+str(ranges['low'][1])+')','Mid ('+str(ranges['mid'][0])+'-'+str(ranges['mid'][1])+')','High ('+str(ranges['high'][0])+'-'+str(ranges['high'][0])+')','Blended']
             writer.writerow(row)
@@ -434,9 +435,11 @@ def predict_elem(which_elem,maxnc,ranges,norms,ncs,testsetfile,predict,blend_set
     y_db={'full':y_db_full,'low':y_db_low,'mid':y_db_mid,'high':y_db_high}
     
     #Get the test set spectra
-    f=open(testsetfile,'rb')
-    data=zip(*csv.reader(f))
-    testnames=numpy.array(data[0],dtype='string')
+    #f=open(testsetfile,'rb')
+    data=pandas.read_csv(testsetfile,header=None)
+    #data=zip(*csv.reader(f))
+    testnames=data.iloc[:,0]
+    #testnames=numpy.array(data[0],dtype='string')
     testind=numpy.in1d(names,testnames)
     trainind=numpy.in1d(names,testnames,invert=True)
     test_spectra=spectra[testind]

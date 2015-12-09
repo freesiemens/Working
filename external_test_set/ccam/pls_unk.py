@@ -7,7 +7,7 @@ Created on Mon Jan 26 18:43:18 2015
 import numpy
 import ccam
 import pickle
-
+import sklearn
 
 def pls_unk(unk_spectra,nc,coeff_file=None,means_file=None,beta=None,X_mean=None,Y_mean=None):
 

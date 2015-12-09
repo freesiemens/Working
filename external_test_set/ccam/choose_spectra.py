@@ -95,7 +95,7 @@ def choose_spectra(spectra,spect_index,names,comps,compindex,mincomp=0,maxcomp=1
     spect_index_removed=spect_index[numpy.invert(index)]
     
     if which_removed != None:
-        with open(which_removed,'wb') as writefile:
+        with open(which_removed,'w') as writefile:
             writer=csv.writer(writefile,delimiter=',',)
             for i in range(len(names_removed)):
                 writer.writerow([names_removed[i],spect_index_removed[i]])

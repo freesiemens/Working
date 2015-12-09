@@ -8,17 +8,19 @@ import numpy
 import ccam
 
 def target_lookup(filelist,masterlist_file,name_sub_file):
-    data,labels=ccam.read_csv(masterlist_file,1,labelrow=True)
+    data1,labels1=ccam.read_csv(masterlist_file,1,labelrow=True,skipsym=None)
     
-    targets=numpy.array(data[:,5],dtype='string')
-    sclocks=numpy.array(data[:,2],dtype='string')
+    data,labels=ccam.read_csv(masterlist_file,1,labelrow=True,skipsym=None)
+    
+    targets=numpy.array(data[:,5])
+    sclocks=numpy.array(data[:,2])
     sclocks[numpy.where(sclocks=='')]='0'
     sclocks_temp=[]
     for i in range(len(sclocks)):sclocks_temp.append(int(sclocks[i]))
     sclocks_temp=numpy.array(sclocks_temp)
     sclocks=sclocks_temp
-    dists=numpy.array(data[:,8],dtype='string')
-    amps=numpy.array(data[:,17],dtype='string')
+    dists=numpy.array(data[:,8])
+    amps=numpy.array(data[:,17])
     nshots=numpy.array(data[:,11])
     file_sclocks=numpy.zeros_like(filelist)
     file_targets=numpy.zeros_like(filelist)  

@@ -60,8 +60,8 @@ def RMSE(RMSECV,RMSEP,RMSEC,plot_title,outfile,RMSEP_cals=None,RMSEP_good=None):
 
 def Plot1to1(truecomps,predicts,plot_title,labels,colors,markers,outfile,xminmax=[0,100],yminmax=[0,100],ylabel='Prediction (wt.%)',xlabel='Actual (wt.%)',one_to_one=True,dpi=300):
     rcParams['mathtext.default'] = 'regular' 
-    rcParams['xtick.labelsize'] = 18
-    rcParams['ytick.labelsize'] = 18
+    rcParams['xtick.labelsize'] = 24
+    rcParams['ytick.labelsize'] = 24
     
     if one_to_one:
         plot.plot([0,100],[0,100],color='k',linewidth=2.0,label='1:1 line')
@@ -70,12 +70,12 @@ def Plot1to1(truecomps,predicts,plot_title,labels,colors,markers,outfile,xminmax
             plot.plot(truecomps[i],predicts[i],color=colors[i],label=labels[i],marker=markers[i],linewidth=0)
     else:
         plot.plot(truecomps,predicts,color=colors,label=labels,marker=markers,linewidth=0)
-    plot.xlabel(xlabel,fontsize=18)
-    plot.ylabel(ylabel,fontsize=18)
+    plot.xlabel(xlabel,fontsize=24)
+    plot.ylabel(ylabel,fontsize=24)
     plot.xlim(xminmax)
     plot.ylim(yminmax)
-    plot.legend(loc=2,fontsize=16)
-    plot.title(plot_title,fontsize=24)
+    plot.legend(loc=2,fontsize=20)
+    plot.title(plot_title,fontsize=28)
     fig=plot.gcf()
     fig.set_size_inches(11,8.5)
     
