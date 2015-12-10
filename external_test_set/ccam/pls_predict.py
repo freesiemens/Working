@@ -18,7 +18,7 @@ def pls_predict(data,nc,wvl,maskfile,coeff_file=None,mean_file=None,loadfile=Non
         if coeff_file.find('norm3')!=-1:
             normtype=3
         if normtype==0:
-            print('Error: Cant determine normalization from coeff file name!')
+            print 'Error: Cant determine normalization from coeff file name!'
             return
         
     
@@ -28,7 +28,7 @@ def pls_predict(data,nc,wvl,maskfile,coeff_file=None,mean_file=None,loadfile=Non
         if loadfile.find('norm3')!=-1:
             normtype=3
         if normtype==0:
-            print('Error: Cant determine normalization from loadfile name!')
+            print 'Error: Cant determine normalization from loadfile name!'
             return
     data_norm=ccam.normalize(data,wvl,normtype=normtype)
     if loadfile==None:

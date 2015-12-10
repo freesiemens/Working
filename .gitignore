@@ -57,3 +57,4 @@ full_db*
 
 #IDL .sav files
 *.sav
+*.pyc

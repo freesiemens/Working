@@ -36,7 +36,6 @@ comps_keep = = compositions of spectra that satisfy the constraints on compositi
 """
 import numpy
 import csv
-import pandas
 def choose_spectra(spectra,spect_index,names,comps,compindex,mincomp=0,maxcomp=100,removefile=None,keepfile=None,which_removed=None,linewvl=None,linestrength=None,wvl=None,clustermask=None):
 
     
@@ -46,9 +45,10 @@ def choose_spectra(spectra,spect_index,names,comps,compindex,mincomp=0,maxcomp=1
     #optionally, remove spectra listed in an external file
     if removefile != None:
         #read the list of sample names and spectrum indices from the file
-        data=pandas.read_csv(removefile,header=None)        
-        removenames=numpy.array(data.iloc[0])
-        removeinds=numpy.array(data.iloc[1])
+        f=open(removefile,'rb')
+        data=zip(*csv.reader(f))
+        removenames=numpy.array(data[0],dtype='string')
+        removeinds=numpy.array(data[1],dtype='int')
         #define an array to hold the indices for each row in the file        
         index2=numpy.empty([len(index),len(removenames)])
         for i in range(len(removenames)):

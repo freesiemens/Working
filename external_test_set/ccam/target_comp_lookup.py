@@ -18,7 +18,7 @@ def target_comp_lookup(targetlist,compfile,which_elem):
     for i in range(len(complist)):
         matchtarget=(comp_targets==targetlist[i])
         if sum(matchtarget)==0:
-            print('No match found for '+targetlist[i])
+            print 'No match found for '+targetlist[i]
             complist[i]=numpy.nan
         if sum(matchtarget)==1:
             complist[i]=comps[matchtarget]

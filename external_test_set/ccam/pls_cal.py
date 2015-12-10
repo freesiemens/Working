@@ -65,7 +65,7 @@ import csv
 import numpy
 from sklearn.cross_decomposition import PLSRegression
 import copy
-import pickle
+import cPickle as pickle
 import matplotlib.pyplot as plot
 import pandas
 

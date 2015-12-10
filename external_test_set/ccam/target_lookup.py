@@ -6,22 +6,25 @@ Created on Wed Jan 28 10:22:55 2015
 """
 import numpy
 import ccam
-
+import pandas
 def target_lookup(filelist,masterlist_file,name_sub_file):
-    data1,labels1=ccam.read_csv(masterlist_file,1,labelrow=True,skipsym=None)
+    data=pandas.read_csv(masterlist_file)
+    labels=data.iloc[0,:]
+    data.columns=numpy.array(labels,dtype='string')
+    data=data.iloc[1:,:]
+    targets=numpy.array(data['Target'])
+    sclocks=numpy.array(data['Spacecraft Clock'])
+    dists=numpy.array(data['Distance (mm)'])
+    amps=numpy.array(data['Laser Energy'])
+    nshots=numpy.array(data['Nbr of Shots'])
     
-    data,labels=ccam.read_csv(masterlist_file,1,labelrow=True,skipsym=None)
-    
-    targets=numpy.array(data[:,5])
-    sclocks=numpy.array(data[:,2])
-    sclocks[numpy.where(sclocks=='')]='0'
-    sclocks_temp=[]
-    for i in range(len(sclocks)):sclocks_temp.append(int(sclocks[i]))
-    sclocks_temp=numpy.array(sclocks_temp)
-    sclocks=sclocks_temp
-    dists=numpy.array(data[:,8])
-    amps=numpy.array(data[:,17])
-    nshots=numpy.array(data[:,11])
+#    data,labels=ccam.read_csv(masterlist_file,1,labelrow=True)
+#    
+#    targets=numpy.array(data[:,5],dtype='string')
+#    sclocks=numpy.array(data[:,2],dtype='string')
+#    dists=numpy.array(data[:,8],dtype='string')
+#    amps=numpy.array(data[:,17],dtype='string')
+#    nshots=numpy.array(data[:,11])
     file_sclocks=numpy.zeros_like(filelist)
     file_targets=numpy.zeros_like(filelist)  
     file_amps=numpy.zeros_like(filelist)
@@ -32,17 +35,17 @@ def target_lookup(filelist,masterlist_file,name_sub_file):
         filelist_ind=filelist==filelist_unique[i]
         filelist_ind_true=(filelist_ind==True)
         file_sclocks[filelist_ind]=filelist_unique[i][-36:-27]
-        targetmatch=numpy.where(sclocks==int(file_sclocks[filelist_ind_true][0]))
-        if max(targetmatch):
+       # print max(sclocks==file_sclocks[filelist_ind_true][0])
+        if max(sclocks==file_sclocks[filelist_ind_true][0]):
             
-            file_targets[filelist_ind]=targets[targetmatch][0]
-            file_dists[filelist_ind]=dists[targetmatch][0]
-            file_amps[filelist_ind]=amps[targetmatch][0]
-            file_nshots[filelist_ind]=nshots[targetmatch][0]
+            file_targets[filelist_ind]=targets[(sclocks==file_sclocks[filelist_ind_true][0])][0]
+            file_dists[filelist_ind]=dists[(sclocks==file_sclocks[filelist_ind_true][0])][0]
+            file_amps[filelist_ind]=amps[(sclocks==file_sclocks[filelist_ind_true][0])][0]
+            file_nshots[filelist_ind]=nshots[(sclocks==file_sclocks[filelist_ind_true][0])][0]
     data=ccam.read_csv(name_sub_file,0,labelrow=False)
     old_name=data[:,0]
     new_name=data[:,1]    
     for i in range(len(old_name)):
         file_targets[(file_targets==old_name[i])]=new_name[i]
-    file_targets=numpy.array([i.replace('\n','') for i in file_targets])
+    
     return file_targets,file_dists,file_amps,file_nshots

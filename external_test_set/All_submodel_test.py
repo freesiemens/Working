@@ -54,7 +54,9 @@ plstype='sklearn'
 
 ##calculate full model#
 #If you have a remove file specific to this submodel, enter it here (e.g. for outlier removal)
-removefile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist.csv'
+#removefile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist.csv'
+removefile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist_SiO2_0-100.csv'
+
 #set the range of compositions in the submodel
 mincomp=0
 maxcomp=100
@@ -69,7 +71,9 @@ ccam.pls_cal(dbfile,maskfile,outpath,which_elem,nc,normtype=normtype,mincomp=min
 
 #calculate mid model
 #If you have a remove file specific to this submodel, enter it here (e.g. for outlier removal)
-removefile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist.csv'
+#removefile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist.csv'
+removefile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist_SiO2_30-70.csv'
+
 #set the range of compositions in the submodel
 mincomp=30
 maxcomp=70
@@ -86,7 +90,9 @@ ccam.pls_cal(dbfile,maskfile,outpath,which_elem,nc,normtype=normtype,mincomp=min
 
 #calculate low model
 #If you have a remove file specific to this submodel, enter it here (e.g. for outlier removal)
-removefile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist_SiO2_0-50.csv'
+#removefile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist_SiO2_0-50.csv'
+removefile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist.csv'
+
 #set the range of compositions in the submodel
 mincomp=0
 maxcomp=50

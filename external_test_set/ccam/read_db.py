@@ -29,18 +29,19 @@ wvl = array of wavelength values for the LIBS spectra
 """
 import numpy
 import ccam
-import pandas
+
 
 def read_db(dbfile,n_elems=9,compcheck=True):
-    data=pandas.read_csv(dbfile)
     
-    names=numpy.array(data.Name)
-    spect_index=numpy.array(data.Spectrum_Index)
-    comps=numpy.array(data[['SiO2','TiO2','Al2O3','FeOT','MnO','MgO','CaO','Na2O','K2O']])
-    spectra=numpy.array(data[data.columns[11:]])
+    data,labels=ccam.read_csv(dbfile,0,labelrow=True)
+  
+    names=numpy.array(data[:,0],dtype='string')
+    spect_index=numpy.array(data[:,1],dtype='int')
+    comps=numpy.array(data[:,2:2+n_elems],dtype='float32')
+    spectra=numpy.array(data[:,2+n_elems:len(data[0,:])],dtype='float64')
    
-    wvl=numpy.array(data.columns[11:],dtype='float')
-    labels=numpy.array(data.columns[0:11])
+    wvl=numpy.array(labels[2+n_elems:],dtype='float32')
+    labels=labels[0:2+n_elems]
     
     if compcheck:
         index=(numpy.sum(comps,axis=1)!=0)
