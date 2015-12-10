@@ -74,7 +74,7 @@ def Plot1to1(truecomps,predicts,plot_title,labels,colors,markers,outfile,xminmax
     plot.ylabel(ylabel,fontsize=24)
     plot.xlim(xminmax)
     plot.ylim(yminmax)
-    plot.legend(loc=2,fontsize=20)
+    plot.legend(loc=0,fontsize=20)
     plot.title(plot_title,fontsize=28)
     fig=plot.gcf()
     fig.set_size_inches(11,8.5)
