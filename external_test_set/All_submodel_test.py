@@ -32,7 +32,7 @@ name_sub_file=r'C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataPr
 
 
 ##############################  SiO2 #####################################
-
+print('WARNING! If youre re-running and trying to match existing results, You should make sure that the remove file is correct for each submodel here!!!!!! Best way is probably to just use the list of removed spectra from the output you are matching')
 #Which element do you want to build models for?
 which_elem='SiO2'
 

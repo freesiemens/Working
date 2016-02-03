@@ -176,15 +176,17 @@ def cv_plots(filenames,ncs,norms,xminmax,yminmax,which_elem):
     
     
           
-    RMSECV_full=numpy.sqrt(numpy.mean((full_cv_predict-full_cv_truecomps)**2))
-    RMSECV_low=numpy.sqrt(numpy.mean((low_cv_predict-low_cv_truecomps)**2))
-    RMSECV_mid=numpy.sqrt(numpy.mean((mid_cv_predict-mid_cv_truecomps)**2))
-    RMSECV_high=numpy.sqrt(numpy.mean((high_cv_predict-high_cv_truecomps)**2))
+    RMSECV_full=round(numpy.sqrt(numpy.mean((full_cv_predict-full_cv_truecomps)**2)),2)
+    RMSECV_low=round(numpy.sqrt(numpy.mean((low_cv_predict-low_cv_truecomps)**2)),2)
+    RMSECV_mid=round(numpy.sqrt(numpy.mean((mid_cv_predict-mid_cv_truecomps)**2)),2)
+    RMSECV_high=round(numpy.sqrt(numpy.mean((high_cv_predict-high_cv_truecomps)**2)),2)
     
     
     truecomps=[full_cv_truecomps,low_cv_truecomps,mid_cv_truecomps,high_cv_truecomps]
     predicts=[full_cv_predict,low_cv_predict,mid_cv_predict,high_cv_predict]
-    labels=['Full (nc='+str(ncs['full'])+', norm='+str(norms['full'])+', RMSECV='+str(RMSECV_full)+')','Low (nc='+str(ncs['low'])+',norm='+str(norms['low'])+', RMSECV='+str(RMSECV_low)+')','Mid (nc='+str(ncs['mid'])+',norm='+str(norms['mid'])+', RMSECV='+str(RMSECV_mid)+')','High (nc='+str(ncs['high'])+',norm='+str(norms['high'])+', RMSECV='+str(RMSECV_high)+')']
+#    labels=['Full (nc='+str(ncs['full'])+', norm='+str(norms['full'])+', RMSECV='+str(RMSECV_full)+')','Low (nc='+str(ncs['low'])+',norm='+str(norms['low'])+', RMSECV='+str(RMSECV_low)+')','Mid (nc='+str(ncs['mid'])+',norm='+str(norms['mid'])+', RMSECV='+str(RMSECV_mid)+')','High (nc='+str(ncs['high'])+',norm='+str(norms['high'])+', RMSECV='+str(RMSECV_high)+')']
+    labels=['Full (RMSECV='+str(RMSECV_full)+')','Low (RMSECV='+str(RMSECV_low)+')','Mid (RMSECV='+str(RMSECV_mid)+')','High (RMSECV='+str(RMSECV_high)+')']
+    
     colors=['c','r','g','b']
     markers=['o','<','v','^']
     plot_title=which_elem+' Cross Validation'
@@ -496,25 +498,28 @@ def predict_elem(which_elem,maxnc,ranges,norms,ncs,testsetfile,predict,blend_set
         blend_predict(all_data,all_wvl,all_filelist,blend_settings['blendranges'],blend_settings['inrange'],blend_settings['refpredict'],blend_settings['toblend'],masterlist,name_subs,ranges,ncs,maskfile,filenames,'all')
         
 
-##############################  SiO2 #####################################
+
+
+
 predict=False
-howlong=1
-
-#Which element are you predicting?
-which_elem='SiO2'
-maxnc=20
-ranges={'full':[0,100],'low':[0,50],'mid':[30,70],'high':[60,100]}
-norms={'full':1,'low':3,'mid':3,'high':1}
-ncs={'full':6,'low':9,'mid':6,'high':5}
-testsetfile="C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\SiO2_sortfold_testfold.csv"
-
-blendranges=[[-20,30],[30,50],[50,60],[60,70],[70,120]]
-inrange=[0,0,0,0,0]
-refpredict=[0,0,0,0,0]
-toblend=[[1,1],[1,2],[2,2],[2,3],[3,3]]
-
-blend_settings={'blendranges':blendranges,'inrange':inrange,'refpredict':refpredict,'toblend':toblend}
-predict_elem(which_elem,maxnc,ranges,norms,ncs,testsetfile,predict,blend_settings,xminmax=[0,100],yminmax=[0,100],blend_opt=True)
+##############################  SiO2 #####################################
+#howlong=1
+#
+##Which element are you predicting?
+#which_elem='SiO2'
+#maxnc=20
+#ranges={'full':[0,100],'low':[0,50],'mid':[30,70],'high':[60,100]}
+#norms={'full':1,'low':3,'mid':3,'high':1}
+#ncs={'full':6,'low':9,'mid':6,'high':5}
+#testsetfile="C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\SiO2_sortfold_testfold.csv"
+#
+#blendranges=[[-20,30],[30,50],[50,60],[60,70],[70,120]]
+#inrange=[0,0,0,0,0]
+#refpredict=[0,0,0,0,0]
+#toblend=[[1,1],[1,2],[2,2],[2,3],[3,3]]
+#
+#blend_settings={'blendranges':blendranges,'inrange':inrange,'refpredict':refpredict,'toblend':toblend}
+#predict_elem(which_elem,maxnc,ranges,norms,ncs,testsetfile,predict,blend_settings,xminmax=[0,100],yminmax=[0,100],blend_opt=True)
 
 
 ###############################  TiO2 #####################################
@@ -530,7 +535,7 @@ inrange=[0,0,0,0,0]
 refpredict=[0,0,0,0,0]
 toblend=[[1,1],[1,2],[2,2],[2,3],[3,3]]
 blend_settings={'blendranges':blendranges,'inrange':inrange,'refpredict':refpredict,'toblend':toblend}
-predict_elem(which_elem,maxnc,ranges,norms,ncs,testsetfile,predict,blend_settings,xminmax=[0,4],yminmax=[0,4],blend_opt=True)
+predict_elem(which_elem,maxnc,ranges,norms,ncs,testsetfile,predict,blend_settings,xminmax=[0,12],yminmax=[0,12],blend_opt=True)
 
 ###############################  Al2O3 #####################################
 
