@@ -79,7 +79,7 @@ def choose_spectra(spectra,spect_index,names,comps,compindex,mincomp=0,maxcomp=1
 
         bins=numpy.squeeze((wvl>linewvl[0])&(wvl<linewvl[1]))
         linesums=numpy.sum(spectra[:,bins],axis=1)
-        print numpy.max(linesums)
+        print(numpy.max(linesums))
 
         index4=(linesums>linestrength[0])&(linesums<linestrength[1])
         index=numpy.vstack((index,index4))
