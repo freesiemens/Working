@@ -594,30 +594,42 @@ pro refplots,refdata_file,combined_results,file_data,xel,yel,elems,figfile,xrang
   ref_stdevs_x=ref_stdevs[*,xind]
   ref_stdevs_y=ref_stdevs[*,yind]
   
+  xall=[transpose((combined_results['means'])[xind,*]),ref_aves_x,ref_aves_x+ref_stdevs_x,ref_aves_x-ref_stdevs_x]
+  yall=[transpose((combined_results['means'])[yind,*]),ref_aves_y,ref_aves_y+ref_stdevs_y,ref_aves_y-ref_stdevs_y]
 
-   if not(keyword_set(legend_position)) then legend_position=[1,1]
+  if not(keyword_set(xrange)) then xrange=[min([0,xall]),1.1*max(xall)]
+  if not(keyword_set(yrange)) then yrange=[min([0,yall]),1.1*max(yall)]
+  if not(keyword_set(legend_position)) then legend_position=[1,1]
 
   
-  plotcolors=['r','g','b','c','m','y','w']
-  plotsyms=['o','s','D','Tu','Td','p','h','S']
+  plotcolors=['Crimson','Forest Green','Royal Blue','Aquamarine','Orchid']
+  plotsyms=[14,16,17,18,19,20,45] ;using filled symbols from the coyote library
   plotarr=[]
-
 
   unique_targets=(file_data['targets'])(uniq(file_data['targets'],sort(file_data['targets'])))
   colorind=0
   symind=0
+  
 
   for i=0,n_elements(unique_targets)-1 do begin
     target_index=where(file_data['targets'] eq unique_targets[i])
     x=(combined_results['means'])[xind,target_index]
     y=(combined_results['means'])[yind,target_index]
     if i eq 0 then begin
-      
-      plotarr=[plotarr,plot(x,y,linestyle='',symbol=plotsyms[symind],sym_filled=1,sym_color='k',sym_fill_color=plotcolors[colorind],sym_size=0.75,name=unique_targets[i],dimensions=[1000,800],xrange=xrange,yrange=yrange,buffer=0)]
+      window,0,xsize=5000,ysize=4000,/pixmap
+      cgplot,x,y,psym=plotsyms[symind],color=plotcolors[colorind],xrange=xrange,yrange=yrange,xthick=5,ythick=5,$
+        xtitle=xtitle,ytitle=ytitle,symsize=5,charsize=6,charthick=5
+      legendnames=unique_targets[i]
+      legendsyms=plotsyms[symind]
+      legendsymcolors=plotcolors[colorind]
+      ;plotarr=[plotarr,plot(x,y,linestyle='',symbol=plotsyms[symind],sym_filled=1,sym_color='k',sym_fill_color=plotcolors[colorind],sym_size=0.75,name=unique_targets[i],dimensions=[1000,800],xrange=xrange,yrange=yrange,buffer=0)]
 
     endif else begin
-      
-      plotarr=[plotarr,plot(x,y,linestyle='',symbol=plotsyms[symind],sym_filled=1,sym_color='k',sym_fill_color=plotcolors[colorind],sym_size=0.75,name=unique_targets[i],/overplot,buffer=0)]
+      cgplot,x,y,psym=plotsyms[symind],color=plotcolors[colorind],/overplot,symsize=5
+      legendnames=[legendnames,unique_targets[i]]
+      legendsyms=[legendsyms,plotsyms[symind]]
+      legendsymcolors=[legendsymcolors,plotcolors[colorind]]
+      ;plotarr=[plotarr,plot(x,y,linestyle='',symbol=plotsyms[symind],sym_filled=1,sym_color='k',sym_fill_color=plotcolors[colorind],sym_size=0.75,name=unique_targets[i],/overplot,buffer=0)]
 
     endelse
 
@@ -629,29 +641,29 @@ pro refplots,refdata_file,combined_results,file_data,xel,yel,elems,figfile,xrang
     if symind ge n_elements(plotsyms) then begin
       symind=0
     endif
-
+    
+    ;legend
 
   endfor
   
     
   
-  xall=[transpose((combined_results['means'])[xind,*]),ref_aves_x,ref_aves_x+ref_stdevs_x,ref_aves_x-ref_stdevs_x]
-  yall=[transpose((combined_results['means'])[yind,*]),ref_aves_y,ref_aves_y+ref_stdevs_y,ref_aves_y-ref_stdevs_y]
-  
-  if not(keyword_set(xrange)) then xrange=[min([0,xall]),1.1*max(xall)]
-  if not(keyword_set(yrange)) then yrange=[min([0,yall]),1.1*max(yall)]
 
   x_labels=fltarr(n_elements(refnames))
   y_labels=fltarr(n_elements(refnames))
   
   for k=0,n_elements(refnames)-1 do begin
-    plotarr=[plotarr,plot([ref_aves_x[k]],[ref_aves_y[k]],linestyle='',symbol=refsyms[k],sym_thick=2,$
-    xtitle=xtitle,ytitle=ytitle,xthick=2,ythick=2,name=refnames[k],sym_filled=1,sym_size=0.5,/overplot,buffer=1)]
     
-    plot2=errorplot([ref_aves_x[k]],[ref_aves_y[k]],[ref_stdevs_x[k]],[ref_stdevs_y[k]],linestyle=6,/overplot,errorbar_capsize=0,buffer=1)
+    cgplot,ref_aves_x[k],ref_aves_y[k],psym=fix(refsyms[k]),/overplot,err_ylow=ref_stdevs_y[k],symsize=4,$
+      err_yhigh=ref_stdevs_y[k],err_xlow=ref_stdevs_x[k],err_xhigh=ref_stdevs_x[k],color='black',/err_clip,err_width=0.002,err_thick=2
+    
+    ;plotarr=[plotarr,plot([ref_aves_x[k]],[ref_aves_y[k]],linestyle='',symbol=refsyms[k],sym_thick=2,$
+    ;xtitle=xtitle,ytitle=ytitle,xthick=2,ythick=2,name=refnames[k],sym_filled=1,sym_size=0.5,/overplot,buffer=1)]
+    
+    ;plot2=errorplot([ref_aves_x[k]],[ref_aves_y[k]],[ref_stdevs_x[k]],[ref_stdevs_y[k]],linestyle=6,/overplot,errorbar_capsize=0,buffer=1)
 
     
-    t_labels_temp=[findgen(24)/24*2*!pi]
+    t_labels_temp=[findgen(24)/24*2*!pi+0.1]
     r_labels_temp=[0.15+fltarr(24)]
 
     x_labels_temp=ref_aves_x[k]+r_labels_temp*cos(t_labels_temp)*max(xrange)
@@ -684,8 +696,18 @@ pro refplots,refdata_file,combined_results,file_data,xel,yel,elems,figfile,xrang
     xall=[xall,linx]
     yall=[yall,liny]
     
+  
+    xtoosmall=where(x lt 0)
+    ytoosmall=where(y lt 0)
+    xtoobig=where(x gt max(xrange))
+    ytoobig=where(y gt max(yrange))
+  
+    if xtoosmall[0] ne -1 then x[xtoosmall]=0
+    if ytoosmall[0] ne -1 then y[ytoosmall]=0
+    if xtoobig[0] ne -1 then x[xtoobig]=max(xrange)
+    if ytoobig[0] ne -1 then y[ytoobig]=max(yrange)
     
-    annot=plot(x,y,/overplot,clip=0,linestyle='--',transparency=50,buffer=1)
+    cgplot,x,y,/overplot,linestyle=0,thick=1
     alignment=[0.0,0.5]
     if dx gt 0 and abs(dx) ge abs(dy) then alignment=[0.0,0.5]
     if dx gt 0 and abs(dx) lt abs(dy) then alignment=[0.5,1.0]
@@ -694,15 +716,17 @@ pro refplots,refdata_file,combined_results,file_data,xel,yel,elems,figfile,xrang
 
     
     newline='!C'
-    
-    t=text(x[1],y[1],strjoin(strsplit(refnames[k],' ',/extract),newline),/data,alignment=alignment[0],vertical_alignment=alignment[1],clip=0,font_size=8,buffer=1)
+    cgtext,x[1],y[1],strjoin(strsplit(refnames[k],' ',/extract),newline),alignment=alignment[0],charsize=4,charthick=5
+    ;t=text(x[1],y[1],strjoin(strsplit(refnames[k],' ',/extract),newline),/data,alignment=alignment[0],vertical_alignment=alignment[1],clip=0,font_size=8,buffer=1)
 
   endfor
-  leg=legend(target=plotarr,position=legend_position,transparency=30,sample_width=0)
+  ;leg=legend(target=plotarr,position=legend_position,transparency=30,sample_width=0)
+  al_legend,legendnames,psym=legendsyms,colors=legendsymcolors,symsize=5,charsize=4,charthick=5
+  
+  write_png,figfile,tvrd(true=1)
 
-
-  plotarr[0].save,figfile
-  plotarr[0].close
+  ;plotarr[0].save,figfile
+  ;plotarr[0].close
 end    
 
     
