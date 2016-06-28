@@ -375,6 +375,14 @@ function pls_submodels,elems,pls_settings,spectra,wvl,totals=totals
         full_coeff=(pls_settings['coeffs'])[labelindex,*]
         full_meancenter=rebin(reform((pls_settings['meancenters'])[labelindex,*]),$
           n_elements((pls_settings['meancenters'])[labelindex,*]),nshots)
+        if n_elements(spectra_norm1[*,0]) ne n_elements(full_meancenter[*,0]) then lencheck='Fail'
+        if n_elements(spectra_norm1[*,0]) ne n_elements(full_coeff) then lencheck='Fail'
+        lencheck='Fail'
+        if lencheck eq 'Fail' then begin
+          xmess ,"Vectors are not the same length! Exiting."
+          exit
+        endif
+   
         if fullnorm eq 1 then comp=matrix_multiply(full_coeff,spectra_norm1-full_meancenter)+y_mean
         if fullnorm eq 3 then comp=matrix_multiply(full_coeff,spectra_norm3-full_meancenter)+y_mean
         comps[which_submodel[n]]=[comps[which_submodel[n]],comp]
