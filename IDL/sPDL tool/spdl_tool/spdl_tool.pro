@@ -188,7 +188,7 @@ if (result.status EQ 'OK') then begin
     quiet=quiet,pls_output=pls_output,ica_output=ica_output,calcstdevs=calcstdevs
   
     
-  xmess ,"Processing complete" 
+  if quiet eq 0 then xmess ,"Processing complete" 
   wait,1
 endif
 

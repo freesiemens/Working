@@ -584,91 +584,89 @@ pro write_results,results,file_data,elems,searchdir,testset_quartiles,software_v
 end
   
 
-pro refplots,refdata_file,combined_results,file_data,xel,yel,elems,figfile,xrange=xrange,yrange=yrange,legend_position=legend_position
-  
+pro refplots,refdata_file,combined_results,file_data,xel,yel,elems,figfile,xrange=xrange,yrange=yrange
+  ;index the data matching the element of interest
   xind=(where(elems eq xel))[0]
+  
+  ;create axis labels
   yind=(where(elems eq yel))[0]
   xtitle=xel+' wt.%'
   ytitle=yel+' wt.%'
   
   ;Read reference data
   refdata=rd_tfile(refdata_file,delim=',',/autocol)
-  
   refnames=refdata[1:*,0]
   refsyms=refdata[1:*,1]
-  
   ref_aves=float(refdata[1:*,3:11])
   ref_stdevs=float(refdata[1:*,14:*])
-    
+  
+  ;Get the average comps and the error bars  
   ref_aves_x=ref_aves[*,xind]
   ref_aves_y=ref_aves[*,yind]
   ref_stdevs_x=ref_stdevs[*,xind]
   ref_stdevs_y=ref_stdevs[*,yind]
   
-;  xerr_low=ref_aves_x-ref_stdevs_x
-;  xerr_high=ref_aves_x+ref_stdevs_x
-;  
-;  yerr_low=ref_aves_y-ref_stdevs_y
-;  yerr_high=ref_aves_y+ref_stdevs_y
-;
-;  errbars_x=[]
-;  errbars_y=[]
-;  for n=0,n_elements(xerr_low)-1 do begin
-;    xtemp=findgen(50)/50*(xerr_high[n]-xerr_low[n])+xerr_low[n]
-;    errbars_x=[errbars_x,xtemp]
-;    errbars_y=[errbars_y,fltarr(50)+ref_aves_y[n]]
-;    ytemp=findgen(50)/50*(yerr_high[n]-yerr_low[n])+yerr_low[n]
+  ;create vectors to store all x and y coordinates, to be used when placing labels to avoid data
+  xall=[transpose((combined_results['means'])[xind,*]),ref_aves_x]
+  yall=[transpose((combined_results['means'])[yind,*]),ref_aves_y]
+ ;Add error bars to xall yall so they repel labels
+;  for a=0,n_elements(ref_stdevs_x)-1 do begin
+;    xerr_pts=findgen(10)/10*(2*ref_stdevs_x[a])+ref_aves_x[a]-ref_stdevs_x[a]
+;    yerr_pts=fltarr(10)+ref_aves_y[a]
 ;    
-;    errbars_y=[errbars_y,ytemp]
-;    errbars_x=[errbars_x,fltarr(50)+ref_aves_x[n]]
+;    yerr_pts=[yerr_pts,findgen(10)/10*(2*ref_stdevs_y[a])+ref_aves_y[a]-ref_stdevs_y[a]]
+;    xerr_pts=[xerr_pts,fltarr(10)+ref_aves_x[a]]
+;    
+;    xall=[xall,xerr_pts]
+;    yall=[yall,yerr_pts]
+;    oplot,xall,yall,psym=3
 ;  endfor
-;  
-;  xall=[transpose((combined_results['means'])[xind,*]),ref_aves_x,errbars_x]
-;  yall=[transpose((combined_results['means'])[yind,*]),ref_aves_y,errbars_y]
-  xall=[transpose((combined_results['means'])[xind,*]),ref_aves_x,ref_aves_x+ref_stdevs_x,ref_aves_x-ref_stdevs_x,ref_aves_x+0.5*ref_stdevs_x,ref_aves_x-0.5*ref_stdevs_x]
-  yall=[transpose((combined_results['means'])[yind,*]),ref_aves_y,ref_aves_y+ref_stdevs_y,ref_aves_y-ref_stdevs_y,ref_aves_y+0.5*ref_stdevs_y,ref_aves_y-0.5*ref_stdevs_y]
-
+  
+  ;set ranges if not already defined
   if not(keyword_set(xrange)) then xrange=[min([0,xall]),1.1*max(xall)]
   if not(keyword_set(yrange)) then yrange=[min([0,yall]),1.1*max(yall)]
-  if not(keyword_set(legend_position)) then legend_position=[1,1]
-
   
-  plotcolors=['Crimson','Forest Green','Royal Blue','Aquamarine','Orchid']
+  ;Create a list of colors and symbols to loop through when plotting data
+  plotcolors=['Crimson','Forest Green','Royal Blue','Aquamarine','Orchid'] ;using defined colors from coyote library
   plotsyms=[14,16,17,18,19,20,45] ;using filled symbols from the coyote library
-  plotarr=[]
-
-  unique_targets=(file_data['targets'])(uniq(file_data['targets'],sort(file_data['targets'])))
   colorind=0
   symind=0
-  
 
+  ;Get a list of unique targets
+  unique_targets=(file_data['targets'])(uniq(file_data['targets'],sort(file_data['targets'])))
+  
+  ;loop through unique targets, plotting each one
   for i=0,n_elements(unique_targets)-1 do begin
+    ;get x and y coordinates
     target_index=where(file_data['targets'] eq unique_targets[i])
     x=(combined_results['means'])[xind,target_index]
     y=(combined_results['means'])[yind,target_index]
+    
+    ;on the first iteration, create the plot
     if i eq 0 then begin
       window,0,xsize=3000,ysize=2400,/pixmap
-      DEVICE, SET_FONT='Arial', /TT_FONT
+      DEVICE, SET_FONT='Arial', /TT_FONT  ;use a nice-looking font
       cgplot,x,y,psym=plotsyms[symind],color=plotcolors[colorind],xrange=xrange,yrange=yrange,xthick=5,ythick=5,$
         xtitle=xtitle,ytitle=ytitle,symsize=5,charsize=7,charthick=5,font=1
+      ;start collecting info to use when drawing the legend
       legendnames=unique_targets[i]
       legendsyms=plotsyms[symind]
       legendsymcolors=plotcolors[colorind]
-      ;plotarr=[plotarr,plot(x,y,linestyle='',symbol=plotsyms[symind],sym_filled=1,sym_color='k',sym_fill_color=plotcolors[colorind],sym_size=0.75,name=unique_targets[i],dimensions=[1000,800],xrange=xrange,yrange=yrange,buffer=0)]
-
+      
     endif else begin
+      ;on subsequent iterations, overplot the data points and add to the legend info
       cgplot,x,y,psym=plotsyms[symind],color=plotcolors[colorind],/overplot,symsize=5
       legendnames=[legendnames,unique_targets[i]]
       legendsyms=[legendsyms,plotsyms[symind]]
       legendsymcolors=[legendsymcolors,plotcolors[colorind]]
-      ;plotarr=[plotarr,plot(x,y,linestyle='',symbol=plotsyms[symind],sym_filled=1,sym_color='k',sym_fill_color=plotcolors[colorind],sym_size=0.75,name=unique_targets[i],/overplot,buffer=0)]
-
+      
     endelse
 
+    ;increment the color and symbol indices. Loop them around if needed so they still point at a valid value
     colorind=colorind+1
     if colorind ge n_elements(plotcolors) then begin
       colorind=0
-      symind=symind+1
+      symind=symind+1 ;increment to a new symbol once all colors have been used up for the current symbol
     endif
     if symind ge n_elements(plotsyms) then begin
       symind=0
@@ -677,43 +675,61 @@ pro refplots,refdata_file,combined_results,file_data,xel,yel,elems,figfile,xrang
 
   endfor
   
-    
-  
-
+  ;create empty arrays to hold the label coordinates
   x_labels=fltarr(n_elements(refnames))
   y_labels=fltarr(n_elements(refnames))
   
+  ;step through each of the reference values
   for k=0,n_elements(refnames)-1 do begin
-    
+    ;plot the reference values with error bars
     cgplot,ref_aves_x[k],ref_aves_y[k],psym=fix(refsyms[k]),/overplot,err_ylow=ref_stdevs_y[k],symsize=4,$
       err_yhigh=ref_stdevs_y[k],err_xlow=ref_stdevs_x[k],err_xhigh=ref_stdevs_x[k],color='black',/err_clip,err_width=0.002,err_thick=2
     
-    ;plotarr=[plotarr,plot([ref_aves_x[k]],[ref_aves_y[k]],linestyle='',symbol=refsyms[k],sym_thick=2,$
-    ;xtitle=xtitle,ytitle=ytitle,xthick=2,ythick=2,name=refnames[k],sym_filled=1,sym_size=0.5,/overplot,buffer=1)]
+    ;create an array of angles and radii to define possible locations for labels around the reference point
+    t_labels_temp=[findgen(16)/16*2*!pi+0.1]  ;add an offset of 0.1 so that lines dont fall precisely on vertical and horizontal (to avoid error bars)
+    r_labels_temp=[0.1+fltarr(n_elements(t_labels_temp))]
     
-    ;plot2=errorplot([ref_aves_x[k]],[ref_aves_y[k]],[ref_stdevs_x[k]],[ref_stdevs_y[k]],linestyle=6,/overplot,errorbar_capsize=0,buffer=1)
-
-    
-    t_labels_temp=[findgen(16)/16*2*!pi+0.1]
-    r_labels_temp=[0.1+fltarr(16)]
-    
+    ;convert the angles and radii to x and y
     x_labels_temp=ref_aves_x[k]+r_labels_temp*cos(t_labels_temp)*max(xrange)
     y_labels_temp=ref_aves_y[k]+r_labels_temp*sin(t_labels_temp)*max(yrange)
 
+    ;force the coordinates to be within the plot area
+    xtoosmall=where(x_labels_temp lt min(xrange))
+    ytoosmall=where(y_labels_temp lt min(yrange))
+    xtoobig=where(x_labels_temp gt max(xrange))
+    ytoobig=where(y_labels_temp gt max(yrange))
     
+    if xtoosmall[0] ne -1 then x_labels_temp[xtoosmall]=min(xrange)
+    if ytoosmall[0] ne -1 then y_labels_temp[ytoosmall]=min(yrange)
+    if xtoobig[0] ne -1 then x_labels_temp[xtoobig]=max(xrange)
+    if ytoobig[0] ne -1 then y_labels_temp[ytoobig]=max(yrange)
+
+    ;calculate the "energy" of each possible label location based on inverse squared distance from plotted data
+    ;This is somewhat analogous to the potential energy of a charged particle when placed among other particles of the same charge
+    ;In other words, choosing the lowest energy label location effective means the data "repels" the label
+    ;making it less likely that it will overlap something interesting on the plot
     energy=fltarr(n_elements(t_labels_temp))
     for n=0,n_elements(t_labels_temp)-1 do begin
+      
+      ;dx_temp=x_labels_temp[n]-ref_aves_x[k]
+      ;dy_temp=y_labels_temp[n]-ref_aves_y[k]
+      ;linx=findgen(100)/100*dx_temp+ref_aves_x[k]
+      ;liny=findgen(100)/100*dy_temp+ref_aves_y[k]
       xall_temp=[xall,x_labels_temp[n]]
       yall_temp=[yall,y_labels_temp[n]]
+      
       dists=distance_measure(transpose([[xall_temp],[yall_temp]]))
       energy[n]=total(dists[where(dists ne 0)]^(-2))
-
     endfor
+
+    ;Choose the label location with the lowest energy
     t_label=(t_labels_temp(where(energy eq min(energy))))[0]
     r_label=(r_labels_temp(where(energy eq min(energy))))[0]
 
     x_labels[k]=ref_aves_x[k]+r_label*cos(t_label)*max(xrange)
     y_labels[k]=ref_aves_y[k]+r_label*sin(t_label)*max(yrange)
+
+    ;Add the label location to the xall and yall array so that it repels the next label
     xall=[xall,fltarr(5)+x_labels[k]]
     yall=[yall,fltarr(5)+y_labels[k]]
 
@@ -728,18 +744,9 @@ pro refplots,refdata_file,combined_results,file_data,xel,yel,elems,figfile,xrang
     xall=[xall,linx]
     yall=[yall,liny]
     
-  
-    xtoosmall=where(x lt 0)
-    ytoosmall=where(y lt 0)
-    xtoobig=where(x gt max(xrange))
-    ytoobig=where(y gt max(yrange))
-  
-    if xtoosmall[0] ne -1 then x[xtoosmall]=0
-    if ytoosmall[0] ne -1 then y[ytoosmall]=0
-    if xtoobig[0] ne -1 then x[xtoobig]=max(xrange)
-    if ytoobig[0] ne -1 then y[ytoobig]=max(yrange)
-    
-    cgplot,x,y,/overplot,linestyle=0,thick=1,font=1
+
+   
+    cgplot,x,y,/overplot,linestyle=0,thick=3,font=1,color='Gray'
     alignment=[0.0,0.5]
     if dx gt 0 and abs(dx) ge abs(dy) then alignment=[0.0,0.5]
     if dx gt 0 and abs(dx) lt abs(dy) then alignment=[0.5,1.0]
@@ -749,10 +756,9 @@ pro refplots,refdata_file,combined_results,file_data,xel,yel,elems,figfile,xrang
     
     newline='!C'
     cgtext,x[1],y[1],strjoin(strsplit(refnames[k],' ',/extract),newline),alignment=alignment[0],charsize=4,charthick=5,font=1
-    ;t=text(x[1],y[1],strjoin(strsplit(refnames[k],' ',/extract),newline),/data,alignment=alignment[0],vertical_alignment=alignment[1],clip=0,font_size=8,buffer=1)
-
+    
   endfor
-  ;leg=legend(target=plotarr,position=legend_position,transparency=30,sample_width=0)
+  
   al_legend,legendnames,psym=legendsyms,colors=legendsymcolors,symsize=5,charsize=4,charthick=5,font=1
   
   write_png,figfile,tvrd(true=1)
@@ -897,14 +903,14 @@ pro pls_and_ica,file_data,pls_settings,elems,test_info,searchdir,software_versio
         
 ;make figures
   if refdata_files ne '' then begin
-    xmess,'Making composition plots...',/nowait,wid=id
+    if quiet eq 0 then xmess,'Making composition plots...',/nowait,wid=id
     for refn=0,n_elements(refdata_files)-1 do begin
       refplots,refdata_files[refn],combined_results,file_data,'SiO2','FeOT',elems,searchdir+'comp_plot_FeOTvsSiO2_'+refdata_names[refn]+'.png'
       refplots,refdata_files[refn],combined_results,file_data,'SiO2','MgO',elems,searchdir+'comp_plot_MgOvsSiO2_'+refdata_names[refn]+'.png'
       refplots,refdata_files[refn],combined_results,file_data,'Al2O3','CaO',elems,searchdir+'comp_plot_CaOvsAl2O3_'+refdata_names[refn]+'.png'
       refplots,refdata_files[refn],combined_results,file_data,'Na2O','K2O',elems,searchdir+'comp_plot_K2OvsNa2O_'+refdata_names[refn]+'.png'
      endfor
-     widget_control, /dest, id
+    if quiet eq 0 then widget_control, /dest, id
   endif
         
         ;Write the appropriate output files, given the input options
