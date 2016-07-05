@@ -108,7 +108,9 @@ end
 
 pro spdl_tool
 software_version="sPDL Tool v2.2 (Last edited 2 June 2016)"
+cd,file_dirname(routine_filepath())
 configfile='pdl_tool_config.csv'
+
 if file_test(configfile) ne 0 then begin
   configdata=rd_tfile(configfile,autocol=1,delim=',')
   configdata=repstr(repstr(configdata,'"',''),'\','/')
@@ -183,7 +185,7 @@ if (result.status EQ 'OK') then begin
   calcstdevs=1
   shots=1
   recursive=1
-  ;stop
+  
   calc_comp,result.searchdir,shots,recursive,configfile,software_version,$
     quiet=quiet,pls_output=pls_output,ica_output=ica_output,calcstdevs=calcstdevs
   
