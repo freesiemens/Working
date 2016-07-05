@@ -583,6 +583,46 @@ pro write_results,results,file_data,elems,searchdir,testset_quartiles,software_v
     write_csv,outputfile,output
 end
   
+function label_energy,labelx,labely,xdata,ydata
+   energy=0
+   for i=0,n_elements(labelx)-1 do begin
+       d=sqrt((labelx[i]-xdata)^2.+(labely[i]-ydata)^2)
+       d=d(where(d ne 0))
+       energy=energy+total(d^(-2.0))
+       
+   endfor
+   return,energy
+end
+
+;This function tests whether two lines intersect, based on their end points
+;Line one goes from A to B, Line 2 goes from C to D
+;Line one = [[Ax,Ay],[Bx,By]]
+;Line two = [[Cx,Cy],[Dx,Dy]]
+function lines_intersect,line1,line2
+   Ax=line1[0,0]
+   Ay=line1[1,0]
+   Bx=line1[0,1]
+   By=line1[1,1]
+   
+   Cx=line2[0,0]
+   Cy=line2[1,0]
+   Dx=line2[0,1]
+   Dy=line2[1,1]
+
+   ;Test whether points A and B are on the same side of line CD
+   test1=(Dx-Cx)*(Ay-Dy)-(Dy-Cy)*(Ax-Dx)
+   test2=(Dx-Cx)*(By-Dy)-(Dy-Cy)*(Bx-Dx)
+   
+   ;Test whether points C and D are on the same side of line AB
+   test3=(Bx-Ax)*(Cy-By)-(By-Ay)*(Cx-Bx)
+   test4=(Bx-Ax)*(Dy-By)-(By-Ay)*(Dx-Bx)
+
+   ;The lines intersect iff A and B are on different sides of CD and C and D are on different sides of AB
+   if (total(signum([test1,test2])) eq 0) and (total(signum([test3,test4])) eq 0) then intersect=1 else intersect=0
+
+  return,intersect
+
+end
 
 pro refplots,refdata_file,combined_results,file_data,xel,yel,elems,figfile,xrange=xrange,yrange=yrange
   ;index the data matching the element of interest
@@ -609,6 +649,8 @@ pro refplots,refdata_file,combined_results,file_data,xel,yel,elems,figfile,xrang
   ;create vectors to store all x and y coordinates, to be used when placing labels to avoid data
   xall=[transpose((combined_results['means'])[xind,*]),ref_aves_x]
   yall=[transpose((combined_results['means'])[yind,*]),ref_aves_y]
+  
+  
  ;Add error bars to xall yall so they repel labels
 ;  for a=0,n_elements(ref_stdevs_x)-1 do begin
 ;    xerr_pts=findgen(10)/10*(2*ref_stdevs_x[a])+ref_aves_x[a]-ref_stdevs_x[a]
@@ -619,12 +661,17 @@ pro refplots,refdata_file,combined_results,file_data,xel,yel,elems,figfile,xrang
 ;    
 ;    xall=[xall,xerr_pts]
 ;    yall=[yall,yerr_pts]
-;    oplot,xall,yall,psym=3
+;    
 ;  endfor
   
   ;set ranges if not already defined
   if not(keyword_set(xrange)) then xrange=[min([0,xall]),1.1*max(xall)]
   if not(keyword_set(yrange)) then yrange=[min([0,yall]),1.1*max(yall)]
+  
+  ;add plot borders to the xall yall arrays to repel labels
+  xall=[xall,findgen(100)/100*(max(xrange)-min(xrange))+min(xrange),findgen(100)/100*(max(xrange)-min(xrange))+min(xrange),fltarr(100)+min(xrange),fltarr(100)+max(xrange)]
+  yall=[yall,fltarr(100)+min(yrange),fltarr(100)+max(yrange),findgen(100)/100*(max(yrange)-min(yrange))+min(yrange),findgen(100)/100*(max(yrange)-min(yrange))+min(yrange)]
+
   
   ;Create a list of colors and symbols to loop through when plotting data
   plotcolors=['Crimson','Forest Green','Royal Blue','Aquamarine','Orchid'] ;using defined colors from coyote library
@@ -686,8 +733,11 @@ pro refplots,refdata_file,combined_results,file_data,xel,yel,elems,figfile,xrang
       err_yhigh=ref_stdevs_y[k],err_xlow=ref_stdevs_x[k],err_xhigh=ref_stdevs_x[k],color='black',/err_clip,err_width=0.002,err_thick=2
     
     ;create an array of angles and radii to define possible locations for labels around the reference point
-    t_labels_temp=[findgen(16)/16*2*!pi+0.1]  ;add an offset of 0.1 so that lines dont fall precisely on vertical and horizontal (to avoid error bars)
+    ;exclude angles too close to verticl or horizontal to avoid conflict with error bars
+    t_labels_temp=[findgen(25)/25*70+10,findgen(25)/25*70+100,findgen(25)/25*70+190,findgen(25)/25*70+280]*((2*!pi)/360.)
+     
     r_labels_temp=[0.1+fltarr(n_elements(t_labels_temp))]
+   
     
     ;convert the angles and radii to x and y
     x_labels_temp=ref_aves_x[k]+r_labels_temp*cos(t_labels_temp)*max(xrange)
@@ -704,67 +754,84 @@ pro refplots,refdata_file,combined_results,file_data,xel,yel,elems,figfile,xrang
     if xtoobig[0] ne -1 then x_labels_temp[xtoobig]=max(xrange)
     if ytoobig[0] ne -1 then y_labels_temp[ytoobig]=max(yrange)
 
+    ;remove any label coordinates that would result in the line crossing a previous label line
+    intersect_check=fltarr(n_elements(x_labels_temp))  ;create an empty array to hold the results
+    for n=0,n_elements(t_labels_temp)-1 do begin
+       line1=[[ref_aves_x[k],ref_aves_y[k]],[x_labels_temp[n],y_labels_temp[n]]]  ;define line1 from the label options
+       
+       for m=0,n_elements(x_labels)-1 do begin
+           if x_labels[m] ne 0 then begin
+             line2=[[ref_aves_x[m],ref_aves_y[m]],[x_labels[m],y_labels[m]]] ;define line2 from the perviously set labels
+          
+             check=lines_intersect(line1,line2)  ;check whether they intersect
+             if check ne 0 then intersect_check[n]=check  ;if so, record it
+           endif
+      endfor
+    endfor
+    
+    ;keep only the label placement options that don't intersect (unless all options intersect)
+    if (where(intersect_check eq 0))[0] ne -1 then begin
+      x_labels_temp=x_labels_temp(where(intersect_check eq 0))
+      y_labels_temp=y_labels_temp(where(intersect_check eq 0))
+      t_labels_temp=t_labels_temp(where(intersect_check eq 0))
+      r_labels_temp=r_labels_temp(where(intersect_check eq 0))
+
+    endif
+    
+    
     ;calculate the "energy" of each possible label location based on inverse squared distance from plotted data
     ;This is somewhat analogous to the potential energy of a charged particle when placed among other particles of the same charge
     ;In other words, choosing the lowest energy label location effective means the data "repels" the label
     ;making it less likely that it will overlap something interesting on the plot
-    energy=fltarr(n_elements(t_labels_temp))
-    for n=0,n_elements(t_labels_temp)-1 do begin
-      
-      ;dx_temp=x_labels_temp[n]-ref_aves_x[k]
-      ;dy_temp=y_labels_temp[n]-ref_aves_y[k]
-      ;linx=findgen(100)/100*dx_temp+ref_aves_x[k]
-      ;liny=findgen(100)/100*dy_temp+ref_aves_y[k]
+    energy=fltarr(n_elements(x_labels_temp))
+    
+    for n=0,n_elements(x_labels_temp)-1 do begin
+      ;temporarily add the annotation line to xall,yall to be used in repelling
+      dx_temp=x_labels_temp[n]-ref_aves_x[k]
+      dy_temp=y_labels_temp[n]-ref_aves_y[k]
+      linx=findgen(10)/10*dx_temp+ref_aves_x[k]
+      liny=findgen(10)/10*dy_temp+ref_aves_y[k]
       xall_temp=[xall,x_labels_temp[n]]
       yall_temp=[yall,y_labels_temp[n]]
       
-      dists=distance_measure(transpose([[xall_temp],[yall_temp]]))
-      energy[n]=total(dists[where(dists ne 0)]^(-2))
+      ;calculate the "energy" for this potential annotation line
+      energy[n]=label_energy(linx,liny,xall,yall)
     endfor
 
     ;Choose the label location with the lowest energy
-    t_label=(t_labels_temp(where(energy eq min(energy))))[0]
-    r_label=(r_labels_temp(where(energy eq min(energy))))[0]
+    x_labels[k]=(x_labels_temp(where(energy eq min(energy))))[0]
+    y_labels[k]=(y_labels_temp(where(energy eq min(energy))))[0]
 
-    x_labels[k]=ref_aves_x[k]+r_label*cos(t_label)*max(xrange)
-    y_labels[k]=ref_aves_y[k]+r_label*sin(t_label)*max(yrange)
-
-    ;Add the label location to the xall and yall array so that it repels the next label
-    xall=[xall,fltarr(5)+x_labels[k]]
-    yall=[yall,fltarr(5)+y_labels[k]]
-
+    ;add the annotation line to xall, yall to repel other labels
     x=[ref_aves_x[k],x_labels[k]]
     y=[ref_aves_y[k],y_labels[k]]
     
-    
     dx=x[1]-x[0]
     dy=y[1]-y[0]
-    linx=findgen(100)/100*dx+x[0]
-    liny=findgen(100)/100*dy+y[0]
+    linx=findgen(10)/10*dx+x[0]
+    liny=findgen(10)/10*dy+y[0]
     xall=[xall,linx]
     yall=[yall,liny]
-    
-
    
+    ;draw the annotation line
     cgplot,x,y,/overplot,linestyle=0,thick=3,font=1,color='Gray'
+    
+    ;set the text alignment
     alignment=[0.0,0.5]
     if dx gt 0 and abs(dx) ge abs(dy) then alignment=[0.0,0.5]
     if dx gt 0 and abs(dx) lt abs(dy) then alignment=[0.5,1.0]
     if dx lt 0 and abs(dx) ge abs(dy) then alignment=[1.0,0.5]
     if dx lt 0 and abs(dx) lt abs(dy) then alignment=[0.5,0]
 
-    
+    ;write annotation text
     newline='!C'
     cgtext,x[1],y[1],strjoin(strsplit(refnames[k],' ',/extract),newline),alignment=alignment[0],charsize=4,charthick=5,font=1
     
   endfor
-  
+  ;write the legend
   al_legend,legendnames,psym=legendsyms,colors=legendsymcolors,symsize=5,charsize=4,charthick=5,font=1
-  
   write_png,figfile,tvrd(true=1)
 
-  ;plotarr[0].save,figfile
-  ;plotarr[0].close
 end    
 
     
