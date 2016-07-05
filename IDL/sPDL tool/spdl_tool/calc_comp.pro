@@ -694,7 +694,7 @@ pro refplots,refdata_file,combined_results,file_data,xel,yel,elems,figfile,xrang
       window,0,xsize=3000,ysize=2400,/pixmap
       DEVICE, SET_FONT='Arial', /TT_FONT  ;use a nice-looking font
       cgplot,x,y,psym=plotsyms[symind],color=plotcolors[colorind],xrange=xrange,yrange=yrange,xthick=5,ythick=5,$
-        xtitle=xtitle,ytitle=ytitle,symsize=5,charsize=7,charthick=5,font=1
+        xtitle=xtitle,ytitle=ytitle,symsize=3,charsize=7,charthick=5,font=1
       ;start collecting info to use when drawing the legend
       legendnames=unique_targets[i]
       legendsyms=plotsyms[symind]
@@ -702,7 +702,7 @@ pro refplots,refdata_file,combined_results,file_data,xel,yel,elems,figfile,xrang
       
     endif else begin
       ;on subsequent iterations, overplot the data points and add to the legend info
-      cgplot,x,y,psym=plotsyms[symind],color=plotcolors[colorind],/overplot,symsize=5
+      cgplot,x,y,psym=plotsyms[symind],color=plotcolors[colorind],/overplot,symsize=3
       legendnames=[legendnames,unique_targets[i]]
       legendsyms=[legendsyms,plotsyms[symind]]
       legendsymcolors=[legendsymcolors,plotcolors[colorind]]
@@ -729,7 +729,7 @@ pro refplots,refdata_file,combined_results,file_data,xel,yel,elems,figfile,xrang
   ;step through each of the reference values
   for k=0,n_elements(refnames)-1 do begin
     ;plot the reference values with error bars
-    cgplot,ref_aves_x[k],ref_aves_y[k],psym=fix(refsyms[k]),/overplot,err_ylow=ref_stdevs_y[k],symsize=4,$
+    cgplot,ref_aves_x[k],ref_aves_y[k],psym=fix(refsyms[k]),/overplot,err_ylow=ref_stdevs_y[k],symsize=3,$
       err_yhigh=ref_stdevs_y[k],err_xlow=ref_stdevs_x[k],err_xhigh=ref_stdevs_x[k],color='black',/err_clip,err_width=0.002,err_thick=2
     
     ;create an array of angles and radii to define possible locations for labels around the reference point
@@ -829,7 +829,7 @@ pro refplots,refdata_file,combined_results,file_data,xel,yel,elems,figfile,xrang
     
   endfor
   ;write the legend
-  al_legend,legendnames,psym=legendsyms,colors=legendsymcolors,symsize=5,charsize=4,charthick=5,font=1
+  al_legend,legendnames,psym=legendsyms,colors=legendsymcolors,symsize=4,charsize=4,charthick=5,font=1
   write_png,figfile,tvrd(true=1)
 
 end    
