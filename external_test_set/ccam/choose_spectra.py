@@ -45,9 +45,9 @@ def choose_spectra(spectra,spect_index,names,comps,compindex,mincomp=0,maxcomp=1
     #optionally, remove spectra listed in an external file
     if removefile != None:
         #read the list of sample names and spectrum indices from the file
-        f=open(removefile,'rb')
-        data=zip(*csv.reader(f))
-        removenames=numpy.array(data[0],dtype='string')
+        f=open(removefile,'r')
+        data=list(zip(*csv.reader(f)))
+        removenames=numpy.array(data[0],dtype='str')
         removeinds=numpy.array(data[1],dtype='int')
         #define an array to hold the indices for each row in the file        
         index2=numpy.empty([len(index),len(removenames)])
@@ -65,10 +65,10 @@ def choose_spectra(spectra,spect_index,names,comps,compindex,mincomp=0,maxcomp=1
     
     if keepfile != None:
        #read the list of sample names and spectrum indices from the file
-        f=open(keepfile,'rb')
+        f=open(keepfile,'r')
         f.readline()
         f.readline()
-        data=zip(*csv.reader(f))
+        data=list(zip(*csv.reader(f)))
         keepinds=numpy.array(data[0],dtype='int')
         keepinds=keepinds-1.0
         index3=numpy.in1d(range(0,len(names)),keepinds)

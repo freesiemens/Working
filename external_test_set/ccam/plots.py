@@ -84,14 +84,14 @@ def Plot1to1(truecomps,predicts,plot_title,labels,colors,markers,outfile,xminmax
 
     
 def readpredicts(filename,nc):
-    f=open(filename,'rb')  #open the file
+    f=open(filename,'r')  #open the file
     cols=f.readline() #read the first line
     cols=numpy.array(cols.split(',')[1:]) 
     cols[-1]=cols[-1].replace('\r','')
     cols[-1]=cols[-1].replace('\n','')
     
-    data=zip(*csv.reader(f))
-    samples=numpy.array(data[0],dtype='string')
+    data=list(zip(*csv.reader(f)))
+    samples=numpy.array(data[0],dtype='str')
     spect_indexes=numpy.array(data[1],dtype='int')
     folds=numpy.array(data[2])
     truecomps=numpy.array(data[3],dtype='float')
