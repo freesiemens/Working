@@ -35,6 +35,7 @@ master=[]
 for i=0,n_elements(masterfile)-1 do begin
     if file_test(masterfile[i]) ne 0 then begin
        mastertemp=rd_tfile(masterfile[i],/autocol,delim=',',hskip=2,header=header)  ;Read the master list
+       
     endif else begin
        xmess ,"Masterlist file "+masterfile[i]+" not found!"
        exit

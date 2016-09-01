@@ -52,6 +52,7 @@
 ; R. Anderson: July 7, 2015 - Added 'quiet' option 
 ; R. Anderson: July 10, 2015 - Modified so that this function only needs to be called once, even if you want to get both mean and single-shot data
 ; R. Anderson: July 23, 2015 - Fixed bug introduced in last edit relating to observations with just one shot
+; R. Anderson - August 26, 2016 - Added mask to first two pixels of UV to improve compatibility with lab data
 ;-
 FUNCTION read_ccs,fn,shot=shot,fn_good_index=fn_good_index,quiet=quiet,spout_means=spout_means
 
@@ -67,7 +68,14 @@ if not(quiet) then progbar=Obj_New('cgProgressBar',/start,percent=0,title='Readi
 
 for i=0,nf-1 do begin
    restore,fn[i]
+   ;Mask the first two pixels of the UV range
+   muv[0:1]=0
+   uv[*,0:1]=0
+   auv[0:1]=0
+   
+   
    suv=size(uv)
+   
    if(suv(1) gt 1) then begin  ;Ensure there is more than one shot
       fn_good_index=[fn_good_index,i]
       if n0 lt suv(1) then begin 

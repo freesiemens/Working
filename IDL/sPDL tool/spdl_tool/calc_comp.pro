@@ -612,13 +612,24 @@ function lines_intersect,line1,line2
    ;Test whether points A and B are on the same side of line CD
    test1=(Dx-Cx)*(Ay-Dy)-(Dy-Cy)*(Ax-Dx)
    test2=(Dx-Cx)*(By-Dy)-(Dy-Cy)*(Bx-Dx)
-   
+   if test1 gt 0 and test2 gt 0 then resultAB=0
+   if test1 lt 0 and test2 lt 0 then resultAB=0
+   if test1 gt 0 and test2 lt 0 then resultAB=1
+   if test1 lt 0 and test2 gt 0 then resultAB=1
+
+
    ;Test whether points C and D are on the same side of line AB
    test3=(Bx-Ax)*(Cy-By)-(By-Ay)*(Cx-Bx)
    test4=(Bx-Ax)*(Dy-By)-(By-Ay)*(Dx-Bx)
+   if test3 gt 0 and test4 gt 0 then resultCD=0
+   if test3 lt 0 and test4 lt 0 then resultCD=0
+   if test3 gt 0 and test4 lt 0 then resultCD=1
+   if test3 lt 0 and test4 gt 0 then resultCD=1
+
 
    ;The lines intersect iff A and B are on different sides of CD and C and D are on different sides of AB
-   if (total(signum([test1,test2])) eq 0) and (total(signum([test3,test4])) eq 0) then intersect=1 else intersect=0
+   if resultCD eq 1 or resultAB eq 1 then intersect=1 else intersect=0
+   
 
   return,intersect
 
@@ -674,8 +685,8 @@ pro refplots,refdata_file,combined_results,file_data,xel,yel,elems,figfile,xrang
 
   
   ;Create a list of colors and symbols to loop through when plotting data
-  plotcolors=['Crimson','Forest Green','Royal Blue','Aquamarine','Orchid'] ;using defined colors from coyote library
-  plotsyms=[14,16,17,18,19,20,45] ;using filled symbols from the coyote library
+  plotcolors=['Crimson','Forest Green','Royal Blue','Aquamarine','Orchid','Yellow'] ;using defined colors from coyote library
+  plotsyms=[14,16,17,18,19,20] ;using filled symbols from the coyote library
   colorind=0
   symind=0
 
@@ -692,9 +703,10 @@ pro refplots,refdata_file,combined_results,file_data,xel,yel,elems,figfile,xrang
     ;on the first iteration, create the plot
     if i eq 0 then begin
       window,0,xsize=3000,ysize=2400,/pixmap
-      DEVICE, SET_FONT='Arial', /TT_FONT  ;use a nice-looking font
+      DEVICE, SET_FONT='Helvetica', /TT_FONT  ;use a nice-looking font
       cgplot,x,y,psym=plotsyms[symind],color=plotcolors[colorind],xrange=xrange,yrange=yrange,xthick=5,ythick=5,$
-        xtitle=xtitle,ytitle=ytitle,symsize=3,charsize=7,charthick=5,font=1
+        xtitle=xtitle,ytitle=ytitle,symsize=3,charsize=6,charthick=5,font=1
+      
       ;start collecting info to use when drawing the legend
       legendnames=unique_targets[i]
       legendsyms=plotsyms[symind]
@@ -810,8 +822,8 @@ pro refplots,refdata_file,combined_results,file_data,xel,yel,elems,figfile,xrang
     dy=y[1]-y[0]
     linx=findgen(10)/10*dx+x[0]
     liny=findgen(10)/10*dy+y[0]
-    xall=[xall,linx]
-    yall=[yall,liny]
+    xall=[xall,linx,fltarr(5)+x_labels[k]]
+    yall=[yall,liny,fltarr(5)+y_labels[k]]
    
     ;draw the annotation line
     cgplot,x,y,/overplot,linestyle=0,thick=3,font=1,color='Gray'
@@ -825,7 +837,7 @@ pro refplots,refdata_file,combined_results,file_data,xel,yel,elems,figfile,xrang
 
     ;write annotation text
     newline='!C'
-    cgtext,x[1],y[1],strjoin(strsplit(refnames[k],' ',/extract),newline),alignment=alignment[0],charsize=4,charthick=5,font=1
+    cgtext,x[1],y[1],strjoin(strsplit(refnames[k],' ',/extract),newline),alignment=alignment[0],charsize=5,charthick=5,font=1
     
   endfor
   ;write the legend

@@ -108,7 +108,7 @@ end
 
 pro spdl_tool
 software_version="sPDL Tool v2.2 (Last edited 2 June 2016)"
-cd,file_dirname(routine_filepath())
+cd,file_dirname(routine_filepath('spdl_tool'))
 configfile='pdl_tool_config.csv'
 
 if file_test(configfile) ne 0 then begin
@@ -122,8 +122,8 @@ endelse
 
 searchdir=configdata[1,0]
 
-
-undefine,calcparam ;clear all info in calcparam so it can be properly set again
+calcparam=[]
+;undefine,calcparam ;clear all info in calcparam so it can be properly set again
 
 ; create top level base
 tlb=widget_base(column=1, title="PDL_TOOL", $
