@@ -8,13 +8,11 @@ import numpy
 import ccam
 import pandas
 def target_lookup(filelist,masterlist_file,name_sub_file):
-    data=pandas.read_csv(masterlist_file)
-    labels=data.iloc[0,:]
-    data.columns=numpy.array(labels,dtype='string')
-    data=data.iloc[1:,:]
+    data=pandas.read_csv(masterlist_file,header=1)
+
     targets=numpy.array(data['Target'])
     sclocks=numpy.array(data['Spacecraft Clock'])
-    dists=numpy.array(data['Distance (mm)'])
+    dists=numpy.array(data['Distance (m)'])
     amps=numpy.array(data['Laser Energy'])
     nshots=numpy.array(data['Nbr of Shots'])
     
@@ -36,13 +34,13 @@ def target_lookup(filelist,masterlist_file,name_sub_file):
         filelist_ind_true=(filelist_ind==True)
         file_sclocks[filelist_ind]=filelist_unique[i][-36:-27]
        # print max(sclocks==file_sclocks[filelist_ind_true][0])
-        if max(sclocks==file_sclocks[filelist_ind_true][0]):
+        if numpy.max(sclocks==file_sclocks[filelist_ind_true][0]):
             
             file_targets[filelist_ind]=targets[(sclocks==file_sclocks[filelist_ind_true][0])][0]
             file_dists[filelist_ind]=dists[(sclocks==file_sclocks[filelist_ind_true][0])][0]
             file_amps[filelist_ind]=amps[(sclocks==file_sclocks[filelist_ind_true][0])][0]
             file_nshots[filelist_ind]=nshots[(sclocks==file_sclocks[filelist_ind_true][0])][0]
-    data=ccam.read_csv(name_sub_file,0,labelrow=False)
+    data,labels=ccam.read_csv(name_sub_file,0,labelrow=False)
     old_name=data[:,0]
     new_name=data[:,1]    
     for i in range(len(old_name)):

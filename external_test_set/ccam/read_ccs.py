@@ -9,7 +9,7 @@ import fnmatch
 import numpy
 import ccam
 
-def read_ccs(searchdir,skiprows=0,shots=False,masterlist=None,name_sub_file=None):#,minsol=0,maxsol=10000,masterlist=None):
+def read_ccs(searchdir,skiprows=15,shots=False,masterlist=None,name_sub_file=None):#,minsol=0,maxsol=10000,masterlist=None):
     searchstring='*CCS*csv'
     
      #Recursively search for CCS files in the specified directory
@@ -59,7 +59,7 @@ def read_ccs(searchdir,skiprows=0,shots=False,masterlist=None,name_sub_file=None
         if numpy.mod(i+1,100)==0:
             print('Reading file #'+str(i+1))
         
-        tempdata=ccam.read_csv(filelist[i],skiprows,labelrow=False)
+        tempdata,templabels=ccam.read_csv(filelist[i],skiprows,labelrow=False)
         
         wvl=numpy.array(tempdata[:,0],dtype='float')
         if shots is False:        

@@ -97,9 +97,11 @@ def generate_filenames(which_elem,outpath,plstype,maxnc,norms,ranges,xminmax,ymi
     imgfile_high_test=outpath+'\\'+which_elem+'_final_model_predictions_1to1_'+str(xminmax[0])+'-'+str(xminmax[1])+'_high ('+str(ranges['high'][0])+'-'+str(ranges['high'][1])+')_test.png'
     imgfile_blended_full_test=outpath+'\\'+which_elem+'_final_model_predictions_1to1_blended_full_test.png'
 
+    #specify file to store the blending optimization results
+    blend_outfile=outpath+'\\'+which_elem+'blend_opt.csv'
     imgfiles_test={'all':imgfile_test,'blended':imgfile_blended_test,'full':imgfile_full_test,'low':imgfile_low_test,'mid':imgfile_mid_test,'high':imgfile_high_test,'blended_full':imgfile_blended_full_test}
   
-    filename={'means_file':means_file,'loadfile':loadfile,'cv_file':cv_file,'Qres_file':Qres_file,'T2_file':T2_file,'Q_T2_out':Q_T2_out,'pred_csv_out':pred_csv_out,'cv_file':cv_file,'outfiles1to1':outfiles1to1,'imgfiles':imgfiles,'imgfiles_test':imgfiles_test}
+    filename={'means_file':means_file,'loadfile':loadfile,'cv_file':cv_file,'Qres_file':Qres_file,'T2_file':T2_file,'Q_T2_out':Q_T2_out,'pred_csv_out':pred_csv_out,'cv_file':cv_file,'outfiles1to1':outfiles1to1,'imgfiles':imgfiles,'imgfiles_test':imgfiles_test,'blend_outfile':blend_outfile}
     return filename
     
     
@@ -120,7 +122,7 @@ def blend_predict(data,wvl,filelist,blendranges,inrange,refpredict,toblend,maste
     
     y_combined=numpy.zeros_like(y_high)
     print('Writing results to'+filenames['pred_csv_out'][outputstr])
-    with open(filenames['pred_csv_out'][outputstr],'wb') as writefile:
+    with open(filenames['pred_csv_out'][outputstr],'w',newline='') as writefile:
             writer=csv.writer(writefile,delimiter=',')
             row=['','','','','Full ('+str(ranges['full'][0])+'-'+str(ranges['full'][1])+')','Low ('+str(ranges['low'][0])+'-'+str(ranges['low'][1])+')','Mid ('+str(ranges['mid'][0])+'-'+str(ranges['mid'][1])+')','High ('+str(ranges['high'][0])+'-'+str(ranges['high'][1])+')','Blended']
             writer.writerow(row)
@@ -237,6 +239,11 @@ def final_model_results(y,spect_index,namelist,compos,blend_settings,xminmax,ymi
         plot_title=which_elem_temp
         imgnames=filenames['imgfiles_test']
         
+        percentiles=[0,20,40,60,80]
+        bins=numpy.percentile(compos[0],percentiles)
+        #bins=numpy.max(compos[0])/20*numpy.arange(20)
+        #bins=numpy.hstack(([0],numpy.logspace(-1,2,num=10)[0:-1]))        
+        index_bins=numpy.digitize(compos[0],bins)
         
         index_full=numpy.where((compos[0]>0) & (compos[0]<100))
         index_low=numpy.where((compos[1]>ranges['low'][0]) & (compos[1]<ranges['low'][1]))       
@@ -249,6 +256,31 @@ def final_model_results(y,spect_index,namelist,compos,blend_settings,xminmax,ymi
         n_mid=len(index_mid[0])
         n_high=len(index_high[0])
         n_blend=len(index_blend[0])
+        n_bins=[]
+        
+        
+        RMSEP_bins=[]
+        RMSEP_bins_full=[]
+        S2_bins=[]
+        S2_bins_full=[]
+        t_bins=[]
+        f_bins=[]
+        p_bins=[]
+        for i in range(len(bins)):
+            n_bins.append(numpy.sum(index_bins==i+1))
+            RMSEP_bins.append(numpy.sqrt(numpy.mean((predicts[4][index_bins==i+1]-compos[4][index_bins==i+1])**2)))
+            RMSEP_bins_full.append(numpy.sqrt(numpy.mean((predicts[0][index_bins==i+1]-compos[0][index_bins==i+1])**2)))   
+            if RMSEP_bins_full[i]<RMSEP_bins[i]:
+                print(i)                
+                print(RMSEP_bins[i])
+                print(RMSEP_bins_full[i])
+                print('stop')
+            S2_bins.append((RMSEP_bins[i]/numpy.sqrt(2*(n_bins[i]-1)))**2)
+            S2_bins_full.append((RMSEP_bins_full[i]/numpy.sqrt(2*(n_bins[i]-1)))**2)
+            t_bins.append((RMSEP_bins_full[i]-RMSEP_bins[i])/numpy.sqrt(S2_bins_full[i]+S2_bins[i]))
+            f_bins.append(((S2_bins_full[i]+S2_bins[i])**2)/((S2_bins_full[i]**2)/(n_bins[i]-1)+(S2_bins[i]**2)/(n_bins[i]-1)))
+            p_bins.append(stats.t.sf(numpy.abs(t_bins[i]),f_bins[i])*2*100)
+        
 
         RMSEP_full=(numpy.sqrt(numpy.mean((predicts[0][index_full]-compos[0][index_full])**2)))
         RMSEP_full_low=(numpy.sqrt(numpy.mean((predicts[0][index_low]-compos[0][index_low])**2)))
@@ -286,10 +318,10 @@ def final_model_results(y,spect_index,namelist,compos,blend_settings,xminmax,ymi
         f_fullmid_blendmid=((S2_full_mid+S2_blend_mid)**2)/((S2_full_mid**2)/(n_mid-1)+(S2_blend_mid**2)/(n_mid-1))
         f_fullhigh_blendhigh=((S2_full_high+S2_blend_high)**2)/((S2_full_high**2)/(n_high-1)+(S2_blend_high**2)/(n_high-1))        
         
-        p_full_blend=stats.t.sf(numpy.abs(t_full_blend),f_full_blend)*2*100
-        p_fulllow_blendlow=stats.t.sf(numpy.abs(t_fulllow_blendlow),f_fulllow_blendlow)*2*100
-        p_fullmid_blendmid=stats.t.sf(numpy.abs(t_fullmid_blendmid),f_fullmid_blendmid)*2*100
-        p_fullhigh_blendhigh=stats.t.sf(numpy.abs(t_fullhigh_blendhigh),f_fullhigh_blendhigh)*2*100
+        p_full_blend=stats.t.sf(numpy.abs(t_full_blend),f_full_blend)*2
+        p_fulllow_blendlow=stats.t.sf(numpy.abs(t_fulllow_blendlow),f_fulllow_blendlow)*2
+        p_fullmid_blendmid=stats.t.sf(numpy.abs(t_fullmid_blendmid),f_fullmid_blendmid)*2
+        p_fullhigh_blendhigh=stats.t.sf(numpy.abs(t_fullhigh_blendhigh),f_fullhigh_blendhigh)*2
 
         labels=['PLS1 (RMSEP='+str(round(RMSEP_full,2))+')','Low (RMSEP='+str(round(RMSEP_low,2))+')','Mid (RMSEP='+str(round(RMSEP_mid,2))+')','High (RMSEP='+str(round(RMSEP_high,2))+')','Blended Submodels (RMSEP='+str(round(RMSEP_blend,2))+')']
         f=operator.itemgetter(0,4)
@@ -298,7 +330,7 @@ def final_model_results(y,spect_index,namelist,compos,blend_settings,xminmax,ymi
         ccam.plots.Plot1to1(list(f(compos)),list(f(predicts)),plot_title,list(f(labels)),list(f(colors)),list(f(markers)),imgnames['blended_full'],xminmax=xminmax,yminmax=yminmax,dpi=dpi)
         
         cwd=os.getcwd()
-        with open(cwd+'\\Testset_RMSEP_summary.csv','a') as writefile:
+        with open(cwd+'\\Testset_RMSEP_summary.csv','a',newline='') as writefile:
             writer=csv.writer(writefile,delimiter=',')
             writer.writerow([which_elem])   
             row=['Ranges']
@@ -325,6 +357,19 @@ def final_model_results(y,spect_index,namelist,compos,blend_settings,xminmax,ymi
             writer.writerow([str(ranges['low'][0])+'-'+str(ranges['low'][1]),str(n_low),str(RMSEP_full_low),str(RMSEP_blend_low),str(p_fulllow_blendlow),str(RMSEP_low)])
             writer.writerow([str(ranges['mid'][0])+'-'+str(ranges['mid'][1]),str(n_mid),str(RMSEP_full_mid),str(RMSEP_blend_mid),str(p_fullmid_blendmid),str(RMSEP_mid)])
             writer.writerow([str(ranges['high'][0])+'-'+str(ranges['high'][1]),str(n_high),str(RMSEP_full_high),str(RMSEP_blend_high),str(p_fullhigh_blendhigh),str(RMSEP_high)])
+                       
+            for i in range(len(p_bins)):
+                try:
+                    row=[str(round(bins[i],2))+'-'+str(round(bins[i+1],2))]
+                except:
+                    row=[str(round(bins[i],2))+'-100']
+                row.append(n_bins[i])
+                row.append(RMSEP_bins_full[i])
+                row.append(RMSEP_bins[i])
+                row.append(p_bins[i])
+                print(i)
+                print(row)
+                writer.writerow(row)
             
            
         
@@ -348,7 +393,7 @@ def final_model_results(y,spect_index,namelist,compos,blend_settings,xminmax,ymi
     yminmax[0]=numpy.min(predicts[3])
     ccam.plots.Plot1to1([compos[3]],[predicts[3]],plot_title,[labels[3]],[colors[3]],[markers[3]],imgnames['high'],xminmax=xminmax,yminmax=yminmax,dpi=dpi)
     
-    with open(filenames['pred_csv_out'][outfilestr],'w') as writefile:
+    with open(filenames['pred_csv_out'][outfilestr],'w',newline='') as writefile:
             writer=csv.writer(writefile,delimiter=',')
             row=['','','','Full ('+str(ranges['full'][0])+'-'+str(ranges['full'][1])+')','Low ('+str(ranges['low'][0])+'-'+str(ranges['low'][1])+')','Mid ('+str(ranges['mid'][0])+'-'+str(ranges['mid'][1])+')','High ('+str(ranges['high'][0])+'-'+str(ranges['high'][0])+')','Blended']
             writer.writerow(row)
@@ -375,12 +420,11 @@ def RMSE_blend(inputvals,inrange,refpredict,predicts,actual):
     blendranges=[[-20,ranges[0]],[ranges[0],ranges[1]],[ranges[1],ranges[2]],[ranges[2],ranges[3]],[ranges[3],120]]     
     blended=ccam.submodels_blend(predicts,blendranges,inrange,refpredict,toblend,overwrite=False,noneg=False)
     RMSE=numpy.sqrt(numpy.mean((blended-actual)**2))
-    print (blendranges)
     print (RMSE)
     return RMSE
     
     
-def blend_optimize(y,blend_settings,refcomps):
+def blend_optimize(y,blend_settings,refcomps,outfile=None):
     predicts=[y['full'],y['low'],y['mid'],y['high']]
     refcomps=numpy.squeeze(numpy.array(refcomps)[0,:])
     
@@ -402,7 +446,11 @@ def blend_optimize(y,blend_settings,refcomps):
     opt_ranges=sorted(result.x[0:4])
     blendranges=[[-20,opt_ranges[0]],[opt_ranges[0],opt_ranges[1]],[opt_ranges[1],opt_ranges[2]],[opt_ranges[2],opt_ranges[3]],[opt_ranges[3],110]]
     print(blendranges )
-    
+    if outfile:
+        with open(outfile,'w',newline='') as writefile:
+            writer=csv.writer(writefile,delimiter=',')
+            writer.writerow(numpy.round(blendranges,2))
+               
     blend_settings={'blendranges':blendranges,'inrange':inrange,'refpredict':refpredict,'toblend':toblend}
     return blend_settings    
     
@@ -415,7 +463,7 @@ def predict_elem(which_elem,maxnc,ranges,norms,ncs,testsetfile,predict,blend_set
                  name_subs=r'C:\Users\rbanderson\Documents\Projects\MSL\ChemCam\DataProcessing\Working\Input\target_name_subs.csv',
                  dbfile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\full_db_mars_corrected.csv',
                  removefile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist.csv',
-                 plstype='sklearn',xminmax=[0,100],yminmax=[0,100],blend_opt=True):
+                 plstype='sklearn',xminmax=[0,100],yminmax=[0,100],blend_opt=True,blend_outfile=None):
     outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\external_test_set\\Output\\'+which_elem+'\\'
     print('############  '+which_elem+' ##############')
     filenames=generate_filenames(which_elem,outpath,plstype,maxnc,norms,ranges,xminmax,yminmax)
@@ -476,7 +524,7 @@ def predict_elem(which_elem,maxnc,ranges,norms,ncs,testsetfile,predict,blend_set
     truecomps_train=[train_comps,train_comps,train_comps,train_comps,train_comps]
     
     if blend_opt:
-        blend_settings=blend_optimize(y_train,blend_settings,truecomps_train)    
+        blend_settings=blend_optimize(y_train,blend_settings,truecomps_train,outfile=filenames['blend_outfile'])    
     final_model_results(y_db,spect_index,names,truecomps,blend_settings,xminmax,yminmax,ranges,ncs,norms,which_elem,filenames,'db')
     final_model_results(y_test,test_spect_index,testnames,truecomps_test,blend_settings,xminmax,yminmax,ranges,ncs,norms,which_elem,filenames,'test')
     
@@ -515,6 +563,7 @@ norms={'full':1,'low':3,'mid':3,'high':1}
 ncs={'full':6,'low':9,'mid':6,'high':5}
 testsetfile="C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\SiO2_sortfold_testfold.csv"
 
+
 blendranges=[[-20,30],[30,50],[50,60],[60,70],[70,120]]
 inrange=[0,0,0,0,0]
 refpredict=[0,0,0,0,0]
@@ -527,6 +576,7 @@ predict_elem(which_elem,maxnc,ranges,norms,ncs,testsetfile,predict,blend_setting
 ###############################  TiO2 #####################################
 which_elem='TiO2'
 
+dbfile_TiO2='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\full_db_mars_corrected_dopedTiO2.csv'
 maxnc=30
 ranges={'full':[0,100],'low':[0,2],'mid':[1,5],'high':[3,100]}
 norms={'full':3,'low':3,'mid':1,'high':3}
@@ -537,7 +587,7 @@ inrange=[0,0,0,0,0]
 refpredict=[0,0,0,0,0]
 toblend=[[1,1],[1,2],[2,2],[2,3],[3,3]]
 blend_settings={'blendranges':blendranges,'inrange':inrange,'refpredict':refpredict,'toblend':toblend}
-predict_elem(which_elem,maxnc,ranges,norms,ncs,testsetfile,predict,blend_settings,xminmax=[0,12],yminmax=[0,12],blend_opt=True)
+predict_elem(which_elem,maxnc,ranges,norms,ncs,testsetfile,predict,blend_settings,xminmax=[0,12],yminmax=[0,12],blend_opt=True,dbfile=dbfile_TiO2)
 
 ###############################  Al2O3 #####################################
 
@@ -579,7 +629,7 @@ ranges={'full':[0,100],'low':[0,3.5],'mid':[0,20],'high':[8,100]}
 norms={'full':3,'low':1,'mid':1,'high':1}
 ncs={'full':7,'low':6,'mid':9,'high':8}
 testsetfile="C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\MgO_sortfold_testfold.csv"
-blendranges=[[-20,1],[1,3.5],[3.5,8],[8,20],[20,100]]
+blendranges=[[-20,1],[1,3.5],[3.5,8],[8,20],[20,120]]
 inrange=[0,0,0,0,0]
 refpredict=[0,0,0,0,0]
 toblend=[[1,1],[1,2],[2,2],[2,3],[3,3]]

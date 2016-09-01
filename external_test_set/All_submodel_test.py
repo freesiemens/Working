@@ -18,17 +18,19 @@ removefile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProces
 #foldfile=None#'C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\folds.csv'
 testsetfile="C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\SiO2_sortfold_testfold.csv"
 #specify where the file describing what parts of the spectrum to mask is
-maskfile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\mask_minors_noise.csv'
+#maskfile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\mask_minors_noise.csv'
+maskfile=r"C:\Users\rbanderson\Documents\Projects\MSL\ChemCam\DataProcessing\Working\Input\mask_minors_noise_20160202.csv"
 #If you have one, specify the location of the file listing spectra to keep in the model (default is to not use this and just use the remove list)
 keepfile=None#'C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\Si_full_included.csv'
 
 #Specify directory containing cal target spectra
-cal_dir='E:\\ChemCam\\ops_ccam_team\\CalTarget 95A'
+cal_dir=r"C:\Users\rbanderson\Documents\Projects\MSL\ChemCam\ops_data\ops_ccam_team\CalTarget 95A"
 #specify where to find the master list file
-masterlist_file="E:\\ChemCam\\ops_ccam_misc\\MASTERLIST_SOL_0010_0801.csv"
+masterlist_file=r"C:\Users\rbanderson\Documents\Projects\MSL\ChemCam\ops_data\ops_ccam_misc\MASTERLIST.csv"
 #Location of a file with target name substitutions (this is used primarily to substitute cal target names: Cal Target 1 --> Macusanite)
 name_sub_file=r'C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\target_name_subs.csv'
 
+outpath_root=r'C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\external_test_set\\Output\\'
 
 
 ##############################  SiO2 #####################################
@@ -37,7 +39,7 @@ print('WARNING! If youre re-running and trying to match existing results, You sh
 which_elem='SiO2'
 
 #Specify where to write all output files
-outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\external_test_set\\Output\\'+which_elem+'\\'
+outpath=outpath_root+which_elem+'\\'
 
 #How many folds do you want to use?
 nfolds=5
@@ -52,7 +54,7 @@ plstype='sklearn'
 
 
 
-##calculate full model#
+#calculate full model#
 #If you have a remove file specific to this submodel, enter it here (e.g. for outlier removal)
 #removefile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist.csv'
 removefile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist_SiO2_0-100.csv'
@@ -126,14 +128,16 @@ ccam.pls_cal(dbfile,maskfile,outpath,which_elem,nc,normtype=normtype,mincomp=min
 ##############################  TiO2 #####################################
 dbfile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\full_db_mars_corrected_dopedTiO2.csv'
 removefile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist.csv'
-maskfile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\mask_minors_noise.csv'
+#maskfile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\mask_minors_noise.csv'
+maskfile=r"C:\Users\rbanderson\Documents\Projects\MSL\ChemCam\DataProcessing\Working\Input\mask_minors_noise_20160202.csv"
+
 testsetfile="C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\TiO2_sortfold_testfold.csv"
 
 keepfile=None#'C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\Si_full_included.csv'
 
 
 which_elem='TiO2'
-outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\external_test_set\\Output\\'+which_elem+'\\'
+outpath=outpath_root+which_elem+'\\'
 
 mincomp=0
 maxcomp=100
@@ -190,14 +194,16 @@ ccam.pls_cal(dbfile,maskfile,outpath,which_elem,nc,normtype=normtype,mincomp=min
 dbfile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\full_db_mars_corrected.csv'
 removefile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist.csv'
 foldfile=None#'C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\folds.csv'
-maskfile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\mask_minors_noise.csv'
+#maskfile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\mask_minors_noise.csv'
+maskfile=r"C:\Users\rbanderson\Documents\Projects\MSL\ChemCam\DataProcessing\Working\Input\mask_minors_noise_20160202.csv"
+
 testsetfile="C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\Al2O3_sortfold_testfold.csv"
 
 keepfile=None#'C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\Si_full_included.csv'
 
 
 which_elem='Al2O3'
-outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\external_test_set\\Output\\'+which_elem+'\\'
+outpath=outpath_root+which_elem+'\\'
 
 mincomp=0
 maxcomp=100
@@ -254,14 +260,16 @@ ccam.pls_cal(dbfile,maskfile,outpath,which_elem,nc,normtype=normtype,mincomp=min
 dbfile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\full_db_mars_corrected.csv'
 removefile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist.csv'
 foldfile=None#'C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\folds.csv'
-maskfile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\mask_minors_noise.csv'
+#maskfile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\mask_minors_noise.csv'
+maskfile=r"C:\Users\rbanderson\Documents\Projects\MSL\ChemCam\DataProcessing\Working\Input\mask_minors_noise_20160202.csv"
+
 testsetfile="C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\FeOT_sortfold_testfold.csv"
 
 keepfile=None#'C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\Si_full_included.csv'
 
 
 which_elem='FeOT'
-outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\external_test_set\\Output\\'+which_elem+'\\'
+outpath=outpath_root+which_elem+'\\'
 
 mincomp=0
 maxcomp=100
@@ -319,7 +327,9 @@ ccam.pls_cal(dbfile,maskfile,outpath,which_elem,nc,normtype=normtype,mincomp=min
 dbfile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\full_db_mars_corrected.csv'
 removefile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist.csv'
 foldfile=None#'C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\folds.csv'
-maskfile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\mask_minors_noise.csv'
+#maskfile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\mask_minors_noise.csv'
+maskfile=r"C:\Users\rbanderson\Documents\Projects\MSL\ChemCam\DataProcessing\Working\Input\mask_minors_noise_20160202.csv"
+
 testsetfile="C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\MgO_sortfold_testfold.csv"
 
 keepfile=None#'C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\Si_full_included.csv'
@@ -327,7 +337,7 @@ keepfile=None#'C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataPro
 
 
 which_elem='MgO'
-outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\external_test_set\\Output\\'+which_elem+'\\'
+outpath=outpath_root+which_elem+'\\'
 
 mincomp=0
 maxcomp=100
@@ -383,14 +393,16 @@ ccam.pls_cal(dbfile,maskfile,outpath,which_elem,nc,normtype=normtype,mincomp=min
 dbfile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\full_db_mars_corrected.csv'
 removefile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist.csv'
 foldfile=None#'C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\folds.csv'
-maskfile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\mask_minors_noise.csv'
+#maskfile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\mask_minors_noise.csv'
+maskfile=r"C:\Users\rbanderson\Documents\Projects\MSL\ChemCam\DataProcessing\Working\Input\mask_minors_noise_20160202.csv"
+
 testsetfile="C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\CaO_sortfold_testfold.csv"
 
 keepfile=None#'C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\Si_full_included.csv'
 
 normtype=3
 which_elem='CaO'
-outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\external_test_set\\Output\\'+which_elem+'\\'
+outpath=outpath_root+which_elem+'\\'
 
 nfolds=5
 testfold=2
@@ -442,13 +454,15 @@ ccam.pls_cal(dbfile,maskfile,outpath,which_elem,nc,normtype=normtype,mincomp=min
 dbfile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\full_db_mars_corrected.csv'
 removefile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist.csv'
 foldfile=None#'C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\folds.csv'
-maskfile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\mask_minors_noise.csv'
+#maskfile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\mask_minors_noise.csv'
+maskfile=r"C:\Users\rbanderson\Documents\Projects\MSL\ChemCam\DataProcessing\Working\Input\mask_minors_noise_20160202.csv"
+
 keepfile=None#'C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\Si_full_included.csv'
 testsetfile="C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\Na2O_sortfold_testfold.csv"
 
 normtype=3
 which_elem='Na2O'
-outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\external_test_set\\Output\\'+which_elem+'\\'
+outpath=outpath_root+which_elem+'\\'
 
 mincomp=0
 maxcomp=100
@@ -497,13 +511,15 @@ ccam.pls_cal(dbfile,maskfile,outpath,which_elem,nc,normtype=normtype,mincomp=min
 dbfile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\full_db_mars_corrected.csv'
 removefile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist.csv'
 foldfile=None#'C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\folds.csv'
-maskfile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\mask_minors_noise.csv'
+#maskfile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\mask_minors_noise.csv'
+maskfile=r"C:\Users\rbanderson\Documents\Projects\MSL\ChemCam\DataProcessing\Working\Input\mask_minors_noise_20160202.csv"
+
 keepfile=None#'C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\Si_full_included.csv'
 testsetfile="C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\K2O_sortfold_testfold.csv"
 
 normtype=3
 which_elem='K2O'
-outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\external_test_set\\Output\\'+which_elem+'\\'
+outpath=outpath_root+which_elem+'\\'
 
 mincomp=0
 maxcomp=100
