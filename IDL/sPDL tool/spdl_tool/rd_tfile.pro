@@ -114,11 +114,20 @@ if strupcase(!version.os) ne 'VMS' then begin
    if (fstatus.size ne 0) then begin
       btext=bytarr(fstatus.size)		; byte buffer for all
       readu,lun,btext				; read into byte buffer
-      wlfs=where(btext eq 10b,lfcount)		; number of line feeds
-      if wlfs[0] eq -1 then wlfs=where(btext eq 13b,lfcount) ;if line feeds don't work, try carriage returns (RBA - 6/2/2015)
+      btext[where(btext eq 13b)]=10b  ;replace all carriage returns with line feeds
+      wlfs=where(btext eq 10b)		; find line feeds
+     ;remove cases of two line feeds in a row
+      n=0
+      while n lt n_elements(wlfs)-1 do begin
+         a=wlfs[n]
+         b=wlfs[n+1]
+         if a+1 eq b then remove,n+1,wlfs
+         n=n+1  
+      endwhile
+      lfcount=n_elements(wlfs)
       
       if lfcount eq 0 then begin
-	 text=string(btext)                     ; NO Line feed case
+        text=string(btext)                     ; NO Line feed case
       endif else begin
          btext=0				; release memory
          text=strarr(lfcount)			; now use string arrary
