@@ -96,10 +96,12 @@ def generate_filenames(which_elem,outpath,plstype,maxnc,norms,ranges,xminmax,ymi
     imgfile_mid_test=outpath+'\\'+which_elem+'_final_model_predictions_1to1_'+str(xminmax[0])+'-'+str(xminmax[1])+'_mid ('+str(ranges['mid'][0])+'-'+str(ranges['mid'][1])+')_test.png'
     imgfile_high_test=outpath+'\\'+which_elem+'_final_model_predictions_1to1_'+str(xminmax[0])+'-'+str(xminmax[1])+'_high ('+str(ranges['high'][0])+'-'+str(ranges['high'][1])+')_test.png'
     imgfile_blended_full_test=outpath+'\\'+which_elem+'_final_model_predictions_1to1_blended_full_test.png'
+    imgfile_blended_full_test_rel=outpath+'\\'+which_elem+'_final_model_predictions_1to1_blended_full_test_rel_err.png'
+
 
     #specify file to store the blending optimization results
     blend_outfile=outpath+'\\'+which_elem+'blend_opt.csv'
-    imgfiles_test={'all':imgfile_test,'blended':imgfile_blended_test,'full':imgfile_full_test,'low':imgfile_low_test,'mid':imgfile_mid_test,'high':imgfile_high_test,'blended_full':imgfile_blended_full_test}
+    imgfiles_test={'all':imgfile_test,'blended':imgfile_blended_test,'full':imgfile_full_test,'low':imgfile_low_test,'mid':imgfile_mid_test,'high':imgfile_high_test,'blended_full':imgfile_blended_full_test,'blended_full_rel':imgfile_blended_full_test_rel}
   
     filename={'means_file':means_file,'loadfile':loadfile,'cv_file':cv_file,'Qres_file':Qres_file,'T2_file':T2_file,'Q_T2_out':Q_T2_out,'pred_csv_out':pred_csv_out,'cv_file':cv_file,'outfiles1to1':outfiles1to1,'imgfiles':imgfiles,'imgfiles_test':imgfiles_test,'blend_outfile':blend_outfile}
     return filename
@@ -202,7 +204,7 @@ def cv_plots(filenames,ncs,norms,xminmax,yminmax,which_elem):
     ccam.Plot1to1([truecomps[2]],[predicts[2]],plot_title,labels[2],colors[2],markers[2],filenames['outfiles1to1']['mid'],xminmax=xminmax,yminmax=yminmax)
     ccam.Plot1to1([truecomps[3]],[predicts[3]],plot_title,labels[3],colors[3],markers[3],filenames['outfiles1to1']['high'],xminmax=xminmax,yminmax=yminmax)
 
-def final_model_results(y,spect_index,namelist,compos,blend_settings,xminmax,yminmax,ranges,ncs,norms,which_elem,filenames,outfilestr):
+def final_model_results(y,spect_index,namelist,compos,blend_settings,xminmax,yminmax,ranges,ncs,norms,which_elem,filenames,outfilestr,dpi=1000):
     imgnames=filenames['imgfiles']    
     predicts=[y['full'],y['low'],y['mid'],y['high']]  
     print(blend_settings)
@@ -232,7 +234,7 @@ def final_model_results(y,spect_index,namelist,compos,blend_settings,xminmax,ymi
     labels=['Full','Low ','Mid ','High ','Blended ']
     colors=['k','c','g','b','r']
     markers=['o','<','v','^','o']
-    dpi=300
+    
     if outfilestr=='test':
         #dpi=1000
         
@@ -323,11 +325,21 @@ def final_model_results(y,spect_index,namelist,compos,blend_settings,xminmax,ymi
         p_fullmid_blendmid=stats.t.sf(numpy.abs(t_fullmid_blendmid),f_fullmid_blendmid)*2
         p_fullhigh_blendhigh=stats.t.sf(numpy.abs(t_fullhigh_blendhigh),f_fullhigh_blendhigh)*2
 
-        labels=['PLS1 (RMSEP='+str(round(RMSEP_full,2))+')','Low (RMSEP='+str(round(RMSEP_low,2))+')','Mid (RMSEP='+str(round(RMSEP_mid,2))+')','High (RMSEP='+str(round(RMSEP_high,2))+')','Blended Submodels (RMSEP='+str(round(RMSEP_blend,2))+')']
+#        labels=['PLS1 (RMSEP='+str(round(RMSEP_full,2))+')','Low (RMSEP='+str(round(RMSEP_low,2))+')','Mid (RMSEP='+str(round(RMSEP_mid,2))+')','High (RMSEP='+str(round(RMSEP_high,2))+')','Blended Submodels (RMSEP='+str(round(RMSEP_blend,2))+')']
+        labels=['Full Model','Low','Mid','High','Blended']
         f=operator.itemgetter(0,4)
         yminmax[0]=numpy.min(f(predicts))
     
-        ccam.plots.Plot1to1(list(f(compos)),list(f(predicts)),plot_title,list(f(labels)),list(f(colors)),list(f(markers)),imgnames['blended_full'],xminmax=xminmax,yminmax=yminmax,dpi=dpi)
+        ccam.plots.Plot1to1(list(f(compos)),list(f(predicts)),plot_title,list(f(labels)),list(f(colors)),list(f(markers)),imgnames['blended_full'],xminmax=xminmax,yminmax=yminmax,dpi=1000)
+        rel_err=[]
+        for i in list(range(len(f(compos)))):
+            abs_err=numpy.abs(f(compos)[i]-f(predicts)[i])
+            rel_err.append(abs_err/f(compos)[i]*100)
+            
+        labels_rel_err=['PLS1','Blended Submodels']    
+        ccam.plots.Plot1to1(list(f(compos)),rel_err,plot_title,labels_rel_err,list(f(colors)),list(f(markers)),imgnames['blended_full_rel'],xminmax=[numpy.min(list(f(compos))),100],yminmax=[numpy.min(rel_err),numpy.max(rel_err)],loglog=True,one_to_one=False,ylabel='Relative Error (%)',dpi=1000)
+        
+        
         
         cwd=os.getcwd()
         with open(cwd+'\\Testset_RMSEP_summary.csv','a',newline='') as writefile:
@@ -381,9 +393,9 @@ def final_model_results(y,spect_index,namelist,compos,blend_settings,xminmax,ymi
     
     yminmax[0]=numpy.min(predicts)
     
-    ccam.plots.Plot1to1(compos,predicts,plot_title,labels,colors,markers,imgnames['all'],xminmax=xminmax,yminmax=yminmax,dpi=dpi)
+    ccam.plots.Plot1to1(compos[1:-1],predicts[1:-1],which_elem_temp,labels[1:-1],['r','g','b'],markers[1:-1],imgnames['all'],xminmax=xminmax,yminmax=yminmax,dpi=dpi)
     yminmax[0]=numpy.min(predicts[4])    
-    ccam.plots.Plot1to1([compos[4]],[predicts[4]],plot_title,[labels[4]],[colors[4]],[markers[4]],imgnames['blended'],xminmax=xminmax,yminmax=yminmax,dpi=dpi)
+    ccam.plots.Plot1to1([compos[4]],[predicts[4]],which_elem_temp,[labels[4]],[colors[4]],[markers[4]],imgnames['blended'],xminmax=xminmax,yminmax=yminmax,dpi=dpi)
     yminmax[0]=numpy.min(predicts[0])
     ccam.plots.Plot1to1([compos[0]],[predicts[0]],plot_title,[labels[0]],[colors[0]],[markers[0]],imgnames['full'],xminmax=xminmax,yminmax=yminmax,dpi=dpi)
     yminmax[0]=numpy.min(predicts[1])
@@ -463,7 +475,7 @@ def predict_elem(which_elem,maxnc,ranges,norms,ncs,testsetfile,predict,blend_set
                  name_subs=r'C:\Users\rbanderson\Documents\Projects\MSL\ChemCam\DataProcessing\Working\Input\target_name_subs.csv',
                  dbfile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\full_db_mars_corrected.csv',
                  removefile='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\Input\\removelist.csv',
-                 plstype='sklearn',xminmax=[0,100],yminmax=[0,100],blend_opt=True,blend_outfile=None):
+                 plstype='sklearn',xminmax=[0,100],yminmax=[0,100],blend_opt=True,blend_outfile=None,dpi=1000):
     outpath='C:\\Users\\rbanderson\\Documents\\Projects\\MSL\\ChemCam\\DataProcessing\\Working\\external_test_set\\Output\\'+which_elem+'\\'
     print('############  '+which_elem+' ##############')
     filenames=generate_filenames(which_elem,outpath,plstype,maxnc,norms,ranges,xminmax,yminmax)
@@ -525,8 +537,8 @@ def predict_elem(which_elem,maxnc,ranges,norms,ncs,testsetfile,predict,blend_set
     
     if blend_opt:
         blend_settings=blend_optimize(y_train,blend_settings,truecomps_train,outfile=filenames['blend_outfile'])    
-    final_model_results(y_db,spect_index,names,truecomps,blend_settings,xminmax,yminmax,ranges,ncs,norms,which_elem,filenames,'db')
-    final_model_results(y_test,test_spect_index,testnames,truecomps_test,blend_settings,xminmax,yminmax,ranges,ncs,norms,which_elem,filenames,'test')
+    final_model_results(y_db,spect_index,names,truecomps,blend_settings,xminmax,yminmax,ranges,ncs,norms,which_elem,filenames,'db',dpi=dpi)
+    final_model_results(y_test,test_spect_index,testnames,truecomps_test,blend_settings,xminmax,yminmax,ranges,ncs,norms,which_elem,filenames,'test',dpi=dpi)
     
     if predict:
         #Read CCS data
@@ -589,7 +601,7 @@ toblend=[[1,1],[1,2],[2,2],[2,3],[3,3]]
 blend_settings={'blendranges':blendranges,'inrange':inrange,'refpredict':refpredict,'toblend':toblend}
 predict_elem(which_elem,maxnc,ranges,norms,ncs,testsetfile,predict,blend_settings,xminmax=[0,12],yminmax=[0,12],blend_opt=True,dbfile=dbfile_TiO2)
 
-###############################  Al2O3 #####################################
+################################  Al2O3 #####################################
 
 which_elem='Al2O3'
 

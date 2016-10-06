@@ -9,6 +9,7 @@ from matplotlib import rcParams
 import numpy
 import csv
 import pandas as pd
+from matplotlib.ticker import ScalarFormatter
 
 def RMSE(RMSECV,RMSEP,RMSEC,plot_title,outfile,RMSEP_cals=None,RMSEP_good=None):
 
@@ -57,8 +58,9 @@ def RMSE(RMSECV,RMSEP,RMSEC,plot_title,outfile,RMSEP_cals=None,RMSEP_good=None):
     fig.set_size_inches(11,8.5)
     fig.savefig(outfile)
     fig.clf()
+    plot.close(fig)
 
-def Plot1to1(truecomps,predicts,plot_title,labels,colors,markers,outfile,xminmax=[0,100],yminmax=[0,100],ylabel='Prediction (wt.%)',xlabel='Actual (wt.%)',one_to_one=True,dpi=300):
+def Plot1to1(truecomps,predicts,plot_title,labels,colors,markers,outfile,xminmax=[0,100],yminmax=[0,100],ylabel='Prediction (wt.%)',xlabel='Actual (wt.%)',one_to_one=True,dpi=300,loglog=False):
     rcParams['mathtext.default'] = 'regular' 
     rcParams['xtick.labelsize'] = 24
     rcParams['ytick.labelsize'] = 24
@@ -74,13 +76,30 @@ def Plot1to1(truecomps,predicts,plot_title,labels,colors,markers,outfile,xminmax
     plot.ylabel(ylabel,fontsize=24)
     plot.xlim(xminmax)
     plot.ylim(yminmax)
-    plot.legend(loc=0,fontsize=20)
+    plot.legend(loc=0,fontsize=20,numpoints=1)
+    if loglog:
+        plot.yscale('log')
+        plot.xscale('log')
+        ax=plot.gca()
+        fmt=ScalarFormatter()
+        #fmt.set_powerlimits((-3,3))
+        ax.xaxis.set_major_formatter(fmt)
+        #ax.yaxis.set_major_formatter(fmt)
+        plot.legend(loc=3,fontsize=20,numpoints=1)
+        #plot.tight_layout()
+        
+#        plot.xaxis.set_major_formatter(ScalarFormatter())
+#        plot.yaxis.set_major_formatter(ScalarFormatter())
+        
+    
     plot.title(plot_title,fontsize=28)
+    
     fig=plot.gcf()
     fig.set_size_inches(11,8.5)
     
     fig.savefig(outfile,dpi=dpi)
     plot.close()
+    plot.close(fig)
 
     
 def readpredicts(filename,nc):
