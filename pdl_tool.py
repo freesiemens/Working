@@ -5,9 +5,9 @@ Created on Tue May 19 12:19:44 2015
 @author: rbanderson
 """
 
-from PyQt4 import QtGui  
-from PyQt4 import QtCore
-from PyQt4 import QtUiTools
+from PySide import QtGui  
+from PySide import QtCore
+from PySide import QtUiTools
 import ccam
 import numpy
 #need these to help pyinstaller find the correct modules
@@ -19,8 +19,8 @@ import numpy
 
 class MyWidget(QtGui.QMainWindow):
     def __init__(self, *args):  
-        #apply(QtGui.QMainWindow.__init__, (self,) + args)
-        QtGui.QMainWindow.__init__(*args)
+        apply(QtGui.QMainWindow.__init__, (self,) + args)
+
         loader = QtUiTools.QUiLoader()
         file = QtCore.QFile(r'C:\Users\rbanderson\Documents\MSL\ChemCam\DataProcessing\ccam_pdl_ui.ui')
         file.open(QtCore.QFile.ReadOnly)
@@ -74,7 +74,7 @@ class MyWidget(QtGui.QMainWindow):
         for i in range(0,len(filelist)):
             app.processEvents()          
             self.myWidget.progressBar.setValue(i)
-            print(filelist[i])
+            print filelist[i]
             
                        
             
