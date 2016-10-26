@@ -64,6 +64,6 @@ def watrous(z,scale,kernel=numpy.array([1.,4.,6.,4.,1.])/16.):
                 w[:,:,l,i]=w[:,:,l,i]-tsmooth
                 w[:,:,l,i+1]=tsmooth
     else:
-        print "Wrong dimensions!"
+        print("Wrong dimensions!")
         return -1
     return w
