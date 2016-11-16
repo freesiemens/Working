@@ -1,6 +1,6 @@
 ;+
 ; NAME:
-;        SPDL_TOOL
+;        SPDL_TOOL_LAB
 ;        Includes also:
 ;           SPDL_TOOL_EVENT
 ;           PDL_TOOL_CLEANUP
@@ -33,6 +33,7 @@
 ;                        - Added hard-coded options for suppressing pop-ups, separate ICA and PLS output,
 ;                          and for including shot-to-shot stdev results along with the mean results 
 ;                        - Removed single shot option, hard-coded default to calculate stdev from single shots
+; R. Anderson: Oct 2016 - Modified to create lab-specific tool
 ;-
 
 
@@ -106,9 +107,9 @@ status:calcparam.status,configdata:calcparam.configdata}
 *calcparamptr = result
 end
 
-pro spdl_tool
-software_version="sPDL Tool v2.2 (Last edited 2 June 2016)"
-cd,file_dirname(routine_filepath('spdl_tool'))
+pro spdl_tool_lab
+software_version="sPDL Tool v2.3 (Last edited 26 Oct 2016)"
+cd,file_dirname(routine_filepath('spdl_tool_lab'))
 configfile='pdl_tool_config.csv'
 
 if file_test(configfile) ne 0 then begin
@@ -180,8 +181,8 @@ if (result.status EQ 'OK') then begin
 
   widget_control,/hourglass
   quiet=0
-  ica_output=0
-  pls_output=0
+  ica_output=1
+  pls_output=1
   calcstdevs=1
   shots=1
   recursive=1

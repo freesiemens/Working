@@ -55,13 +55,13 @@
 ;                            - Modified so that both mean and single shot calculations
 ;                              can be run in the same call to this function
 ;-
-FUNCTION ICR,fn,shot=shot,fn_good_index=fn_good_index,quiet=quiet,both=both
+FUNCTION ICR,fn,shot=shot,fn_good_index=fn_good_index,quiet=quiet,both=both,e2m=e2m
 if keyword_set(both) then shot=1
 
 restore,'cp_ica_new.sav'
 restore,'ica_rgr_new.sav'
 
-s=read_ccs(fn,shot=shot,fn_good_index=fn_good_index,quiet=quiet,spout_means=spout_means)
+s=read_ccs(fn,shot=shot,fn_good_index=fn_good_index,quiet=quiet,spout_means=spout_means,e2m=e2m)
 ;s_old=read_ccs_old(fn,shot=shot,fn_good_index=fn_good_index)
 ;s_old_mean=read_ccs_old(fn,shot=0,fn_good_index=fn_good_index)
 
