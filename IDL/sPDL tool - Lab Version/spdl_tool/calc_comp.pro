@@ -356,7 +356,7 @@ end
 ;       totals = This keyword returns the spectrum totals prior to normalizatoin       
 ;;-    
  
-function pls_submodels,elems,pls_settings,spectra,wvl,totals=totals
+function pls_submodels,elems,pls_settings,spectra,wvl,totals=totals,e2m=e2m
   which_submodel=['full','low','mid','high']
   comps=hash('full',[],'low',[],'mid',[],'high',[],'spect_total',[])
 
@@ -866,7 +866,9 @@ end
 ;Outputs:
 ;      Calculation results are written to .csv files in the search directory
 ;;-
-pro pls_and_ica,file_data,pls_settings,elems,test_info,searchdir,software_version,shots=shots,quiet=quiet,calcstdevs=calcstdevs,ica_output=ica_output,pls_output=pls_output,refdata_files=refdata_files,refdata_names=refdata_names
+pro pls_and_ica,file_data,pls_settings,elems,test_info,searchdir,software_version,shots=shots,$
+  quiet=quiet,calcstdevs=calcstdevs,ica_output=ica_output,pls_output=pls_output,refdata_files=refdata_files,$
+  refdata_names=refdata_names, e2m=e2m
        
        ;create the hashes to contain the results
         pls_results=hash('means',[],'shots',[])
@@ -877,7 +879,7 @@ pro pls_and_ica,file_data,pls_settings,elems,test_info,searchdir,software_versio
           both=1
         endif
        ;Get the ICA results first
-       ica_results = ICR(file_data['pathlist']+file_data['filelist'],shot=shots,fn_good_index=fn_good_index,quiet=quiet,both=both)
+       ica_results = ICR(file_data['pathlist']+file_data['filelist'],shot=shots,fn_good_index=fn_good_index,quiet=quiet,both=both, e2m=e2m)
        
        ica_shots_ptr=ica_results['shots']
        if keyword_Set(shots) then begin
@@ -913,8 +915,27 @@ pro pls_and_ica,file_data,pls_settings,elems,test_info,searchdir,software_versio
         for i=0,n_elements(file_data['filelist'])-1 do begin
            restore,file_data['pathlist',i]+file_data['filelist',i],/relaxed
            wvl=[defuv,defvis,defvnir]
+           
+           ;apply earth to mars correction to each spectrum
+           e2m_uv=e2m[1,0:2047]
+           e2m_vis=e2m[1,2048:4095]
+           e2m_vnir=e2m[1,4096:6143]
+
+           auv=auv*e2m_uv
+           avis=avis*e2m_vis
+           avnir=avnir*e2m_vnir
+           muv=muv*e2m_uv
+           mvis=mvis*e2m_vis
+           mvnir=mvnir*e2m_vnir
+           for n=0,n_elements(uv[*,0])-1 do begin
+             uv[n]=uv[n,*]*e2m_uv
+             vis[n]=vis[n,*]*e2m_vis
+             vnir[n]=vis[n,*]*e2m_vnir
+           endfor
            spectra=[transpose(uv),transpose(vis),transpose(vnir)]
+           ;spectra=round(spectra/1e11,/l64)*1e11
            spectra_mean=[auv,avis,avnir]
+           ;write_csv,'e2m_spectrum.csv',spectra_mean
            
            shotnum=indgen(n_elements(spectra[0,*]))
            
@@ -1030,9 +1051,13 @@ pro calc_comp,searchdir,shots,recursive,configfile,software_version,quiet=quiet,
     searchstring=configdata[1,9]
     refdata_files=strsplit(configdata[1,10],';',/extract)
     refdata_names=strsplit(configdata[1,11],';',/extract)
+    earth_to_mars=configdata[1,12]
+        
+    ;read the earth to mars correction vector
+    if earth_to_mars eq 'Lab' then begin
+       e2m=float(rd_tfile("EARTH_2_MARS_CORR_derived.CSV",/autocol,delim=','))  
+    endif
     
-    
-
     
     ;read the meancenter file and get data
     meancenters=rd_tfile(meancenters_file,autocol=1,delim=',')
@@ -1057,7 +1082,9 @@ pro calc_comp,searchdir,shots,recursive,configfile,software_version,quiet=quiet,
     ;Look up target info
     file_data=ccam_filelist_targets(masterlist,file_data,quiet=quiet)
    ; stop
-    pls_and_ica,file_data,pls_settings,elems,test_info,searchdir,software_version,shots=shots,quiet=quiet,calcstdevs=calcstdevs,ica_output=ica_output,pls_output=pls_output,refdata_files=refdata_files,refdata_names=refdata_names
+    pls_and_ica,file_data,pls_settings,elems,test_info,searchdir,software_version,shots=shots,$
+      quiet=quiet,calcstdevs=calcstdevs,ica_output=ica_output,pls_output=pls_output,$
+      refdata_files=refdata_files,refdata_names=refdata_names,e2m=e2m
    
   
 end

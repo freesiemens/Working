@@ -54,7 +54,7 @@
 ; R. Anderson: July 23, 2015 - Fixed bug introduced in last edit relating to observations with just one shot
 ; R. Anderson - August 26, 2016 - Added mask to first two pixels of UV to improve compatibility with lab data
 ;-
-FUNCTION read_ccs,fn,shot=shot,fn_good_index=fn_good_index,quiet=quiet,spout_means=spout_means
+FUNCTION read_ccs,fn,shot=shot,fn_good_index=fn_good_index,quiet=quiet,spout_means=spout_means,e2m=e2m
 
 nf=n_elements(fn)
 
@@ -68,12 +68,32 @@ if not(quiet) then progbar=Obj_New('cgProgressBar',/start,percent=0,title='Readi
 
 for i=0,nf-1 do begin
    restore,fn[i]
+   ;write_csv,'spectrum.csv',transpose([fn[i],string(auv),string(avis),string(avnir)])
+
    ;Mask the first two pixels of the UV range
    muv[0:1]=0
    uv[*,0:1]=0
    auv[0:1]=0
    
    
+   ;apply earth to mars correction to each spectrum
+   e2m_uv=e2m[1,0:2047]
+   e2m_vis=e2m[1,2048:4095]
+   e2m_vnir=e2m[1,4096:6143]
+   
+   auv=auv*e2m_uv
+   avis=avis*e2m_vis
+   avnir=avnir*e2m_vnir
+   muv=muv*e2m_uv
+   mvis=mvis*e2m_vis
+   mvnir=mvnir*e2m_vnir
+   for n=0,n_elements(uv[*,0])-1 do begin
+      uv[n]=uv[n,*]*e2m_uv
+      vis[n]=vis[n,*]*e2m_vis
+      vnir[n]=vis[n,*]*e2m_vnir 
+   endfor
+
+   ;write_csv,'e2m_spectrum.csv',transpose([fn[i],string(auv),string(avis),string(avnir)])   
    suv=size(uv)
    
    if(suv(1) gt 1) then begin  ;Ensure there is more than one shot
