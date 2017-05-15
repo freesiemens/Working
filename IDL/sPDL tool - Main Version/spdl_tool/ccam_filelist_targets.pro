@@ -32,6 +32,8 @@
 
 function ccam_filelist_targets,masterfile,file_data,quiet=quiet
 master=[]
+headers=[]
+pointers=[]
 for i=0,n_elements(masterfile)-1 do begin
     if file_test(masterfile[i]) ne 0 then begin
        mastertemp=rd_tfile(masterfile[i],/autocol,delim=',',hskip=2,header=header)  ;Read the master list
@@ -42,15 +44,56 @@ for i=0,n_elements(masterfile)-1 do begin
     endelse
     header=strsplit(header[1],',',/extract)
     mastertemp=mastertemp[0:n_elements(header)-1,*]
-    master=[[master],[mastertemp]]
+    pointers=[[pointers],ptr_new(mastertemp,/no_copy)]
+    headers=[[headers],ptr_new(header,/no_copy)]
+endfor
+;    if i gt 0 then begin
+;       if n_elements(master[*,0]) eq n_elements(mastertemp[*,0]) then begin
+;       master=[[master],[mastertemp]]
+;       endif else begin
+;        xmess,'Number of columns in '+masterfile[i]+' does not match!'
+;        exit
+;       endelse
+;    endif else begin
+;       master=[[master],[mastertemp]]
+;    endelse
+;endfor
+ncols=[]
+for h=0,n_elements(headers)-1 do begin
+  ncols=[[ncols],n_elements(*headers[h])]
 endfor
 
-master=hash('targets',master[5,*],'nshots',master[11,*],'dists',master[8,*],'amps',master[17,*],'sclock',master[2,*])
+;check to make sure the master lists have the same number of columns
+if n_elements(uniq(ncols,sort(ncols))) ne 1 then begin
+  xmess,'The masterlist files provided do not have a matching number of columns! Cannot concatenate them together!'
+  stop  ;If the columns don't match, quit
+endif else begin
+  
+  for h=0,n_elements(headers)-1 do begin
+    if h eq 0 then begin
+      headervals=*headers[h]
+      master=*pointers[h]
+    endif
+    if h gt 0 then begin
+      ;Check to make sure the column names match before concatenating, to avoid inadvertently mixing different data types
+      ;If the column names don't match, warn but proceed.
+      if not array_equal(headervals[*,h-1],*headers[h]) then xmess,'The column names in the master lists do not all match! Proceed with caution. The column names from the first file will be used to look up information.'
+      headervals=[[headervals],[*headers[h]]]
+      master=[[master],[*pointers[h]]]
+    endif
+  endfor
+endelse
+
+master=hash('targets',master[where(headervals[*,0] eq 'Target'),*],$
+             'nshots',master[where(headervals[*,0] eq 'Nbr of Shots'),*],$
+              'dists',master[where(headervals[*,0] eq 'Distance (m)'),*],$
+               'amps',master[where(headervals[*,0] eq 'Laser Energy'),*],$
+             'sclock',master[where(headervals[*,0] eq 'Spacecraft Clock'),*])
 nfiles=n_elements(file_data['filelist'])
 file_data=file_data+hash('targets',strarr(nfiles),'nshots',intarr(nfiles),'dists',fltarr(nfiles),'amps',strarr(nfiles))
 
 if not(quiet) then progbar=Obj_New('cgProgressBar',/start,percent=0,title='Looking up info for '+strtrim(nfiles,2)+' files...')
-;stop
+
 for i=0,nfiles-1 do begin
   
    matchindex=(where(strupcase(master['sclock']) eq file_data['sclock',i]))(0) ;look up where the sclock in the master list matches the sclock for the file list
@@ -62,8 +105,7 @@ for i=0,nfiles-1 do begin
     file_data['amps',i]=master['amps',matchindex]
     
    endif else begin
-    file_data['targets',i]=''
-    ;stop
+    file_data['targets',i]='Target not found'
     file_data['nshots',i]=0
     file_data['dists',i]=0
     file_data['amps',i]=''

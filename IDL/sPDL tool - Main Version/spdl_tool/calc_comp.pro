@@ -648,32 +648,21 @@ pro refplots,refdata_file,combined_results,file_data,xel,yel,elems,figfile,xrang
   refdata=rd_tfile(refdata_file,delim=',',/autocol)
   refnames=refdata[1:*,0]
   refsyms=refdata[1:*,1]
-  ref_aves=float(refdata[1:*,3:11])
-  ref_stdevs=float(refdata[1:*,14:*])
-  
+  ref_points=float(refdata[1:*,3:11])
+  ref_lows=float(refdata[1:*,14:22])
+  ref_highs=float(refdata[1:*,25:33])
+
   ;Get the average comps and the error bars  
-  ref_aves_x=ref_aves[*,xind]
-  ref_aves_y=ref_aves[*,yind]
-  ref_stdevs_x=ref_stdevs[*,xind]
-  ref_stdevs_y=ref_stdevs[*,yind]
-  
+  ref_points_x=ref_points[*,xind]
+  ref_points_y=ref_points[*,yind]
+  ref_lows_x=ref_points_x-ref_lows[*,xind]
+  ref_lows_y=ref_points_y-ref_lows[*,yind]
+  ref_highs_x=ref_highs[*,xind]-ref_points_x
+  ref_highs_y=ref_highs[*,yind]-ref_points_y
+
   ;create vectors to store all x and y coordinates, to be used when placing labels to avoid data
-  xall=[transpose((combined_results['means'])[xind,*]),ref_aves_x]
-  yall=[transpose((combined_results['means'])[yind,*]),ref_aves_y]
-  
-  
- ;Add error bars to xall yall so they repel labels
-;  for a=0,n_elements(ref_stdevs_x)-1 do begin
-;    xerr_pts=findgen(10)/10*(2*ref_stdevs_x[a])+ref_aves_x[a]-ref_stdevs_x[a]
-;    yerr_pts=fltarr(10)+ref_aves_y[a]
-;    
-;    yerr_pts=[yerr_pts,findgen(10)/10*(2*ref_stdevs_y[a])+ref_aves_y[a]-ref_stdevs_y[a]]
-;    xerr_pts=[xerr_pts,fltarr(10)+ref_aves_x[a]]
-;    
-;    xall=[xall,xerr_pts]
-;    yall=[yall,yerr_pts]
-;    
-;  endfor
+  xall=[transpose((combined_results['means'])[xind,*]),ref_points_x, ref_lows[*,xind],ref_highs[*,xind]]
+  yall=[transpose((combined_results['means'])[yind,*]),ref_points_y,ref_lows[*,yind],ref_highs[*,yind]]
   
   ;set ranges if not already defined
   if not(keyword_set(xrange)) then xrange=[min([0,xall]),1.1*max(xall)]
@@ -741,8 +730,8 @@ pro refplots,refdata_file,combined_results,file_data,xel,yel,elems,figfile,xrang
   ;step through each of the reference values
   for k=0,n_elements(refnames)-1 do begin
     ;plot the reference values with error bars
-    cgplot,ref_aves_x[k],ref_aves_y[k],psym=fix(refsyms[k]),/overplot,err_ylow=ref_stdevs_y[k],symsize=3,$
-      err_yhigh=ref_stdevs_y[k],err_xlow=ref_stdevs_x[k],err_xhigh=ref_stdevs_x[k],color='black',/err_clip,err_width=0.002,err_thick=2
+    cgplot,ref_points_x[k],ref_points_y[k],psym=fix(refsyms[k]),/overplot,err_ylow=ref_lows_y[k],symsize=3,$
+      err_yhigh=ref_highs_y[k],err_xlow=ref_lows_x[k],err_xhigh=ref_highs_x[k],color='black',/err_clip,err_width=0.002,err_thick=2
     
     ;create an array of angles and radii to define possible locations for labels around the reference point
     ;exclude angles too close to verticl or horizontal to avoid conflict with error bars
@@ -752,8 +741,8 @@ pro refplots,refdata_file,combined_results,file_data,xel,yel,elems,figfile,xrang
    
     
     ;convert the angles and radii to x and y
-    x_labels_temp=ref_aves_x[k]+r_labels_temp*cos(t_labels_temp)*max(xrange)
-    y_labels_temp=ref_aves_y[k]+r_labels_temp*sin(t_labels_temp)*max(yrange)
+    x_labels_temp=ref_points_x[k]+r_labels_temp*cos(t_labels_temp)*max(xrange)
+    y_labels_temp=ref_points_y[k]+r_labels_temp*sin(t_labels_temp)*max(yrange)
 
     ;force the coordinates to be within the plot area
     xtoosmall=where(x_labels_temp lt min(xrange))
@@ -769,11 +758,11 @@ pro refplots,refdata_file,combined_results,file_data,xel,yel,elems,figfile,xrang
     ;remove any label coordinates that would result in the line crossing a previous label line
     intersect_check=fltarr(n_elements(x_labels_temp))  ;create an empty array to hold the results
     for n=0,n_elements(t_labels_temp)-1 do begin
-       line1=[[ref_aves_x[k],ref_aves_y[k]],[x_labels_temp[n],y_labels_temp[n]]]  ;define line1 from the label options
+       line1=[[ref_points_x[k],ref_points_y[k]],[x_labels_temp[n],y_labels_temp[n]]]  ;define line1 from the label options
        
        for m=0,n_elements(x_labels)-1 do begin
            if x_labels[m] ne 0 then begin
-             line2=[[ref_aves_x[m],ref_aves_y[m]],[x_labels[m],y_labels[m]]] ;define line2 from the perviously set labels
+             line2=[[ref_points_x[m],ref_points_y[m]],[x_labels[m],y_labels[m]]] ;define line2 from the perviously set labels
           
              check=lines_intersect(line1,line2)  ;check whether they intersect
              if check ne 0 then intersect_check[n]=check  ;if so, record it
@@ -799,10 +788,10 @@ pro refplots,refdata_file,combined_results,file_data,xel,yel,elems,figfile,xrang
     
     for n=0,n_elements(x_labels_temp)-1 do begin
       ;temporarily add the annotation line to xall,yall to be used in repelling
-      dx_temp=x_labels_temp[n]-ref_aves_x[k]
-      dy_temp=y_labels_temp[n]-ref_aves_y[k]
-      linx=findgen(10)/10*dx_temp+ref_aves_x[k]
-      liny=findgen(10)/10*dy_temp+ref_aves_y[k]
+      dx_temp=x_labels_temp[n]-ref_points_x[k]
+      dy_temp=y_labels_temp[n]-ref_points_y[k]
+      linx=findgen(10)/10*dx_temp+ref_points_x[k]
+      liny=findgen(10)/10*dy_temp+ref_points_y[k]
       xall_temp=[xall,x_labels_temp[n]]
       yall_temp=[yall,y_labels_temp[n]]
       
@@ -815,8 +804,8 @@ pro refplots,refdata_file,combined_results,file_data,xel,yel,elems,figfile,xrang
     y_labels[k]=(y_labels_temp(where(energy eq min(energy))))[0]
 
     ;add the annotation line to xall, yall to repel other labels
-    x=[ref_aves_x[k],x_labels[k]]
-    y=[ref_aves_y[k],y_labels[k]]
+    x=[ref_points_x[k],x_labels[k]]
+    y=[ref_points_y[k],y_labels[k]]
     
     dx=x[1]-x[0]
     dy=y[1]-y[0]
@@ -842,7 +831,8 @@ pro refplots,refdata_file,combined_results,file_data,xel,yel,elems,figfile,xrang
   endfor
   ;write the legend
   al_legend,legendnames,psym=legendsyms,colors=legendsymcolors,symsize=4,charsize=4,charthick=5,font=1
-  write_png,figfile,tvrd(true=1)
+  write_jpeg,figfile,tvrd(true=1),true=1
+  ;write_gif,figfile,bytscl(tvrd(true=1))
 
 end    
 
@@ -943,7 +933,9 @@ pro pls_and_ica,file_data,pls_settings,elems,test_info,searchdir,software_versio
            shotnum=indgen(n_elements(spectra[0,*]))
            
             nshots=file_data['nshots',i]
-           
+           if nshots eq 0 then begin
+              nshots=n_elements(uv[*,0])
+           endif
            ;Calculate single shot results and fill in the single shot metadata
            if keyword_set(shots) or keyword_set(calcstdevs) then begin
               pls_results['shots']=[[pls_results['shots']],[pls_submodels(elems,pls_settings,spectra,wvl,totals=totals)]]
@@ -1049,12 +1041,14 @@ pro calc_comp,searchdir,shots,recursive,configfile,software_version,quiet=quiet,
     maskfile=configdata[1,4]
     meancenters_file=configdata[1,5]
     settings_coeffs_file=configdata[1,6]
-    blend_array_dir=configdata[1,7]
-    testresult_dir=configdata[1,8]
+    blend_array_dir=configdata[1,7]+'/'
+    testresult_dir=configdata[1,8]+'/'
     searchstring=configdata[1,9]
     refdata_files=strsplit(configdata[1,10],';',/extract)
     refdata_names=strsplit(configdata[1,11],';',/extract)
     earth_to_mars=configdata[1,12]
+    
+    
         
     ;read the earth to mars correction vector
     if earth_to_mars eq 'Lab' then begin

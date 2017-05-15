@@ -1,6 +1,6 @@
 ;+
 ; NAME:
-;        SPDL_TOOL_LAB
+;        SPDL_TOOL
 ;        Includes also:
 ;           SPDL_TOOL_EVENT
 ;           PDL_TOOL_CLEANUP
@@ -34,6 +34,7 @@
 ;                          and for including shot-to-shot stdev results along with the mean results 
 ;                        - Removed single shot option, hard-coded default to calculate stdev from single shots
 ; R. Anderson: Oct 2016 - Modified to create lab-specific tool
+; R. Anderson: May 2017 - Switched to using this as the all-purpose tool. It will apply the necessary corrections if the config file specifies lab.
 ;-
 
 
@@ -107,9 +108,10 @@ status:calcparam.status,configdata:calcparam.configdata}
 *calcparamptr = result
 end
 
-pro spdl_tool_lab
-software_version="sPDL Tool v2.3 (Last edited 26 Oct 2016)"
-cd,file_dirname(routine_filepath('spdl_tool_lab'))
+pro spdl_tool
+
+software_version="sPDL Tool v2.4 (Last edited 15 May 2017)"
+cd,file_dirname(routine_filepath('spdl_tool'))
 configfile='pdl_tool_config.csv'
 
 if file_test(configfile) ne 0 then begin
@@ -117,7 +119,7 @@ if file_test(configfile) ne 0 then begin
   configdata=repstr(repstr(configdata,'"',''),'\','/')
 
 endif else begin
-    xmess ,"Config file "+configfile+"not found!"
+    xmess ,"Config file "+configfile+" not found!"
     exit
 endelse
 
@@ -181,13 +183,13 @@ if (result.status EQ 'OK') then begin
 
   widget_control,/hourglass
   quiet=0
-  ica_output=1
-  pls_output=1
+  ica_output=0
+  pls_output=0
   calcstdevs=1
   shots=1
   recursive=1
   
-  calc_comp,result.searchdir,shots,recursive,configfile,software_version,$
+  calc_comp,result.searchdir+'/',shots,recursive,configfile,software_version,$
     quiet=quiet,pls_output=pls_output,ica_output=ica_output,calcstdevs=calcstdevs
   
     
