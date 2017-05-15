@@ -26,6 +26,7 @@
 ;       
 ; MODIFICATION HISTORY:
 ; R. Anderson July 2015: - I wrote this code a while ago (2013?) but made many modifications to get it to the current form
+; R. Anderson May 2017: Made the routine more robust to masterlists with mismatching # of columns or column names
 ;-
 
 
@@ -43,21 +44,12 @@ for i=0,n_elements(masterfile)-1 do begin
        exit
     endelse
     header=strsplit(header[1],',',/extract)
+    if where(header eq 'Distance (mm)') ne -1 then header[where(header eq 'Distance (mm)')]='Distance (m)' ;manually fix the confusion about distance units in the master list column names 
     mastertemp=mastertemp[0:n_elements(header)-1,*]
     pointers=[[pointers],ptr_new(mastertemp,/no_copy)]
     headers=[[headers],ptr_new(header,/no_copy)]
 endfor
-;    if i gt 0 then begin
-;       if n_elements(master[*,0]) eq n_elements(mastertemp[*,0]) then begin
-;       master=[[master],[mastertemp]]
-;       endif else begin
-;        xmess,'Number of columns in '+masterfile[i]+' does not match!'
-;        exit
-;       endelse
-;    endif else begin
-;       master=[[master],[mastertemp]]
-;    endelse
-;endfor
+
 ncols=[]
 for h=0,n_elements(headers)-1 do begin
   ncols=[[ncols],n_elements(*headers[h])]
@@ -66,7 +58,7 @@ endfor
 ;check to make sure the master lists have the same number of columns
 if n_elements(uniq(ncols,sort(ncols))) ne 1 then begin
   xmess,'The masterlist files provided do not have a matching number of columns! Cannot concatenate them together!'
-  stop  ;If the columns don't match, quit
+  exit  ;If the columns don't match, quit
 endif else begin
   
   for h=0,n_elements(headers)-1 do begin

@@ -666,16 +666,11 @@ pro refplots,refdata_file,combined_results,file_data,xel,yel,elems,figfile,xrang
   yall=[transpose((combined_results['means'])[yind,*]),ref_points_y,ref_lows[*,yind],ref_highs[*,yind]]
   
   ;set ranges if not already defined
-  if not(keyword_set(xrange)) then xrange=[min([0,xall]),1.1*max(xall)]
-  if not(keyword_set(yrange)) then yrange=[min([0,yall]),1.1*max(yall)]
-  
-  ;add plot borders to the xall yall arrays to repel labels
- ; xall=[xall,findgen(100)/100*(max(xrange)-min(xrange))+min(xrange),findgen(100)/100*(max(xrange)-min(xrange))+min(xrange),fltarr(100)+min(xrange),fltarr(100)+max(xrange)]
- ; yall=[yall,fltarr(100)+min(yrange),fltarr(100)+max(yrange),findgen(100)/100*(max(yrange)-min(yrange))+min(yrange),findgen(100)/100*(max(yrange)-min(yrange))+min(yrange)]
-
+  if not(keyword_set(xrange)) then xrange=[min(xall),max(xall)+0.1*max(xall)]
+  if not(keyword_set(yrange)) then yrange=[min(yall),max(yall)+0.1*max(xall)]
   
   ;Create a list of colors and symbols to loop through when plotting data
-  plotcolors=['Crimson','Forest Green','Royal Blue','Aquamarine','Orchid','Yellow'] ;using defined colors from coyote library
+  plotcolors=['Crimson','Forest Green','Royal Blue','Aquamarine','Orchid','Yellow','Slate Gray'] ;using defined colors from coyote library
   plotsyms=[14,16,17,18,19,20] ;using filled symbols from the coyote library
   colorind=0
   symind=0
@@ -713,9 +708,9 @@ pro refplots,refdata_file,combined_results,file_data,xel,yel,elems,figfile,xrang
 
     ;increment the color and symbol indices. Loop them around if needed so they still point at a valid value
     colorind=colorind+1
+    symind=symind+1
     if colorind ge n_elements(plotcolors) then begin
       colorind=0
-      symind=symind+1 ;increment to a new symbol once all colors have been used up for the current symbol
     endif
     if symind ge n_elements(plotsyms) then begin
       symind=0
@@ -736,108 +731,35 @@ pro refplots,refdata_file,combined_results,file_data,xel,yel,elems,figfile,xrang
     legendnames=[legendnames,refnames[k]]
     legendsyms=[legendsyms,refsyms[k]]
     legendsymcolors=[legendsymcolors,refcolors[k]]
-    
-;    
-;    ;create an array of angles and radii to define possible locations for labels around the reference point
-;    ;exclude angles too close to vertical or horizontal to avoid conflict with error bars
-;    t_labels_temp=[findgen(25)/25*70+10,findgen(25)/25*70+100,findgen(25)/25*70+190,findgen(25)/25*70+280]*((2*!pi)/360.)
-;     
-;    r_labels_temp=[0.2+fltarr(n_elements(t_labels_temp))]
-;   
-;    
-;    ;convert the angles and radii to x and y
-;    x_labels_temp=ref_points_x[k]+r_labels_temp*cos(t_labels_temp)*max(xrange)
-;    y_labels_temp=ref_points_y[k]+r_labels_temp*sin(t_labels_temp)*max(yrange)
-;
-;    ;force the coordinates to be within the plot area
-;    xtoosmall=where(x_labels_temp lt min(xrange))
-;    ytoosmall=where(y_labels_temp lt min(yrange))
-;    xtoobig=where(x_labels_temp gt max(xrange))
-;    ytoobig=where(y_labels_temp gt max(yrange))
-;    
-;    if xtoosmall[0] ne -1 then x_labels_temp[xtoosmall]=min(xrange)
-;    if ytoosmall[0] ne -1 then y_labels_temp[ytoosmall]=min(yrange)
-;    if xtoobig[0] ne -1 then x_labels_temp[xtoobig]=max(xrange)
-;    if ytoobig[0] ne -1 then y_labels_temp[ytoobig]=max(yrange)
-;
-;    ;remove any label coordinates that would result in the line crossing a previous label line
-;    intersect_check=fltarr(n_elements(x_labels_temp))  ;create an empty array to hold the results
-;    for n=0,n_elements(t_labels_temp)-1 do begin
-;       line1=[[ref_points_x[k],ref_points_y[k]],[x_labels_temp[n],y_labels_temp[n]]]  ;define line1 from the label options
-;       
-;       for m=0,n_elements(x_labels)-1 do begin
-;           if x_labels[m] ne 0 then begin
-;             line2=[[ref_points_x[m],ref_points_y[m]],[x_labels[m],y_labels[m]]] ;define line2 from the perviously set labels
-;          
-;             check=lines_intersect(line1,line2)  ;check whether they intersect
-;             if check ne 0 then intersect_check[n]=check  ;if so, record it
-;           endif
-;      endfor
-;    endfor
-;    
-;    ;keep only the label placement options that don't intersect (unless all options intersect)
-;    if (where(intersect_check eq 0))[0] ne -1 then begin
-;      x_labels_temp=x_labels_temp(where(intersect_check eq 0))
-;      y_labels_temp=y_labels_temp(where(intersect_check eq 0))
-;      t_labels_temp=t_labels_temp(where(intersect_check eq 0))
-;      r_labels_temp=r_labels_temp(where(intersect_check eq 0))
-;
-;    endif
-;    
-;    
-;    ;calculate the "energy" of each possible label location based on inverse squared distance from plotted data
-;    ;This is somewhat analogous to the potential energy of a charged particle when placed among other particles of the same charge
-;    ;In other words, choosing the lowest energy label location effective means the data "repels" the label
-;    ;making it less likely that it will overlap something interesting on the plot
-;    energy=fltarr(n_elements(x_labels_temp))
-;    
-;    for n=0,n_elements(x_labels_temp)-1 do begin
-;      ;temporarily add the annotation line to xall,yall to be used in repelling
-;      dx_temp=x_labels_temp[n]-ref_points_x[k]
-;      dy_temp=y_labels_temp[n]-ref_points_y[k]
-;      linx=findgen(10)/10*dx_temp+ref_points_x[k]
-;      liny=findgen(10)/10*dy_temp+ref_points_y[k]
-;      xall_temp=[xall,linx,linx,linx,linx,replicate(x_labels_temp[n],10)]
-;      yall_temp=[yall,liny,liny,liny,liny,replicate(y_labels_temp[n],10)]
-;      plot,xall_temp,yall_temp
-;      ;calculate the "energy" for this potential annotation line
-;      energy[n]=label_energy(linx,liny,xall,yall)
-;    endfor
-;
-;    ;Choose the label location with the lowest energy
-;    x_labels[k]=(x_labels_temp(where(energy eq min(energy))))[0]
-;    y_labels[k]=(y_labels_temp(where(energy eq min(energy))))[0]
-;
-;    ;add the annotation line to xall, yall to repel other labels
-;    x=[ref_points_x[k],x_labels[k]]
-;    y=[ref_points_y[k],y_labels[k]]
-;    
-;    dx=x[1]-x[0]
-;    dy=y[1]-y[0]
-;    linx=findgen(10)/10*dx+x[0]
-;    liny=findgen(10)/10*dy+y[0]
-;    xall=[xall,linx,fltarr(5)+x_labels[k]]
-;    yall=[yall,liny,fltarr(5)+y_labels[k]]
-;   
-;    ;draw the annotation line
-;    cgplot,x,y,/overplot,linestyle=0,thick=3,font=1,color='Gray'
-;    
-;    ;set the text alignment
-;    alignment=[0.0,0.5]
-;    if dx gt 0 and abs(dx) ge abs(dy) then alignment=[0.0,0.5]
-;    if dx gt 0 and abs(dx) lt abs(dy) then alignment=[0.5,1.0]
-;    if dx lt 0 and abs(dx) ge abs(dy) then alignment=[1.0,0.5]
-;    if dx lt 0 and abs(dx) lt abs(dy) then alignment=[0.5,0]
-;
-;    ;write annotation text
-;    newline='!C'
-;    cgtext,x[1],y[1],strjoin(strsplit(refnames[k],' ',/extract),newline),alignment=alignment[0],charsize=5,charthick=5,font=1
-;    
-  endfor
+      endfor
   ;write the legend
-  al_legend,legendnames,psym=legendsyms,colors=legendsymcolors,symsize=4,charsize=4,charthick=5,font=1,/right
-  write_jpeg,figfile,tvrd(true=1),true=1
-  ;write_gif,figfile,bytscl(tvrd(true=1))
+  window,1,xsize=3000,ysize=2400,/pixmap
+  al_legend,legendnames,psym=legendsyms,colors=legendsymcolors,symsize=3,charsize=4,charthick=5,font=1,/right,corners=corners_right
+  al_legend,legendnames,psym=legendsyms,colors=legendsymcolors,symsize=3,charsize=4,charthick=5,font=1,/left,corners=corners_left
+  
+  ;convert to data coordinates
+  corners_right_data=[(corners_right[0]-!x.s[0])/!x.s[1],(corners_right[1]-!y.s[0])/!y.s[1],(corners_right[2]-!x.s[0])/!x.s[1],(corners_right[3]-!y.s[0])/!y.s[1]]
+  corners_left_data=[(corners_left[0]-!x.s[0])/!x.s[1],(corners_left[1]-!y.s[0])/!y.s[1],(corners_left[2]-!x.s[0])/!x.s[1],(corners_left[3]-!y.s[0])/!y.s[1]]
+  
+  count_left=where(xall gt corners_left_data[0] and xall lt corners_left_data[2] and yall gt corners_left_data[1] and yall lt corners_left_data[3])
+  count_right=where(xall gt corners_right_data[0] and xall lt corners_right_data[2] and yall gt corners_right_data[1] and yall lt corners_right_data[3])
+  if count_left ne -1 then begin
+    count_left=n_elements(count_left)
+  endif else count_left=0
+  
+  if count_right ne -1 then begin
+    count_right=n_elements(count_right)
+  endif else count_right=0  
+  wset,0
+  if count_left gt count_right then begin
+    al_legend,legendnames,psym=legendsyms,colors=legendsymcolors,symsize=3,charsize=4,charthick=5,font=1,/right
+  endif else begin
+    al_legend,legendnames,psym=legendsyms,colors=legendsymcolors,symsize=3,charsize=4,charthick=5,font=1,/left
+  endelse
+
+  ;save the plot
+  write_png,figfile,tvrd(true=1)
+  
 
 end    
 
