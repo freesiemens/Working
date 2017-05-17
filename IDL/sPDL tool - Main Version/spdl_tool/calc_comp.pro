@@ -1001,8 +1001,8 @@ pro calc_comp,searchdir,shots,recursive,configfile,software_version,quiet=quiet,
     
         
     ;read the earth to mars correction vector
-    if earth_to_mars eq 'Lab' then begin
-       e2m=float(rd_tfile("EARTH_2_MARS_CORR_derived.CSV",/autocol,delim=','))  
+    if earth_to_mars ne 'None' then begin
+       e2m=float(rd_tfile(earth_to_mars,/autocol,delim=','))  
     endif else e2m=0
     
     

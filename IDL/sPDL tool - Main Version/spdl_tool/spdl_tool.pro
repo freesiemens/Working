@@ -110,7 +110,7 @@ end
 
 pro spdl_tool
 
-software_version="sPDL Tool v2.4 (Last edited 15 May 2017)"
+software_version="sPDL Tool v2.4 (Last edited 17 May 2017)"
 cd,file_dirname(routine_filepath('spdl_tool'))
 configfile='pdl_tool_config.csv'
 
