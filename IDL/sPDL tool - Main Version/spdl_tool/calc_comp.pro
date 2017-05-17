@@ -649,9 +649,10 @@ pro refplots,refdata_file,combined_results,file_data,xel,yel,elems,figfile,xrang
   refnames=refdata[1:*,0]
   refsyms=refdata[1:*,1]
   refcolors=refdata[1:*,2]
-  ref_points=float(refdata[1:*,4:12])
-  ref_lows=float(refdata[1:*,15:23])
-  ref_highs=float(refdata[1:*,26:34])
+  ref_fontsize=refdata[1,3]
+  ref_points=float(refdata[1:*,5:13])
+  ref_lows=float(refdata[1:*,16:24])
+  ref_highs=float(refdata[1:*,27:35])
 
   ;Get the average comps and the error bars  
   ref_points_x=ref_points[*,xind]
@@ -734,28 +735,50 @@ pro refplots,refdata_file,combined_results,file_data,xel,yel,elems,figfile,xrang
       endfor
   ;write the legend
   window,1,xsize=3000,ysize=2400,/pixmap
-  al_legend,legendnames,psym=legendsyms,colors=legendsymcolors,symsize=3,charsize=4,charthick=5,font=1,/right,corners=corners_right
-  al_legend,legendnames,psym=legendsyms,colors=legendsymcolors,symsize=3,charsize=4,charthick=5,font=1,/left,corners=corners_left
+  al_legend,legendnames,psym=legendsyms,colors=legendsymcolors,symsize=3,charsize=ref_fontsize,charthick=5,font=1,/right,corners=corners_r
+  al_legend,legendnames,psym=legendsyms,colors=legendsymcolors,symsize=3,charsize=ref_fontsize,charthick=5,font=1,/left,corners=corners_l
+  al_legend,legendnames,psym=legendsyms,colors=legendsymcolors,symsize=3,charsize=ref_fontsize,charthick=5,font=1,/right,/bottom,corners=corners_rb
+  al_legend,legendnames,psym=legendsyms,colors=legendsymcolors,symsize=3,charsize=ref_fontsize,charthick=5,font=1,/left,/bottom,corners=corners_lb
+
   
   ;convert to data coordinates
-  corners_right_data=[(corners_right[0]-!x.s[0])/!x.s[1],(corners_right[1]-!y.s[0])/!y.s[1],(corners_right[2]-!x.s[0])/!x.s[1],(corners_right[3]-!y.s[0])/!y.s[1]]
-  corners_left_data=[(corners_left[0]-!x.s[0])/!x.s[1],(corners_left[1]-!y.s[0])/!y.s[1],(corners_left[2]-!x.s[0])/!x.s[1],(corners_left[3]-!y.s[0])/!y.s[1]]
+  corners_r_data=[(corners_r[0]-!x.s[0])/!x.s[1],(corners_r[1]-!y.s[0])/!y.s[1],(corners_r[2]-!x.s[0])/!x.s[1],(corners_r[3]-!y.s[0])/!y.s[1]]
+  corners_rb_data=[(corners_rb[0]-!x.s[0])/!x.s[1],(corners_rb[1]-!y.s[0])/!y.s[1],(corners_rb[2]-!x.s[0])/!x.s[1],(corners_rb[3]-!y.s[0])/!y.s[1]]
+  corners_l_data=[(corners_l[0]-!x.s[0])/!x.s[1],(corners_l[1]-!y.s[0])/!y.s[1],(corners_l[2]-!x.s[0])/!x.s[1],(corners_l[3]-!y.s[0])/!y.s[1]]
+  corners_lb_data=[(corners_lb[0]-!x.s[0])/!x.s[1],(corners_lb[1]-!y.s[0])/!y.s[1],(corners_lb[2]-!x.s[0])/!x.s[1],(corners_lb[3]-!y.s[0])/!y.s[1]]
+
+  ;get the upper left position for each possible legend location
+  pos=[[corners_r_data[2],corners_r_data[3]],[corners_l_data[0],corners_l_data[3]],[corners_rb_data[2],corners_rb_data[1]],[corners_lb_data[0],corners_lb_data[1]]]
   
-  count_left=where(xall gt corners_left_data[0] and xall lt corners_left_data[2] and yall gt corners_left_data[1] and yall lt corners_left_data[3])
-  count_right=where(xall gt corners_right_data[0] and xall lt corners_right_data[2] and yall gt corners_right_data[1] and yall lt corners_right_data[3])
-  if count_left ne -1 then begin
-    count_left=n_elements(count_left)
-  endif else count_left=0
+  ;count how many data points would fall in each possible legend
+  count_l=where(xall gt corners_l_data[0] and xall lt corners_l_data[2] and yall gt corners_l_data[1] and yall lt corners_l_data[3])
+  count_lb=where(xall gt corners_lb_data[0] and xall lt corners_lb_data[2] and yall gt corners_lb_data[3] and yall lt corners_lb_data[1])
+  count_r=where(xall gt corners_r_data[2] and xall lt corners_r_data[0] and yall gt corners_r_data[1] and yall lt corners_r_data[3])
+  count_rb=where(xall gt corners_rb_data[2] and xall lt corners_rb_data[0] and yall gt corners_rb_data[3] and yall lt corners_rb_data[1])
+
+
+  if count_l[0] ne -1 then begin
+    count_l=n_elements(count_l)
+  endif else count_l=0
   
-  if count_right ne -1 then begin
-    count_right=n_elements(count_right)
-  endif else count_right=0  
+  if count_lb[0] ne -1 then begin
+    count_lb=n_elements(count_lb)
+  endif else count_lb=0
+
+  if count_r[0] ne -1 then begin
+    count_r=n_elements(count_r)
+  endif else count_r=0 
+  
+  if count_rb[0] ne -1 then begin
+    count_rb=n_elements(count_rb)
+  endif else count_rb=0
+
+  counts=[count_r,count_l,count_rb,count_lb]
+ 
   wset,0
-  if count_left gt count_right then begin
-    al_legend,legendnames,psym=legendsyms,colors=legendsymcolors,symsize=3,charsize=4,charthick=5,font=1,/right
-  endif else begin
-    al_legend,legendnames,psym=legendsyms,colors=legendsymcolors,symsize=3,charsize=4,charthick=5,font=1,/left
-  endelse
+  ;put the legend where it has the fewest overlapping points
+  al_legend,legendnames,psym=legendsyms,colors=legendsymcolors,symsize=3,charsize=ref_fontsize,charthick=5,font=1,pos=pos[*,(where(counts eq min(counts)))[0]]
+  
 
   ;save the plot
   write_png,figfile,tvrd(true=1)
