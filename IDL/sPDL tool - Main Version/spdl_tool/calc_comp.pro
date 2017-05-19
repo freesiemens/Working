@@ -649,7 +649,11 @@ pro refplots,refdata_file,combined_results,file_data,xel,yel,elems,figfile,xrang
   refnames=refdata[1:*,0]
   refsyms=refdata[1:*,1]
   refcolors=refdata[1:*,2]
-  ref_fontsize=refdata[1,3]
+  legend_fontsize=refdata[1,3]
+  title_fontsize=refdata[3,3]
+  axis_fontsize=refdata[5,3]
+  err_thick=refdata[7,3]
+  sym_size=refdata[9,3]
   ref_points=float(refdata[1:*,5:13])
   ref_lows=float(refdata[1:*,16:24])
   ref_highs=float(refdata[1:*,27:35])
@@ -671,7 +675,7 @@ pro refplots,refdata_file,combined_results,file_data,xel,yel,elems,figfile,xrang
   if not(keyword_set(yrange)) then yrange=[min(yall),max(yall)+0.1*max(xall)]
   
   ;Create a list of colors and symbols to loop through when plotting data
-  plotcolors=['Crimson','Forest Green','Royal Blue','Aquamarine','Orchid','Yellow','Slate Gray'] ;using defined colors from coyote library
+  plotcolors=['Crimson','Forest Green','Royal Blue','Aquamarine','Orchid','Gold','Slate Gray'] ;using defined colors from coyote library
   plotsyms=[14,16,17,18,19,20] ;using filled symbols from the coyote library
   colorind=0
   symind=0
@@ -691,7 +695,7 @@ pro refplots,refdata_file,combined_results,file_data,xel,yel,elems,figfile,xrang
       window,0,xsize=3000,ysize=2400,/pixmap
       DEVICE, SET_FONT='Helvetica', /TT_FONT  ;use a nice-looking font
       cgplot,x,y,psym=plotsyms[symind],color=plotcolors[colorind],xrange=xrange,yrange=yrange,xthick=5,ythick=5,$
-        xtitle=xtitle,ytitle=ytitle,symsize=3,charsize=6,charthick=5,font=1
+        xtitle=xtitle,ytitle=ytitle,symsize=sym_size,charsize=title_fotsize,charthick=5,font=1,/clip
       
       ;start collecting info to use when drawing the legend
       legendnames=unique_targets[i]
@@ -700,7 +704,7 @@ pro refplots,refdata_file,combined_results,file_data,xel,yel,elems,figfile,xrang
       
     endif else begin
       ;on subsequent iterations, overplot the data points and add to the legend info
-      cgplot,x,y,psym=plotsyms[symind],color=plotcolors[colorind],/overplot,symsize=3
+      cgplot,x,y,psym=plotsyms[symind],color=plotcolors[colorind],/overplot,symsize=sym_size
       legendnames=[legendnames,unique_targets[i]]
       legendsyms=[legendsyms,plotsyms[symind]]
       legendsymcolors=[legendsymcolors,plotcolors[colorind]]
@@ -727,18 +731,18 @@ pro refplots,refdata_file,combined_results,file_data,xel,yel,elems,figfile,xrang
   ;step through each of the reference values
   for k=0,n_elements(refnames)-1 do begin
     ;plot the reference values with error bars
-    cgplot,ref_points_x[k],ref_points_y[k],psym=fix(refsyms[k]),/overplot,err_ylow=ref_lows_y[k],symsize=3,$
-      err_yhigh=ref_highs_y[k],err_xlow=ref_lows_x[k],err_xhigh=ref_highs_x[k],color=refcolors[k],/err_clip,err_width=0.002,err_thick=2
+    cgplot,ref_points_x[k],ref_points_y[k],psym=fix(refsyms[k]),/overplot,err_ylow=ref_lows_y[k],symsize=sym_size,$
+      err_yhigh=ref_highs_y[k],err_xlow=ref_lows_x[k],err_xhigh=ref_highs_x[k],color=refcolors[k],/err_clip,err_width=0.003,err_thick=err_thick
     legendnames=[legendnames,refnames[k]]
     legendsyms=[legendsyms,refsyms[k]]
     legendsymcolors=[legendsymcolors,refcolors[k]]
       endfor
   ;write the legend
   window,1,xsize=3000,ysize=2400,/pixmap
-  al_legend,legendnames,psym=legendsyms,colors=legendsymcolors,symsize=3,charsize=ref_fontsize,charthick=5,font=1,/right,corners=corners_r
-  al_legend,legendnames,psym=legendsyms,colors=legendsymcolors,symsize=3,charsize=ref_fontsize,charthick=5,font=1,/left,corners=corners_l
-  al_legend,legendnames,psym=legendsyms,colors=legendsymcolors,symsize=3,charsize=ref_fontsize,charthick=5,font=1,/right,/bottom,corners=corners_rb
-  al_legend,legendnames,psym=legendsyms,colors=legendsymcolors,symsize=3,charsize=ref_fontsize,charthick=5,font=1,/left,/bottom,corners=corners_lb
+  al_legend,legendnames,psym=legendsyms,colors=legendsymcolors,symsize=sym_size,charsize=legend_fontsize,charthick=5,font=1,/right,corners=corners_r
+  al_legend,legendnames,psym=legendsyms,colors=legendsymcolors,symsize=sym_size,charsize=legend_fontsize,charthick=5,font=1,/left,corners=corners_l
+  al_legend,legendnames,psym=legendsyms,colors=legendsymcolors,symsize=sym_size,charsize=legend_fontsize,charthick=5,font=1,/right,/bottom,corners=corners_rb
+  al_legend,legendnames,psym=legendsyms,colors=legendsymcolors,symsize=sym_size,charsize=legend_fontsize,charthick=5,font=1,/left,/bottom,corners=corners_lb
 
   
   ;convert to data coordinates
@@ -777,7 +781,7 @@ pro refplots,refdata_file,combined_results,file_data,xel,yel,elems,figfile,xrang
  
   wset,0
   ;put the legend where it has the fewest overlapping points
-  al_legend,legendnames,psym=legendsyms,colors=legendsymcolors,symsize=3,charsize=ref_fontsize,charthick=5,font=1,pos=pos[*,(where(counts eq min(counts)))[0]]
+  al_legend,legendnames,psym=legendsyms,colors=legendsymcolors,symsize=sym_size,charsize=legend_fontsize,charthick=5,font=1,pos=pos[*,(where(counts eq min(counts)))[0]]
   
 
   ;save the plot
@@ -997,6 +1001,9 @@ pro calc_comp,searchdir,shots,recursive,configfile,software_version,quiet=quiet,
     refdata_files=strsplit(configdata[1,10],';',/extract)
     refdata_names=strsplit(configdata[1,11],';',/extract)
     earth_to_mars=configdata[1,12]
+    sol_range=strsplit(configdata[1,13],'-',/extract)
+    minsol=fix(sol_range[0])
+    maxsol=fix(sol_range[1])
     
     
         
@@ -1023,7 +1030,7 @@ pro calc_comp,searchdir,shots,recursive,configfile,software_version,quiet=quiet,
     test_info=get_testset_info(testresult_dir,elems)
         
     if not(quiet) then xmess,"Reading files matching "+searchstring+" in "+searchdir,/nowait,wid=wid
-    file_data=ccam_filelist(searchdir,searchstring=searchstring,minsol=0,maxsol=999999,recursive=recursive)
+    file_data=ccam_filelist(searchdir,searchstring=searchstring,minsol=minsol,maxsol=maxsol,recursive=recursive)
     if not(quiet) then widget_control,/dest,wid
 ;     stop
     ;Look up target info
