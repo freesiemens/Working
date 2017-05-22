@@ -594,46 +594,7 @@ function label_energy,labelx,labely,xdata,ydata
    return,energy
 end
 
-;This function tests whether two lines intersect, based on their end points
-;Line one goes from A to B, Line 2 goes from C to D
-;Line one = [[Ax,Ay],[Bx,By]]
-;Line two = [[Cx,Cy],[Dx,Dy]]
-function lines_intersect,line1,line2
-   Ax=line1[0,0]
-   Ay=line1[1,0]
-   Bx=line1[0,1]
-   By=line1[1,1]
-   
-   Cx=line2[0,0]
-   Cy=line2[1,0]
-   Dx=line2[0,1]
-   Dy=line2[1,1]
 
-   ;Test whether points A and B are on the same side of line CD
-   test1=(Dx-Cx)*(Ay-Dy)-(Dy-Cy)*(Ax-Dx)
-   test2=(Dx-Cx)*(By-Dy)-(Dy-Cy)*(Bx-Dx)
-   if test1 gt 0 and test2 gt 0 then resultAB=0
-   if test1 lt 0 and test2 lt 0 then resultAB=0
-   if test1 gt 0 and test2 lt 0 then resultAB=1
-   if test1 lt 0 and test2 gt 0 then resultAB=1
-
-
-   ;Test whether points C and D are on the same side of line AB
-   test3=(Bx-Ax)*(Cy-By)-(By-Ay)*(Cx-Bx)
-   test4=(Bx-Ax)*(Dy-By)-(By-Ay)*(Dx-Bx)
-   if test3 gt 0 and test4 gt 0 then resultCD=0
-   if test3 lt 0 and test4 lt 0 then resultCD=0
-   if test3 gt 0 and test4 lt 0 then resultCD=1
-   if test3 lt 0 and test4 gt 0 then resultCD=1
-
-
-   ;The lines intersect iff A and B are on different sides of CD and C and D are on different sides of AB
-   if resultCD eq 1 or resultAB eq 1 then intersect=1 else intersect=0
-   
-
-  return,intersect
-
-end
 
 pro refplots,refdata_file,combined_results,file_data,xel,yel,elems,figfile,xrange=xrange,yrange=yrange
   ;index the data matching the element of interest
@@ -646,17 +607,17 @@ pro refplots,refdata_file,combined_results,file_data,xel,yel,elems,figfile,xrang
   
   ;Read reference data
   refdata=rd_tfile(refdata_file,delim=',',/autocol)
-  refnames=refdata[1:*,0]
-  refsyms=refdata[1:*,1]
-  refcolors=refdata[1:*,2]
-  legend_fontsize=refdata[1,3]
-  title_fontsize=refdata[3,3]
-  axis_fontsize=refdata[5,3]
-  err_thick=refdata[7,3]
-  sym_size=refdata[9,3]
-  ref_points=float(refdata[1:*,5:13])
-  ref_lows=float(refdata[1:*,16:24])
-  ref_highs=float(refdata[1:*,27:35])
+  legend_fontsize=refdata[1,0]
+  title_fontsize=refdata[1,1]
+  axis_fontsize=refdata[1,2]
+  err_thick=refdata[1,3]
+  sym_size=refdata[1,4]
+  refnames=refdata[1:*,5]
+  refsyms=refdata[1:*,6]
+  refcolors=refdata[1:*,7]
+  ref_points=float(refdata[1:*,9:16])
+  ref_lows=float(refdata[1:*,20:27])
+  ref_highs=float(refdata[1:*,31:38])
 
   ;Get the average comps and the error bars  
   ref_points_x=ref_points[*,xind]
@@ -684,33 +645,25 @@ pro refplots,refdata_file,combined_results,file_data,xel,yel,elems,figfile,xrang
   unique_targets=(file_data['targets'])(uniq(file_data['targets'],sort(file_data['targets'])))
   
   ;loop through unique targets, plotting each one
+  legendnames=[]
+  legendsyms=[]
+  legendsymcolors=[]
+  window,0,xsize=3000,ysize=2400,/pixmap
+  DEVICE, SET_FONT='Helvetica', /TT_FONT  ;use a nice-looking font
+  cgplot,[0,1],[0,1],psym=0,color='White',xrange=xrange,yrange=yrange,xthick=5,ythick=5,$
+    xtitle=xtitle,ytitle=ytitle,symsize=1,charsize=title_fontsize,charthick=5,font=1,/clip
   for i=0,n_elements(unique_targets)-1 do begin
     ;get x and y coordinates
     target_index=where(file_data['targets'] eq unique_targets[i])
     x=(combined_results['means'])[xind,target_index]
     y=(combined_results['means'])[yind,target_index]
-    
-    ;on the first iteration, create the plot
-    if i eq 0 then begin
-      window,0,xsize=3000,ysize=2400,/pixmap
-      DEVICE, SET_FONT='Helvetica', /TT_FONT  ;use a nice-looking font
-      cgplot,x,y,psym=plotsyms[symind],color=plotcolors[colorind],xrange=xrange,yrange=yrange,xthick=5,ythick=5,$
-        xtitle=xtitle,ytitle=ytitle,symsize=sym_size,charsize=title_fotsize,charthick=5,font=1,/clip
-      
-      ;start collecting info to use when drawing the legend
-      legendnames=unique_targets[i]
-      legendsyms=plotsyms[symind]
-      legendsymcolors=plotcolors[colorind]
-      
-    endif else begin
-      ;on subsequent iterations, overplot the data points and add to the legend info
-      cgplot,x,y,psym=plotsyms[symind],color=plotcolors[colorind],/overplot,symsize=sym_size
-      legendnames=[legendnames,unique_targets[i]]
-      legendsyms=[legendsyms,plotsyms[symind]]
-      legendsymcolors=[legendsymcolors,plotcolors[colorind]]
-      
-    endelse
 
+    print,plotcolors[colorind]
+    cgplot,x,y,psym=plotsyms[symind],color=plotcolors[colorind],/overplot,symsize=sym_size
+    legendnames=[legendnames,unique_targets[i]]
+    legendsyms=[legendsyms,plotsyms[symind]]
+    legendsymcolors=[legendsymcolors,plotcolors[colorind]]
+     
     ;increment the color and symbol indices. Loop them around if needed so they still point at a valid value
     colorind=colorind+1
     symind=symind+1
@@ -720,9 +673,7 @@ pro refplots,refdata_file,combined_results,file_data,xel,yel,elems,figfile,xrang
     if symind ge n_elements(plotsyms) then begin
       symind=0
     endif
-    
-
-  endfor
+ endfor
   
   ;create empty arrays to hold the label coordinates
   x_labels=fltarr(n_elements(refnames))
@@ -785,7 +736,17 @@ pro refplots,refdata_file,combined_results,file_data,xel,yel,elems,figfile,xrang
   
 
   ;save the plot
-  write_png,figfile,tvrd(true=1)
+  fig=tvrd(true=1)
+  xsum=total(fig[0,*,*],3)
+  ysum=total(fig[0,*,*],2)
+  
+  xdata=where(xsum lt max(xsum))
+  ydata=where(ysum lt max(ysum))
+  xcrop=[xdata[0],xdata[-1]]
+  ycrop=[ydata[0],ydata[-1]]
+  
+  fig=fig[*,xcrop[0]:xcrop[1],ycrop[0]:ycrop[1]]; Crop margins
+  write_png,figfile,fig
   
 
 end    
@@ -1002,8 +963,8 @@ pro calc_comp,searchdir,shots,recursive,configfile,software_version,quiet=quiet,
     refdata_names=strsplit(configdata[1,11],';',/extract)
     earth_to_mars=configdata[1,12]
     sol_range=strsplit(configdata[1,13],'-',/extract)
-    minsol=fix(sol_range[0])
-    maxsol=fix(sol_range[1])
+    minsol=double(sol_range[0])
+    maxsol=double(sol_range[1])
     
     
         
