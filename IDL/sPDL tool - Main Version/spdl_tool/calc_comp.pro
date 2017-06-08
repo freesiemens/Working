@@ -88,7 +88,7 @@
 ;                           - Added more comments and documentation before each function
 ;                           - Lots of general reorganization
 ; R. Anderson June 2, 2016 - Add automatic MOC plotting capability
-;                           
+; R. Anderson May 2016 - Make plots look nicer, allow asymmetric error bars, place legend to avoid data, allow user to specify earth to mars correction file                           
 ;-
 
 
@@ -636,7 +636,7 @@ pro refplots,refdata_file,combined_results,file_data,xel,yel,elems,figfile,xrang
   if not(keyword_set(yrange)) then yrange=[min(yall),max(yall)+0.1*max(xall)]
   
   ;Create a list of colors and symbols to loop through when plotting data
-  plotcolors=['Crimson','Forest Green','Royal Blue','Aquamarine','Orchid','Gold','Slate Gray'] ;using defined colors from coyote library
+  plotcolors=['Firebrick','Royal Blue','Turquoise','Orchid','Gold','Lime Green','Slate Gray'] ;using defined colors from coyote library
   plotsyms=[14,16,17,18,19,20] ;using filled symbols from the coyote library
   colorind=0
   symind=0
@@ -683,17 +683,18 @@ pro refplots,refdata_file,combined_results,file_data,xel,yel,elems,figfile,xrang
   for k=0,n_elements(refnames)-1 do begin
     ;plot the reference values with error bars
     cgplot,ref_points_x[k],ref_points_y[k],psym=fix(refsyms[k]),/overplot,err_ylow=ref_lows_y[k],symsize=sym_size,$
-      err_yhigh=ref_highs_y[k],err_xlow=ref_lows_x[k],err_xhigh=ref_highs_x[k],color=refcolors[k],/err_clip,err_width=0.003,err_thick=err_thick
+      err_yhigh=ref_highs_y[k],err_xlow=ref_lows_x[k],err_xhigh=ref_highs_x[k],color=refcolors[k],/err_clip,$
+      err_width=0.003,err_thick=err_thick,thick=err_thick
     legendnames=[legendnames,refnames[k]]
     legendsyms=[legendsyms,refsyms[k]]
     legendsymcolors=[legendsymcolors,refcolors[k]]
       endfor
   ;write the legend
   window,1,xsize=3000,ysize=2400,/pixmap
-  al_legend,legendnames,psym=legendsyms,colors=legendsymcolors,symsize=sym_size,charsize=legend_fontsize,charthick=5,font=1,/right,corners=corners_r
-  al_legend,legendnames,psym=legendsyms,colors=legendsymcolors,symsize=sym_size,charsize=legend_fontsize,charthick=5,font=1,/left,corners=corners_l
-  al_legend,legendnames,psym=legendsyms,colors=legendsymcolors,symsize=sym_size,charsize=legend_fontsize,charthick=5,font=1,/right,/bottom,corners=corners_rb
-  al_legend,legendnames,psym=legendsyms,colors=legendsymcolors,symsize=sym_size,charsize=legend_fontsize,charthick=5,font=1,/left,/bottom,corners=corners_lb
+  al_legend,legendnames,psym=legendsyms,colors=legendsymcolors,symsize=sym_size,thick=err_thick,charsize=legend_fontsize,charthick=5,font=1,/right,corners=corners_r
+  al_legend,legendnames,psym=legendsyms,colors=legendsymcolors,symsize=sym_size,thick=err_thick,charsize=legend_fontsize,charthick=5,font=1,/left,corners=corners_l
+  al_legend,legendnames,psym=legendsyms,colors=legendsymcolors,symsize=sym_size,thick=err_thick,charsize=legend_fontsize,charthick=5,font=1,/right,/bottom,corners=corners_rb
+  al_legend,legendnames,psym=legendsyms,colors=legendsymcolors,symsize=sym_size,thick=err_thick,charsize=legend_fontsize,charthick=5,font=1,/left,/bottom,corners=corners_lb
 
   
   ;convert to data coordinates
@@ -732,7 +733,7 @@ pro refplots,refdata_file,combined_results,file_data,xel,yel,elems,figfile,xrang
  
   wset,0
   ;put the legend where it has the fewest overlapping points
-  al_legend,legendnames,psym=legendsyms,colors=legendsymcolors,symsize=sym_size,charsize=legend_fontsize,charthick=5,font=1,pos=pos[*,(where(counts eq min(counts)))[0]]
+  al_legend,legendnames,psym=legendsyms,colors=legendsymcolors,symsize=sym_size,thick=err_thick,charsize=legend_fontsize,charthick=5,font=1,pos=pos[*,(where(counts eq min(counts)))[0]]
   
 
   ;save the plot

@@ -58,3 +58,6 @@ full_db*
 #IDL .sav files
 *.sav
 *.pyc
+*.xml
+.idea/Working.iml
+*.iml
