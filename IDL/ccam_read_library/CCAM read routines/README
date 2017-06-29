@@ -1,0 +1,20 @@
+This directory contains ChemCam read libray for reading .dat and EDR's 
+and may eventually be updated for RAW files
+
+Currently works for FSW R10.3 files. (1/20/2012)
+example in data directory.
+
+To test run the fillowing:
+
+idl
+filename='data/CL0_404858033EDR_F0010044CCAM00030M1.DAT'
+defsysv,'!ChemCam_sdata','./' 
+!path='.:'+expand_path('+/n/projects/chemcam/dot/tools/readdata')+':'+!path
+spectra=ccam_read_libs_edr(filename,label_info=label_info,HK_prt=hk_prt)
+
+
+___________________-
+
+label_info is the information taken from the EDR label that will be passed on to the RDR label
+There will soon be RDR write routines that should be called for writing the RDR's.
+

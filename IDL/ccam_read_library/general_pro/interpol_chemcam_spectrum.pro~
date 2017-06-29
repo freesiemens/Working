@@ -1,0 +1,28 @@
+PRO interpol_chemcam_spectrum,ptr
+
+  n= (*ptr[0]).n
+
+  sp_type=detect_sp_type((*ptr[1]).libs_fn_init)
+ 
+  sp=(*ptr[0]).new_spectrum(0:n-1)
+  x0 = (*ptr[0]).wavelength(0:n-1)
+  x = dindgen(n)
+
+  CASE sp_type OF
+     'UV':wave = 240.536 + 0.0536753*x - 2.35919E-6*x^2
+     'VIS':wave= 381.783 + 0.0483610*x - 2.85796E-6*x^2
+     'VNIR':wave=471.423 +  0.228638*x - 8.26295E-6*x^2
+     ELSE:wave=x0
+  END
+  y1 = interpol(sp, x0, wave,/spline)
+  
+  imn = where( wave lt min(x0),mn)
+  if (mn gt 0) then y1(imn) = 0.
+  imx = where( wave gt max(x0),mx)
+  if (mx gt 0) then y1(imx) = 0.
+
+;;   (*ptr[1]).libs_fn_clb=Write_spectrum(x,sp,param_list,(*ptr[1]).libs_fn_init,type='calib')
+   (*ptr[0]).new_spectrum(0:n-1)=y1
+   (*ptr[0]).wavelength(0:n-1)=wave
+
+END 

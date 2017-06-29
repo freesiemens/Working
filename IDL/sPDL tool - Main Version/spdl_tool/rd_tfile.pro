@@ -118,12 +118,12 @@ if strupcase(!version.os) ne 'VMS' then begin
       wlfs=where(btext eq 10b)		; find line feeds
      ;remove cases of two line feeds in a row
       n=0
-      while n lt n_elements(wlfs)-1 do begin
-         a=wlfs[n]
-         b=wlfs[n+1]
-         if a+1 eq b then remove,n+1,wlfs
-         n=n+1  
-      endwhile
+      dupcheck=wlfs*0
+      for i=0,n_elements(wlfs)-2 do begin
+         if wlfs[i]+1 eq wlfs[i+1] then dupcheck[i]=1
+      endfor
+      if total(dupcheck) gt 0 then remove,where(dupcheck eq 1),wlfs
+      
       lfcount=n_elements(wlfs)
       
       if lfcount eq 0 then begin

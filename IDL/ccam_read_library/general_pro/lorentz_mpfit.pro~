@@ -1,0 +1,15 @@
+function lorentz_mpfit, a, XVAL=x, YVAL=y, ERRVAL=err, model_out=model_out
+
+
+if not keyword_set(err) then begin
+    err = x
+    err(*) = 1.
+endif
+
+model=lorentz(x, a)
+if keyword_set(model_out) then return, model else begin
+    res = (y-model)/err
+    return, res
+endelse
+
+end

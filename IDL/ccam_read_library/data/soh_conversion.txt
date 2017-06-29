@@ -1,0 +1,71 @@
+Digital HKs                   1       0      raw 
+HK_heatsink_temp              .04796  -57.47 degC
+HK_current_+3.3v              .275018  0      mA  
+HK_current_+30v               .2181929 0     mA  
+HK_current_-5v                .04818  31.6   mA  
+HK_current_+12v               .07839  0      mA  
+HK_V_+3.3v                    .000899 0      V   
+HK_V_+5v                      .001486 0      V   
+HK_V_-5v                      -.00165 0      V   
+HK_V_+12v                     .003510 0      V   
+HK_V_-12v                     -.00355 0      V   
+HK_V_+15v                     .005771 0      V   
+HK_V_+30v                     .007976 0      V   
+Laser_diode_control_current   .002935 0      mW  
+CWL_temp                      .037226 -57.47 degC
+HK_temp_limiter_1             .037226 -57.47 degC
+Autofocus_signal_output       .610501 0      mV   
+LMD18200_Temp                 .047958 -57.47 degC
+HK_Temp_Laser_1               .037226 -57.47 degC
+HK_Temp_Laser_2               .037226 -57.47 degC
+HK_Temp_Laser_3               .037226 -57.47 degC
+HK_Temp_Laser_4               .037226 -57.47 degC
+HK_V_Stack_1                  .00763  0      V   
+HK_I_Stack_1                  .03783  -0.36  A   
+HK_V_Stack_2                  .00763  0      V   
+HK_I_Stack_2                  .03936  -0.92 A   
+HK_V_Stack_3                  .00763  0      V   
+HK_I_Stack_3                  .03870  -0.680 A   
+Optical_Flux_Level            .01569  -3.78  mJ  
+HK_HV_Pockels                 .61050  0      V   
+HK_Limit_Switch               .128798 -7.73  Ohms
+HK_Spare_2                    .000611 0      V
+HK_RMI                        .04210  -60.60 degC
+HK_temp_FPGA_1                .04796  -57.47 degC
+HK_Telescope_1                .037226 -57.47 degC
+HK_Telescope_2                .037226 -57.47 degC
+3.3V FPGA                     .001906 0      V   
+Last_Steps_Moved              1       0      cnts
+Steps_Displacement            1       0      raw
+DPU_Analog_Ground             .009804 0      V
+DPU_+5_Digital                .02450  0      V 
+DPU_+2.5_Digital              .01225  0      V 
+DPU_+5_Analog                 .02450  0      V 
+DPU_-5_Analog                 -.02450 0      V  
+DPU_Temp                      .73529  -50    C   
+Spectrometer_Temp             .73529  -50    C   
+LVPS_Temp                     .73529  -50    C   
+Motor_Position                1       0      cnts
+Limit_Switch_Status           Closed  Open    
+Thermal Flag                  Hot     Warm    
++/-15V_Converter_Status       Off     On      
++/-12V_Converter_Status       Off     On      
+Limiter_Oscillator_Status     Off     On      
+Limiter_Amplifier1_Status     Off     On      
+Limiter_Amplifier2_Status     Off     On      
+Floating_+/-15V_Status        Off     On      
+HV_Pockels_Status             Off     On      
++30V_Motor_Status             Off     On      
+CWL_Power_Status              Off     On      
++/-12V_Autofocus_Status       Off     On      
+Camera_Status                 Off     On      
+Warmup_Loop1_Status (Osc)     Cold    Warm    
+Warmup_Loop2_Status (Amps)    Cold    Warm    
+Warmup_Loop3_Status (CWL)     Cold    Warm    
+HK_V_Stack_1                  .00763  0      V   
+HK_I_Stack_1                  .03783  -0.36  A   
+HK_V_Stack_2                  .00763  0      V   
+HK_I_Stack_2                  .03936  -0.92  A   
+HK_V_Stack_3                  .00763  0      V   
+HK_I_Stack_3                  .03870  -0.68  A   
+Optical_Flux_Level            .01569  -3.78  mJ

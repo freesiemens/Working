@@ -1,0 +1,1124 @@
+;+
+; NAME:
+;	CCAM_READ_LIBS
+;
+; PURPOSE:
+;	Read ChemCam LIBS spectra. Built many HK outputs
+;
+; EXPLANATION:
+;	Read an LIBS files built by JPL. Copy the input command. Build
+;	structures for HK data: instrument parameters, Rover PRTs, LIBS
+;	parameters, Distance to target. On request, tell us a bit on
+;	what has been read.  
+;
+; CALLING SEQUENCE:
+;	spectra = CCAM_READ_LIBS(libsfile [,convfile = ]  $
+;               [,thespectra][, cmd = ][, time = ][, /verbose]$
+;               [,EDR = ][, version =][, rsize = ][, nlrec = ] $
+;               [, HK_prt = ][, HK_inst = ][,HK_libs = ][, HK_dist = ])
+;
+; INPUTS:
+;	libsfile    -  LIBS filename, including path
+;
+; OPTIONAL INPUTS:
+;       convfile    - Conversion filename, including path. If this*
+;                      input is not provided, the system variable
+;                      !CCAM_convfile will be used.
+;
+; OPTIONAL KEYWORD INPUTS:
+;       none
+;
+; OUTPUTS:
+;       return a [3,nb_of_spectra,2048] spectrum
+;
+; OPTIONAL OUTPUTS:
+;	thespectra   -  [3, nb_of_spectra,2148], that includes masked pixels.
+;       TIME         -  Read and parse S/C clock into human readable
+;                       day/hr, etc...(structure)
+;       CMD          -  Return parameters/arguments of the command. 
+;                       This is a structure
+;       HK_PRT       -  Return the instrument PRTs which are read by
+;                       the rover (structure)
+;       HK_INST      -  Return structure for the Housekeeping. Make 
+;                       the distinction for HK taken before/after (structure) 
+;       HK_DIST      -  Return current motor position and focus data
+;                       when they exist(structure)
+;       HK_LIBS      -  Return critical LIBS parameters (structure)
+;       FILE         -  Return the file name, size
+;
+; OPERATIONAL NOTES:
+;       This program will now read EDR and .dat LIBS data. It assumes that the
+;       format after May 2011 is used. If not it will try the old
+;       format which have a different series of PRTs.
+;
+;       Assume that the file soh_conversion.txt exists
+;       somewhere. Provide the path or assume it is under !ChemCam_gdata
+;       
+;
+; PROCEDURES CALLED:
+;	PARSE_TRANSFERT(), LOAD_CONVERSION(), CCAM_MOTOR()
+;
+;       MYSTRING(), YMD2DN(), DATE_CONV()
+;
+; REVISION HISTORY:
+;	S. Maurice, D. Delap, O. Gasnault       June 2011
+;	D. DeLapp                               January 2012
+;          added edr capability
+;-
+
+function ccam_read_libs, $
+             filename, thespectra, $
+             convfile = convfile, $
+             time = thetime, cmd = cmd, file = thefile, $
+             HK_prt = HK_prt, HK_inst = HK_inst, $
+             HK_libs = HK_libs, HK_dist = HK_dist, $
+             verbose = verbose, edr=edr,version=version, $
+             rsize = rsize, nlrec = nlrec
+
+;+
+;  PART 1
+;  Read data 
+;-
+
+      ;  define variables
+  
+      uval=ulong(0)
+      ival=uint(0)
+      bval=byte(0)
+
+      itf=bytarr(3)
+
+      ruval=ulong(0)
+      rbval=byte(0)
+      rival=uint(0)
+
+      num_status = 16
+      num_mast = 39
+      num_dpu = 9
+      ndata = 7 
+            
+;
+;  Load Conversion factors
+;  Use default file if input not provided
+;
+
+      if not keyword_set(convfile) then $
+         convfile = !ChemCam_sdata + 'soh_conversion.txt'
+
+      load_conversion, convfile, $
+           mast_struct, dpu_struct, switch_struct, laser_struct
+ 
+;
+;  Define various structures
+;  Assume late data format
+;
+      
+      early_fmt = 0
+      
+      inst_temps={$
+                 mu_obox_tel_temp :float(0), $
+                 mu_obox_tel_temp_st :long(0), $
+                 mu_laser_if_temp:float(0), $
+                 mu_laser_if_temp_st:long(0), $
+                 mu_ebox_heatsink_temp:float(0), $
+                 mu_ebox_heatsink_temp_st:long(0), $
+                 mu_ebox_fpga_temp:float(0), $
+                 mu_ebox_fpga_temp_st :long(0), $
+                 bu_ccd_vnir_b_temp :float(0), $
+                 bu_ccd_vnir_b_temp_st :long(0), $
+                 bu_spect_b_temp :float(0), $
+                 bu_spect_b_temp_st :long(0), $
+                 bu_ccd_uv_a_temp :float(0), $
+                 bu_ccd_uv_a_temp_st :long(0), $
+                 bu_spect_a_temp :float(0), $
+                 bu_spect_a_temp_st :long(0), $
+                 bu_demux_a_temp :float(0), $
+                 bu_demux_a_temp_st :long(0), $
+                 bu_demux_b_temp :float(0), $
+                 bu_demux_b_temp_st :long(0)}
+
+      cmd_arguments={$
+                    frame_id :long(0), $ 
+                    frame_index : fix(0), $
+                    coord_type : long(0), $
+                    coord1 : ulong(0), $ 
+                    coord2 : ulong(0), $ 
+                    coord3 : ulong(0), $ 
+                    focus : ulong(0), $
+                    range : uint(0), $
+                    data : long(0), $
+                    pre_post : long(0), $
+                    use_laser: long(0), $
+                    nshotsignor : byte(0), $
+                    nshotsavg : byte(0), $
+                    nshots :byte(0)}
+      
+      cmd_parameters={$
+                     spectControlByte : byte(0), $
+                     spectImageType: byte(0), $
+                     spectSerialClock: byte(0), $
+                     spectSelect: byte(0), $
+                     ICT_Divider: uint(0), $
+                     IPBC_Divider: uint(0), $
+                     startRowUV: uint(0), $
+                     stopRowUV: uint(0), $
+                     startRowVIS: uint(0), $
+                     stopRowVIS: uint(0), $
+                     startRowVNIR: uint(0), $
+                     stopRowVNIR: uint(0), $
+                     obsFromLimitSwitch: byte(0), $
+                     stack1level : float(0.0), $
+                     stack2level : float(0.0), $
+                     stack3level : float(0.0), $
+                     stackDuration : byte(0), $
+                     timeBetweenShots: byte(0), $
+                     specAdCVNIR: byte(0), $
+                     specAdCVIS: byte(0), $
+                     specAdCUV: byte(0), $
+                     specVertClk: byte(0)}
+      
+      soh_scidata={$
+                  head1:uint(0), $
+                  head2:uint(0), $
+                  nbytes:ulong(0), $
+                  RCEtime:ulong(0), $
+                  curMsecCount:ulong(0), $
+                  goodCmds:uint(0), $
+                  badCmds:uint(0), $
+                  mastCmds:uint(0), $
+                  mastACKs:uint(0), $
+                  mastNAKs:uint(0), $
+                  mastResends:uint(0), $
+                  mastPktsRecd:uint(0), $
+                  mastPktsBad:uint(0), $
+                  CCstate:uint(0), $
+                  status:uint(0), $
+                  memFPGAversion:uint(0), $
+                  microFPGAversion:uint(0), $
+                  spectFPGAversion:uint(0), $
+                  images_sent:uint(0), $
+                  SOH_sent:uint(0), $
+                  spect_sent:uint(0), $
+                  laser_data_Sent:uint(0), $
+                  spare:uint(0), $
+                  spare2:uint(0), $
+                  Nfollowing:uint(0)}
+      
+      ccam_DPU_SOH={$
+                   lastDAC:byte(0), $
+                   DPU_Analog_ground:byte(0), $
+                   DPU_5P_Digital:uint(0), $
+                   DPU_2P5_Digital:uint(0), $
+                   DPU_5P_Analog:uint(0), $
+                   DPU_5N_Analog:uint(0), $
+                   DPU_Temp:uint(0), $
+                   Spectrometer_Temp:uint(0), $
+                   LVPS_Temp:uint(0), $
+                   Motor_Position:uint(0) }
+      
+      ccam_MU_SOH={$
+                  MU_Status: uint(0), $
+                  HK_heatsink_temp:uint(0), $
+                  HK_current_3P3:uint(0), $
+                  HK_current_30P:uint(0), $
+                  HK_current_5N:uint(0), $
+                  HK_current_12P:uint(0), $
+                  HK_V_3P3:uint(0), $
+                  HK_V_5P:uint(0), $
+                  HK_V_5N:uint(0), $
+                  HK_V_12P:uint(0), $
+                  HK_V_12N:uint(0), $
+                  HK_V_15P:uint(0), $
+                  HK_V_30P:uint(0), $
+                  Laser_diode_current:uint(0), $
+                  CWL_temp:uint(0), $
+                  HK_temp_limiter_1:uint(0), $
+                  Autofocus_signal_output:uint(0), $
+                  LMD18200_Temp:uint(0), $
+                  HK_Temp_Laser_1:uint(0), $
+                  HK_Temp_Laser_2:uint(0), $
+                  HK_Temp_Laser_3:uint(0), $
+                  HK_Temp_Laser_4:uint(0), $
+                  HK_V_Stack_1:uint(0), $
+                  HK_I_Stack_1:uint(0), $
+                  HK_V_Stack_2:uint(0), $
+                  HK_I_Stack_2:uint(0), $
+                  HK_V_Stack_3:uint(0), $
+                  HK_I_Stack_3:uint(0), $
+                  Optical_Flux_Level:uint(0), $
+                  HK_HV_Pockels:uint(0), $
+                  HK_Limit_Switch:uint(0), $
+                  HK_Spare_2:uint(0), $
+                  HK_RMI:uint(0), $
+                  HK_temp_FPGA_1:uint(0), $
+                  HK_Telescope_1:uint(0), $
+                  HK_Telescope_2:uint(0), $
+                  FPGA_3P3:uint(0), $
+                  Last_Steps_Moved:uint(0), $
+                  Steps_Displacement:uint(0) }
+      
+      ccam_SOH_to_RCE={ $
+                      time:ulong(0), $
+                      DPU_SOH:ccam_DPU_SOH, $
+                      MU_SOH:ccam_MU_SOH}
+
+;
+;  Read/Parse binary file
+;      
+
+      doitagain:
+      
+      openr,ilun,filename,/get_lun,/swap_if_little
+       
+       ; the first data value should be sclk
+       ; sclk is 4 byte U32
+;
+; if edr then skip bytarr(long(rsize)*long(nlrec))
+       if edr then begin
+          numtoskip=bytarr(long(nlrec)*long(rsize))
+          readu,ilun,numtoskip
+       endif
+
+       readu,ilun,uval
+       sclk=uval
+
+       ; read inst_temps PRT
+
+       readu,ilun,inst_temps
+
+       ; read cmd_args
+
+       readu,ilun,cmd_arguments
+
+       ; read cmd_params
+
+       readu,ilun,cmd_parameters
+
+;
+;  SOH data before
+;
+
+      readu,ilun,uval
+      if uval gt 32 then uval = 8UL  ;  case it won't work anyway
+      dum = bytarr(uval)
+      readu,ilun,dum
+
+      readu,ilun,uval
+      readu,ilun,bval
+      opcode=bval
+
+       ;  If this opcode cannot be met, we assume that we deal
+       ;  with an early forat of the data and read the file again
+       ;  If does not pass the second time, we have a problem
+
+       if opcode ne 82B then begin
+
+          if early_fmt eq 1 then message, ' Houston we have a problem'
+
+          inst_temps={$
+                     mu_obox_tel_temp :float(0), $
+                     mu_obox_tel_temp_st :long(0), $
+                     mu_laser_if_temp:float(0), $
+                     mu_laser_if_temp_st:long(0), $
+                     mu_ebox_heatsink_temp:float(0), $
+                     mu_ebox_heatsink_temp_st:long(0), $
+                     mu_ebox_fpga_temp:float(0), $
+                     mu_ebox_fpga_temp_st :long(0), $
+                     bu_ebox_temp :float(0), $
+                     bu_ebox_temp_st :long(0), $
+                     bu_spect_top_temp :float(0), $
+                     bu_spect_top_temp_st :long(0), $
+                     bu_spect_bottom_temp :float(0), $
+                     bu_spect_bottom_temp_st :long(0), $
+                     bu_demux_temp :float(0), $
+                     bu_demux_temp_st :long(0)}
+
+          close,ilun
+          free_lun,ilun
+
+          early_fmt = 1
+          goto, doitagain
+          
+       endif
+ 
+      ; Transfer status
+ 
+       readu,ilun,itf
+       parse_transfert, itf
+
+       ; read SOH science
+
+       readu,ilun,uval
+       readu,ilun,soh_scidata
+
+      ; Loop for soh_scidata.Nfollowing
+    
+       nsoh_before = soh_scidata.Nfollowing
+       soh_before = replicate(ccam_soh_to_rce, nsoh_before)
+
+       for j=0,nsoh_before-1 do begin                                  
+          
+          readu,ilun,ccam_SOH_to_RCE 
+          soh_before[j] = ccam_SOH_to_RCE 
+
+       endfor
+
+       ; the last valid data is the checksum
+
+       readu,ilun,uval
+       checksum=uval
+
+;
+;  SOH data after
+;
+
+       readu,ilun,uval
+       dum = bytarr(uval)
+       readu,ilun,dum
+       
+       readu,ilun,uval
+       readu,ilun,bval
+       opcode=bval
+
+       if opcode ne 82B then message,' Houson wa have a problem'
+
+      ;  Transfer status
+ 
+       readu,ilun,itf
+       parse_transfert, itf
+ 
+      ; read SOH science
+
+       readu,ilun,uval
+       readu,ilun,soh_scidata
+
+      ; Loop for soh_scidata.Nfollowing
+    
+       nsoh_after = soh_scidata.Nfollowing
+       soh_after = replicate(ccam_soh_to_rce, nsoh_after)
+
+       for j=0,nsoh_after-1 do begin                                  
+          
+          readu,ilun,ccam_SOH_to_RCE 
+          soh_after[j] = ccam_SOH_to_RCE 
+
+       endfor
+
+       ; the last valid data is the checksum
+
+       readu,ilun,uval
+       checksum=uval
+
+;
+; AUTOFOCUS block
+; values are for cmd_arguments.focus
+; 0: No_FOCUS : don't move it
+; 1: BASELINE (use CWL to find optimal focus position)
+; 2: TBD (not used)
+; 3: MANUAL position focused based on range argument (distToTarget)
+; 4: AF_OFFSET: applies RMI offset from last autofocus solution (relative focus)
+;
+
+       if cmd_arguments.focus eq 1 then begin
+
+          readu,ilun,uval 
+          readu,ilun,bval 
+          opcode=bval 
+
+          if opcode ne 129B then message,' Houston we have a problem'
+
+          ;  Transfer status
+
+          readu,ilun,itf
+          parse_transfert, itf
+          
+          ;  Byte count to follow
+ 
+          readu,ilun,uval
+          readu,ilun,bval
+          if bval ne 194B then message,' Houson wa have a problem'
+
+          ;  Gain
+
+          readu,ilun,bval
+          afgain = bval
+
+          ; motor step position at start of scan
+
+          readu,ilun,ival
+          P1 = ival 
+       
+          ;  ??
+
+          readu,ilun,uval 
+          dpbytecount = uval 
+       
+          ;  Msec since last rec time??
+
+          readu,ilun,uval 
+          aftime = uval
+ 
+          ;  Autofocu data (639 displacements)
+          
+          afdata = uintarr(639)
+          readu,ilun,afdata 
+          
+          ;  Number of steps done in last displacement
+
+          readu,ilun,ival 
+          mtail1 = ival 
+
+          ;  Number of dispalcement done
+
+          readu,ilun,ival 
+          mtail2 = ival 
+        
+          nb_displacements = fix(mtail2/16)
+          ;Thermal_flag = 2 before last bits
+          ;Limit_switch = 2 last bits
+
+          ; read checksum
+
+          readu,ilun,uval  
+          checksum = uval
+
+       endif
+
+;
+; Laser data when use.laser is on
+;
+
+       if cmd_arguments.use_laser eq 1 then begin
+
+          ; next should be cmd reply frame for laserdata
+
+          readu,ilun,uval
+          dum=bytarr(uval)
+          readu,ilun,dum
+ 
+          ; read size of laserdata
+
+          readu,ilun,uval
+          readu,ilun,uval
+
+          ; rceControl
+
+          readu,ilun,uval
+
+         ; rceByteCount (bytes following includeing checksum)
+ 
+          readu,ilun,bval
+
+         ; data id should be 0xc0 for laser data
+ 
+          if bval ne 192B then message,' Houston we have a problem'
+      
+          readu,ilun,bval
+          readu,ilun,bval
+          readu,ilun,bval
+
+          ; head2,3,4 all 0
+ 
+          readu,ilun,uval 
+
+          ; dpbytecount data bytecount with
+
+          nshots=(uval-4)/(2*ndata) 
+          readu,ilun,uval
+
+          ; Laser data
+
+          laser_data=uintarr(ndata*nshots)
+          readu,ilun,laser_data 
+          laser_data=reform(laser_data,ndata,nshots)
+          
+          ; read checksum
+
+          readu,ilun,uval
+          checksum = uval
+
+       endif
+
+;
+;  Spectral data
+;
+
+       if not eof(ilun) then begin
+
+          ; next should be cmd reply frame for spectra
+
+          readu,ilun,uval
+          dum=bytarr(uval)
+          readu,ilun,dum
+
+          ; read size of spect data
+
+          readu,ilun,uval
+          header=bytarr(8)
+          ruval=ulong(0)
+          rbval=byte(0)
+          rival=uint(0)
+          readu,ilun,ruval
+          rceControl=ruval
+          readu,ilun,ruval
+          rcebytecount=ruval
+          readu,ilun,rbval
+          dataid=rbval
+          readu,ilun,rbval
+          head2=rbval
+          readu,ilun,rbval
+          stype=rbval
+          readu,ilun,rbval
+          readu,ilun,ruval
+          sbytecount=ruval
+          readu,ilun,ruval
+          sstart=ruval
+          readu,ilun,ruval
+          send=ruval
+          readu,ilun,rbval
+          total_shots=rbval
+          readu,ilun,rbval
+          shots_averaged=rbval
+          readu,ilun,rival
+          shots_skipped=rival
+
+          ;  1D average
+          if (stype eq 3) or (stype eq 0) then begin
+
+             nshots=(sbytecount-16)/(2148*4*3)
+             spect_data=ulonarr(2148*3*nshots)
+             readu,ilun,spect_data
+             rdata=reform(spect_data,2148,3,nshots)
+
+             if shots_averaged LE 1 then message,'Format error'
+
+          endif 
+
+          ;  1D Single
+
+          if(stype eq 4) or (stype eq 1) or (stype eq 2) then begin
+             
+             nshots=(sbytecount-16)/(2148*2*3)
+             spect_data=uintarr(2148*3*nshots)
+             readu,ilun,spect_data
+             rdata=reform(spect_data,2148,3,nshots)
+
+             if shots_averaged GT 1 then message,'Format error'
+
+          endif 
+
+          ;  2D Spectra
+          
+          if stype eq 5 then begin
+
+             nshots=total_shots
+             spect_data=uintarr((sbytecount-16)/2)
+             readu,ilun,spect_data
+             rdata=reform(spect_data,2048,(sbytecount-16)/(2*2048))
+
+          endif
+          
+          ; the last valid data is the checksum
+
+          readu,ilun,uval
+          checksum=uval
+         
+       endif
+ 
+;  close the file
+
+       close,ilun
+       free_lun,ilun
+
+;+
+;  PART 2
+;  Generate output structures
+;-
+
+;  Some output structutres
+
+     HK_laser_struct = {name: strarr(ndata), value: fltarr(ndata), $
+                         unit: strarr(ndata), text: strarr(ndata) }
+
+     HK_mu_struct = {when: strarr(num_mast), $
+                     name: strarr(num_mast), value: fltarr(num_mast), $
+                     unit: strarr(num_mast), text : strarr(num_mast) }
+
+     HK_bu_struct = {when: strarr(num_dpu), $
+                     name: strarr(num_dpu), value: fltarr(num_dpu), $
+                     unit: strarr(num_dpu), text : strarr(num_dpu) }
+     
+     HK_status_struct = {when: strarr(num_status), $
+                         name: strarr(num_status),value:strarr(num_status), $
+                         unit: strarr(num_status), text : strarr(num_status)}
+     
+;  Rover PRTS
+;  Two cases depending on the format
+
+      if early_fmt then begin
+
+         HK_prt = { Commment: 'All values are in deg C', $
+                    MU_Obox_tel: inst_temps.(0), $
+                    MU_Laser_if: inst_temps.(2), $
+                    MU_EBOX_heatsink: inst_temps.(4), $
+                    MU_FPGA: inst_temps.(6), $
+                    BU_EBOX: inst_temps.(8), $
+                    BU_Spect_top: inst_temps.(10), $
+                    BU_Spect_bottom: inst_temps.(12), $
+                    BU_Demux: inst_temps.(14)}
+
+      endif else begin
+
+         HK_prt = { Commment: 'All values are in deg C', $
+                    MU_Obox_tel: inst_temps.(0), $
+                    MU_Laser_if: inst_temps.(2), $
+                    MU_EBOX_heatsink: inst_temps.(4), $
+                    MU_FPGA: inst_temps.(6), $
+                    BU_CCD_VNIR_B: inst_temps.(8), $
+                    BU_Spect_B: inst_temps.(10), $
+                    BU_CCD_UV_A: inst_temps.(12), $
+                    BU_Spect_A: inst_temps.(14), $
+                    BU_Demux_A: inst_temps.(16), $
+                    BU_Demux_B: inst_temps.(18)}
+
+      endelse
+      
+;  Save commands argurments and parameters
+       
+      Command = {arguments: cmd_arguments, $
+                 parameters: cmd_parameters }
+     
+;  SOH before
+
+      HK_MU_before = replicate(hk_mu_struct, nsoh_before)
+      HK_BU_before = replicate(hk_bu_struct, nsoh_before)
+      HK_status_before = replicate(hk_status_struct, nsoh_before)
+
+      for j = 0, nsoh_before-1 do begin 
+
+          ;  MU
+
+          HK_MU_before[j].name = strcompress(mast_struct.name,$
+                                             /remove_all)
+          HK_MU_before[j].unit = mast_struct.units
+          HK_MU_before[j].when = 'Before'
+
+          for i=0,num_mast-1 do $
+             HK_MU_before[j].value[i] = ccam_soh_to_rce.mu_soh.(i)*$
+             mast_struct[i].mult + mast_struct[i].offset
+    
+          format = ['(i9)',replicate('(f9.2)',12),'(f10.4)',$
+                    replicate('(f9.2)',24),'(i9)']
+
+          for i=0,num_mast-1 do $
+             HK_MU_before[j].text[i] = hk_mu_before[j].name[i]+' = '+$
+             mystring(hk_mu_before[j].value[i],format[i])+' '+$
+             hk_mu_before[j].unit[i]
+          
+          ;  BU
+          
+          HK_BU_before[j].name = strcompress(dpu_struct.name,$
+                                             /remove_all)
+          HK_BU_before[j].unit = dpu_struct.units
+          HK_BU_before[j].when = 'Before'
+          
+          for i=0,num_dpu-1 do $
+             HK_BU_before[j].value[i] = ccam_SOH_to_RCE.DPU_SOH.(i+1)*$
+             dpu_struct[i].mult+dpu_struct[i].offset
+          
+          format = [replicate('(f9.2)',8),'(i9)']
+          
+          for i=0,num_dpu-1 do $
+             HK_BU_before[j].text[i] = hk_bu_before[j].name[i]+' = '+$
+             mystring(hk_bu_before[j].value[i],format[i])+' '+$
+             hk_bu_before[j].unit[i]
+          
+          ;  STATUS
+
+          HK_Status_before[j].name = strcompress(switch_struct.name,$
+                                                 /remove_all)
+          HK_Status_before[j].unit = ' '
+          HK_Status_before[j].when = 'Before'
+          
+          for i=0,num_status-1 do $
+             HK_status_before[j].value[i] = $
+             switch_struct[i].status[ishft($
+             ccam_soh_to_rce.mu_soh.mu_status,-i)AND 1] 
+
+          for i=0,num_status-1 do $
+             HK_status_before[j].text[i] = $
+             hk_status_before[j].name[i]+' = '+$
+                    hk_status_before[j].value[i]+' '+$
+                    hk_status_before[j].unit[i]
+       
+       endfor
+
+;  SOH after
+
+      HK_MU_after = replicate(hk_mu_struct, nsoh_after)
+      HK_BU_after = replicate(hk_bu_struct, nsoh_after)
+      HK_status_after = replicate(hk_status_struct, nsoh_after)
+      
+      for j=0,nsoh_after-1 do begin
+
+          ;  MU
+          
+         HK_MU_after[j].name = strcompress(mast_struct.name,/remove_all)
+         HK_MU_after[j].unit = mast_struct.units
+         HK_MU_after[j].when = 'After'
+         
+         for i=0,num_mast-1 do $
+            HK_MU_after[j].value[i] = ccam_soh_to_rce.mu_soh.(i)*$
+            mast_struct[i].mult + mast_struct[i].offset
+      
+         format = ['(i9)',replicate('(f9.2)',12),'(f10.4)',$
+                   replicate('(f9.2)',24),'(i9)']
+         
+         for i=0,num_mast-1 do $
+            HK_MU_after[j].text[i] = hk_mu_after[j].name[i]+' = '+$
+            mystring(hk_mu_after[j].value[i], format[i])+' '+$
+            hk_mu_after[j].unit[i]
+      
+          ;  BU
+
+         HK_BU_after[j].name = strcompress(dpu_struct.name,/remove_all)
+         HK_BU_after[j].unit = dpu_struct.units
+         HK_BU_after[j].when = 'After'
+      
+         for i=0,num_dpu-1 do $
+            HK_BU_after[j].value[i] = ccam_SOH_to_RCE.DPU_SOH.(i+1)*$
+            dpu_struct[i].mult+dpu_struct[i].offset
+          
+         format = [replicate('(f9.2)',8),'(i9)']
+         
+         for i=0,num_dpu-1 do $
+            HK_BU_after[j].text[i] = hk_bu_after[j].name[i]+' = '+$
+            mystring(hk_bu_after[j].value[i], format[i])+' '+$
+            hk_bu_after[j].unit[i]
+         
+          ;  STATUS
+
+         HK_Status_after[j].name = strcompress(switch_struct.name,/remove_all)
+         HK_Status_after[j].unit = ' '
+         HK_Status_after[j].when = 'After'
+         
+         for i=0,num_status-1 do $
+            HK_status_after[j].value[i] = $
+            switch_struct[i].status[ishft($
+            ccam_soh_to_rce.mu_soh.mu_status,-i)AND 1] 
+         
+         for i=0,num_status-1 do $
+            HK_status_after[j].text[i] = hk_status_after[j].name[i]+' = '+$
+            hk_status_after[j].value[i]+' '+$
+            hk_status_after[j].unit[i]
+         
+      endfor       
+
+;  Concatenate SOH before and after
+
+      nsoh = nsoh_before + nsoh_after
+
+      HK_MU = replicate( HK_MU_Struct, nsoh)
+      HK_MU(0:nsoh_before-1) = HK_MU_before
+      HK_MU(nsoh_before:nsoh_before+nsoh_after-1) = HK_MU_after
+       
+      HK_BU = replicate( HK_BU_Struct, nsoh)
+      HK_BU(0:nsoh_before-1) = HK_BU_before
+      HK_BU(nsoh_before:nsoh_before+nsoh_after-1) = HK_BU_after
+
+      HK_Status = replicate( HK_Status_Struct, nsoh)
+      HK_Status(0:nsoh_before-1) = HK_Status_before
+      HK_Status(nsoh_before:nsoh_before+nsoh_after-1) = HK_Status_after
+       
+      HK_inst = {MU: HK_MU, BU: HK_BU, STATUS: HK_STATUS, $
+                 nbefore: nsoh_before, nafter: nsoh_after}
+
+;
+;  HK_LIBS
+;
+
+      ;  Laser data if laser was operating
+
+      if cmd_arguments.use_laser eq 1 then begin
+
+         HK_laser = replicate(hk_laser_struct, nshots)
+      
+         for j=0,nshots-1 do begin                                  
+         
+            HK_laser[j].name = strcompress(laser_struct.name,/remove_all)
+            HK_laser[j].value = (laser_data[*,j]*laser_struct.mult)  $
+                                +laser_struct.offset
+            HK_laser[j].unit = laser_struct.units
+            
+            HK_laser[j].text = HK_laser[j].name +' '+$
+                               mystring(HK_laser[j].value)+' '+$
+                               HK_laser[j].unit
+            
+         endfor
+
+      endif else HK_laser = -1
+          
+      ;  Main part includes the laser data
+
+       HK_LIBS = {nshots: 0, nspectra: 0, laser_active: ' ', $
+                  laser_current: ' ', type: ' ', spectro: ' ', $
+                  spectro_rows: ' ', exposure_msec: 0, $
+                  laser_data: HK_laser}
+       
+        ;  N shots
+
+       nshots = cmd_arguments.nshots
+       HK_libs.nshots = nshots
+
+       ;  N spectra
+       
+       nspectra = (nshots - cmd_arguments.nshotsignor)$
+                  /(cmd_arguments.nshotsavg + 1)  
+       
+       HK_libs.nspectra = nspectra
+
+       ;  Laser on/off
+
+       if cmd_arguments.use_laser eq 1 then dum='ON' else dum='OFF'
+       HK_libs.laser_active = dum
+ 
+       ;  Laser current
+
+       xlaser = mystring(cmd_parameters.stack1level,'(i3)')+'A/' + $
+                mystring(cmd_parameters.stack2level,'(i3)')+'A/' + $
+                mystring(cmd_parameters.stack3level,'(i3)')+'A' 
+
+       if HK_libs.laser_active eq 'Off' then xlaser= 'N/A'
+       HK_libs.laser_current = xlaser
+
+       ; Data type: 
+       ; Selecting 0 or 3 gives summed spectra,
+       ; whereas 1,2 or 4 gives single
+       ; spectra. So there is an effect when
+       ; selecting 0-4, as opposed to what I said below. However, 
+       ; The instrument has no knowledge of
+       ; any difference between dark, passive and single 1D spectra. 
+       ; It does know about 1D vs 2D and 
+       ; about summed vs single, but nothing else.
+
+       type = cmd_parameters.spectImageType
+       
+       dum = ['1D_average','1D_single','1D_single',$
+              '1D_average','1D_single','2D']
+
+       xtype = dum[type]
+
+       HK_libs.type = xtype
+       
+       ;  Spectro / Range
+       ;  Attention EN 2D toujours 256 rows
+       ;  C'est la valeur initiale qui compte
+
+       dum = fix(cmd_parameters.SpectSelect)
+
+       case dum of
+          3: begin
+             xspectro = 'UV'
+             xrange = mystring(cmd_parameters.startrowUV,'(i4)')+ $
+                      '/'+mystring(cmd_parameters.stoprowUV,'(i4)')
+          end
+          5: begin
+             xspectro = 'VIS'
+             xrange = mystring(cmd_parameters.startrowVIS,'(i4)')+ $
+                      '/'+mystring(cmd_parameters.stoprowVIS,'(i4)')
+          end
+          9: begin
+             xspectro = 'VNIR'
+             xrange = mystring(cmd_parameters.startrowVNIR,'(i4)')+ $
+                      '/'+mystring(cmd_parameters.stoprowVNIR,'(i4)')
+             end
+          14: begin
+             xspectro = 'UV-VIS-VNIR'
+             xrange = mystring(cmd_parameters.startrowUV,'(i4)')+ $
+                      '/'+mystring(cmd_parameters.stoprowUV,'(i4)')+ $
+                      '-'+mystring(cmd_parameters.startrowVIS,'(i4)')+ $
+                      '/'+mystring(cmd_parameters.stoprowVIS,'(i4)')+ $
+                      '-'+mystring(cmd_parameters.startrowVNIR,'(i4)')+ $
+                      '/'+mystring(cmd_parameters.stoprowVNIR,'(i4)')
+          end
+ 
+          else: begin
+
+             message,' Houston we have a problem'
+             xspectro = '??'
+             xrange = ' ?? - ??'
+             help, cmd_parameters, /st
+
+          end
+
+       endcase
+
+       HK_libs.spectro = xspectro
+       HK_libs.spectro_rows = xrange
+
+       ;  Exposure time
+
+       exposure = (double(cmd_parameters.ict_divider) * $
+                   double(cmd_parameters.ipbc_divider))/33e6
+
+       HK_libs.exposure_msec = exposure*1000 
+
+;
+;  HK for position
+;
+
+     focus_value = cmd_arguments.focus
+     
+     case cmd_arguments.focus of 
+
+        0: focus_text = 'No focus'
+        1: focus_text = 'Focus with CWL'
+        3: focus_text = 'Manual focus'
+        4: focus_text = 'Relative focus'
+
+     endcase
+
+     ;  Autofocus data for focus_value = 1
+
+     if cmd_arguments.focus eq 1 then begin
+        
+        parse_afdata, afdata, p1, x, y, xx, yy, focus
+        
+        focus_afdata = {xvalues: x, yvalues: y, $
+                        xsym: xx, ysym: yy, focus : focus}
+
+     endif else focus_afdata = -1
+
+     ; Current motor position
+
+     l = n_elements(hk_inst.bu)
+     pmotor = hk_inst.bu[l-1].value[8]
+
+     dum = ccam_motor(pmotor,distance=1)       
+     
+     dist_meter = dum/1000.
+     dist_text = mystring(dist_meter,'(f8.2)')+' m'
+
+     ;  Distance guess
+
+     dist_guess = cmd_arguments.range/1000.
+    
+     ;  Save distance structure
+
+     HK_dist = {focus_value: focus_value, focus_text: focus_text, $
+                focus_afdata: focus_afdata, $
+                dist_pmotor: pmotor, dist_meter : dist_meter, $
+                dist_text: dist_text, dist_guess: dist_guess}
+
+;
+;  Time data
+;
+
+     ;thetime = parse_sclk(sclk)
+
+;
+;  A few data on the file itself
+;
+
+     thefile = {file_name: ' ', file_size: ' '}
+
+     dum = strpos(filename,'\',/reverse_search)
+     thefile.file_name = strmid(filename,dum+1,100)
+       
+     dum = file_info(filename)
+     thesize = dum.size/1000.
+     thefile.file_size = mystring(thesize,'(i9)')+' KB'
+
+;
+;  reshape the output
+;
+
+     if stype ne 5 then begin
+        
+        ; Whole frame
+
+        yvnir = transpose(reform(rdata[*,0,*]))
+        yvis = transpose(reform(rdata[*,1,*]))
+        yuv = transpose(reform(rdata[*,2,*]))
+
+        thespectra = uintarr(3,nspectra,2148)
+        thespectra[0,*,*] = yuv
+        thespectra[1,*,*] = yvis
+        thespectra[2,*,*] = yvnir
+
+        ; Unmask pixels
+
+        yvnir = transpose(reform(rdata[50:50+2047,0,*]))
+        yvis = transpose(reform(rdata[50:50+2047,1,*]))
+        yuv = transpose(reform(rdata[50:50+2047,2,*]))
+
+        spectra = uintarr(3,nspectra,2048)
+        spectra[0,*,*] = yuv
+        spectra[1,*,*] = yvis
+        spectra[2,*,*] = yvnir
+
+     endif else begin
+
+        thespectra = -1
+        spectra = transpose(rdata)
+
+     endelse   
+
+;+
+;  PART 3 
+;  Talk to me
+;-
+
+     if keyword_set(verbose) then begin
+
+        print,' '
+        print,' Filename     : ' + thefile.file_name
+        ;print,' Date         : ' + thetime.date  
+        print,' Distance     : ' + HK_dist.dist_text
+        print,' Motor pos.   : ' + mystring(HK_dist.dist_pmotor,'(i6)')
+        print,' Nb HK before : ' + mystring(HK_inst.nbefore,'(i2)')
+        print,' Nb HK after  : ' + mystring(HK_inst.nafter,'(i2)')
+        print,' Focus        : ' + HK_dist.focus_text
+        print,' Type         : ' + HK_libs.type
+        print,' Spectro      : ' + HK_libs.spectro
+        print,' Spectro rows : ' + HK_libs.spectro_rows
+        print,' Exposure     : ' + mystring(HK_libs.exposure_msec,'(i8)')+' msec'
+        print,' Laser        : ' + HK_libs.laser_active
+        print,' Laser cur.   : ' + HK_libs.laser_current
+        print,' nb shots     : ' + mystring(HK_libs.nshots,'(i3)')
+        print,' nb spectra   : ' + mystring(HK_libs.nspectra,'(i3)')
+        print,' PRT Laser    : ' + mystring(HK_prt.MU_laser_IF,'(f7.2)')
+      
+        if early_fmt then $
+           print,' PRT Spect    : ' + mystring(HK_prt.BU_Spect_top,'(f7.2)') $
+        else $ 
+           print,' PRT Spect    : ' + mystring(HK_prt.BU_Spect_A,'(f7.2)')
+        
+        print,' '
+
+        ;  Visualize  
+        window, xsize=512, ysize=512
+
+        if stype ne 5 then begin
+
+           !p.multi = [0,1,3]
+           plot,total(yvnir,1),xrange=[0,2047],/xstyle,title='VNIR'
+           plot,total(yvis,1),xrange=[0,2047],/xstyle,title='VIS'
+           plot,total(yuv,1),xrange=[0,2047],/xstyle,title='UV'
+           !p.multi = 0
+
+        endif else begin
+        
+           loadct,5,/silent
+           dum = spectra(*,0:2047:4)
+           tvscl,transpose(dum)
+           loadct,0,/silent
+
+        endelse
+
+     endif; if verbose
+    
+;  End
+
+return, spectra
+end
